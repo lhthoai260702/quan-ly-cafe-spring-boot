@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Đăng nhập - Café Harmony</title>
+
+    <link rel="icon" type="image/png" th:href="@{/images/login.png}">
+
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script th:src="@{/js/tailwind-config.js}"></script>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+
+<body class="bg-surface text-on-surface font-body-lg min-h-screen flex items-center justify-center relative overflow-hidden">
+<div class="absolute inset-0 z-0 opacity-10">
+    <img alt="Background pattern" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBrVMBbMyBoEATqrDP9Dbani1LDrQH-IY8ELXjxnjHhkBHiEbOdyJm4lIcD6voKbqo7KQIe2erN_ywMqOUpleGctIchjWxhT6riaG5sUTE4osrVEGlYFAL3zRYsorsvGy6hQtCTaFxpUVGKXwzuNCE40NH0e2RKW3CvrIVEb_kfTSvSkpYxTRo7Q8DzVOd0AyFuSz5dAbe_KLKuPrL0TaBtSw5PhlUcLxb6_tEzy2NAEyhfkoaxm49yi0VTFSkGms3ku0rC7j4BF4"/>
+</div>
+
+<main class="w-full max-w-md mx-margin z-10">
+    <div class="bg-surface-container-lowest rounded-xl shadow-[0_4px_24px_rgba(85,55,34,0.08)] p-lg border border-surface-container-highest">
+
+        <div class="text-center mb-lg">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-primary-container text-on-primary-container rounded-full mb-md">
+                <span class="material-symbols-outlined" style="font-size: 32px; font-variation-settings: 'FILL' 1;">local_cafe</span>
+            </div>
+            <h1 class="font-headline-lg text-headline-lg text-primary mb-xs">Bean & Brew</h1>
+            <p class="font-body-md text-body-md text-on-surface-variant">Hệ thống quản lý quán cà phê</p>
+        </div>
+
+        <div th:if="${param.error}" class="bg-error-container text-on-error-container px-4 py-3 rounded-lg mb-4 text-center font-body-md">
+            Sai tên đăng nhập hoặc mật khẩu! Vui lòng thử lại.
+        </div>
+
+        <div th:if="${param.logout}" class="bg-secondary-container text-on-secondary-container px-4 py-3 rounded-lg mb-4 text-center font-body-md">
+            Bạn đã đăng xuất thành công khỏi hệ thống.
+        </div>
+
+        <form th:action="@{/login}" method="post" class="space-y-md">
+
+            <div>
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-xs uppercase tracking-wider" for="username">Tên đăng nhập</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-sm flex items-center pointer-events-none text-on-surface-variant">
+                        <span class="material-symbols-outlined" style="font-size: 20px;">person</span>
+                    </div>
+                    <input class="block w-full pl-10 pr-sm py-3 bg-surface-container-low border-transparent rounded-lg focus:border-primary focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary font-body-md text-body-md text-on-surface transition-colors duration-200" id="username" name="username" placeholder="Nhập tên đăng nhập của bạn" type="text" required/>
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-xs uppercase tracking-wider" for="password">Mật khẩu</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-sm flex items-center pointer-events-none text-on-surface-variant">
+                        <span class="material-symbols-outlined" style="font-size: 20px;">lock</span>
+                    </div>
+                    <input class="block w-full pl-10 pr-10 py-3 bg-surface-container-low border-transparent rounded-lg focus:border-primary focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary font-body-md text-body-md text-on-surface transition-colors duration-200" id="password" name="password" placeholder="••••••••" type="password" required/>
+                    <button class="absolute inset-y-0 right-0 pr-sm flex items-center text-on-surface-variant hover:text-primary transition-colors" type="button">
+                        <span class="material-symbols-outlined" style="font-size: 20px;">visibility_off</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-sm">
+                <div class="flex items-center">
+                    <input class="h-4 w-4 text-primary focus:ring-primary border-outline-variant rounded bg-surface-container-low" id="remember-me" name="remember-me" type="checkbox"/>
+                    <label class="ml-2 block font-body-md text-body-md text-on-surface-variant" for="remember-me">
+                        Ghi nhớ đăng nhập
+                    </label>
+                </div>
+                <div class="text-sm">
+                    <a class="font-body-md text-body-md text-primary hover:text-primary-fixed-dim transition-colors" href="#">Quên mật khẩu?</a>
+                </div>
+            </div>
+
+            <div class="pt-sm">
+                <button class="w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-lg shadow-sm text-on-primary bg-primary hover:bg-surface-tint focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary font-label-md text-label-md uppercase tracking-wider transition-all duration-200 active:scale-[0.98]" type="submit">
+                    Đăng nhập
+                    <span class="material-symbols-outlined" style="font-size: 18px;">arrow_forward</span>
+                </button>
+            </div>
+        </form>
+
+        <div class="mt-lg text-center">
+            <p class="font-body-md text-body-md text-on-surface-variant text-opacity-70">© 2024 Café Harmony Management</p>
+        </div>
+    </div>
+</main>
+</body>
+</html>

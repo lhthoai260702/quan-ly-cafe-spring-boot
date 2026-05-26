@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<nav th:fragment="sidebar(activeTab)" class="fixed left-0 top-0 h-full w-[280px] z-40 bg-white shadow-sm flex flex-col py-6 border-r border-[#e2e3e1]">
+
+    <div class="px-6 mb-8 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-[#f4f4f2] overflow-hidden shrink-0 flex items-center justify-center border border-[#e2e3e1]">
+            <img th:src="@{/images/coffee-logo.png}" alt="Coffee Logo" class="w-full h-full object-cover" />
+        </div>
+        <div>
+            <h1 class="text-xl font-bold text-[#553722] font-sans antialiased">Café Harmony</h1>
+            <p class="text-[12px] font-semibold text-[#50453e] opacity-70 tracking-wide font-sans">Quản lý hệ thống</p>
+        </div>
+    </div>
+
+    <div class="flex-1 flex flex-col gap-1 px-2">
+        <a th:href="@{/dashboard}"
+           th:classappend="${activeTab == 'dashboard'} ? 'bg-[#ffdcc6] text-[#553722] font-bold border-l-4 border-[#553722]' : 'text-[#50453e] hover:bg-[#e8e8e6] opacity-85 hover:opacity-100'"
+           class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-sans">
+            <i data-lucide="home" class="w-5 h-5"></i>
+            <span class="text-sm font-medium">Trang chủ</span>
+        </a>
+
+        <a th:href="@{/profile}"
+           th:classappend="${activeTab == 'profile'} ? 'bg-[#ffdcc6] text-[#553722] font-bold border-l-4 border-[#553722]' : 'text-[#50453e] hover:bg-[#e8e8e6] opacity-85 hover:opacity-100'"
+           class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-sans">
+            <i data-lucide="user" class="w-5 h-5"></i>
+            <span class="text-sm font-medium">Trang cá nhân</span>
+        </a>
+
+        <a th:href="@{/employees}"
+           th:classappend="${activeTab == 'employees'} ? 'bg-[#ffdcc6] text-[#553722] font-bold border-l-4 border-[#553722]' : 'text-[#50453e] hover:bg-[#e8e8e6] opacity-85 hover:opacity-100'"
+           class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-sans">
+            <i data-lucide="users" class="w-5 h-5"></i>
+            <span class="text-sm font-medium">Quản lý nhân viên</span>
+        </a>
+
+        <a th:href="@{/tables}"
+           th:classappend="${activeTab == 'tables'} ? 'bg-[#ffdcc6] text-[#553722] font-bold border-l-4 border-[#553722]' : 'text-[#50453e] hover:bg-[#e8e8e6] opacity-85 hover:opacity-100'"
+           class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-sans">
+            <i data-lucide="layout-grid" class="w-5 h-5"></i>
+            <span class="text-sm font-medium">Sơ đồ bàn</span>
+        </a>
+
+        <a th:href="@{/menu}"
+           th:classappend="${activeTab == 'menu'} ? 'bg-[#ffdcc6] text-[#553722] font-bold border-l-4 border-[#553722]' : 'text-[#50453e] hover:bg-[#e8e8e6] opacity-85 hover:opacity-100'"
+           class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-sans">
+            <i data-lucide="utensils-crossed" class="w-5 h-5"></i>
+            <span class="text-sm font-medium">Quản lý thực đơn</span>
+        </a>
+
+        <a th:href="@{/analytics}"
+           th:classappend="${activeTab == 'analytics'} ? 'bg-[#ffdcc6] text-[#553722] font-bold border-l-4 border-[#553722]' : 'text-[#50453e] hover:bg-[#e8e8e6] opacity-85 hover:opacity-100'"
+           class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-sans">
+            <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+            <span class="text-sm font-medium">Thống kê & Báo cáo</span>
+        </a>
+    </div>
+
+    <div class="flex flex-col gap-1 mt-auto px-2 pt-4 border-t border-[#e2e3e1]/50">
+        <a th:href="@{/settings}"
+           th:classappend="${activeTab == 'settings'} ? 'bg-[#ffdcc6] text-[#553722] font-bold border-l-4 border-[#553722]' : 'text-[#50453e] hover:bg-[#e8e8e6] opacity-85 hover:opacity-100'"
+           class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-sans">
+            <i data-lucide="settings" class="w-5 h-5"></i>
+            <span class="text-sm font-medium">Cài đặt</span>
+        </a>
+
+        <form th:action="@{/logout}" method="post" class="w-full mt-2">
+            <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-all duration-200 text-left font-sans">
+                <i data-lucide="log-out" class="w-5 h-5"></i>
+                <span class="text-sm font-medium">Đăng xuất</span>
+            </button>
+        </form>
+    </div>
+</nav>
+</body>
+</html>

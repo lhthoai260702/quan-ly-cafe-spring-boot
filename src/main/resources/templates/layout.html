@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="layout(title, activeTab, content)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">Café Harmony</title>
+
+    <link rel="icon" type="image/png" th:href="@{'/images/' + ${activeTab} + '.png'}">
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-[#f9f9f7] font-sans text-[#1a1c1b] h-screen overflow-hidden flex">
+
+<div th:replace="~{fragments/sidebar :: sidebar(${activeTab})}"></div>
+
+<main class="flex-1 flex flex-col ml-[280px] h-screen overflow-hidden">
+
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <div class="flex-1 overflow-y-auto relative w-full" th:insert="${content}">
+    </div>
+
+</main>
+
+<script>
+    lucide.createIcons();
+</script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout('Trang Cá Nhân', 'user', ~{::main})}">
+<head>
+    <title>Trang Cá Nhân</title>
+</head>
+<body>
+<main class="flex-1 p-6 md:p-10 overflow-y-auto bg-[#f9f9f7]">
+    <div class="max-w-4xl mx-auto mb-8">
+        <h2 class="text-2xl font-bold text-[#1a1c1b]">Thông tin tài khoản</h2>
+        <p class="text-sm text-[#50453e]/70 mt-1">Quản lý thông tin cá nhân và cài đặt bảo mật của bạn.</p>
+    </div>
+
+    <div class="max-w-4xl mx-auto bg-white rounded-3xl border border-[#e2e3e1]/50 shadow-sm overflow-hidden">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-0">
+
+            <div class="md:col-span-4 bg-[#f4f4f2]/30 p-8 flex flex-col items-center justify-center border-r border-[#e2e3e1]/50">
+                <div class="w-32 h-32 rounded-full ring-4 ring-white shadow-lg overflow-hidden mb-6">
+                    <img th:src="@{'/images/' + ${currentUser.anh}}" alt="Avatar" class="w-full h-full object-cover" onerror="this.src='/images/admin.png'" />
+                </div>
+                <h3 class="text-lg font-bold text-[#1a1c1b]" th:text="${currentUser.hoTen}">Trần Văn Hoàng</h3>
+                <p class="text-xs font-medium text-[#553722] uppercase tracking-wider bg-[#ffdcc6]/50 px-3 py-1 rounded-full mt-2" th:text="${currentUser.tenChucVu}">Quản lý</p>
+                <button class="mt-6 text-[11px] font-bold text-[#50453e] hover:text-[#553722] transition-colors uppercase border-b border-[#e2e3e1]">Thay đổi ảnh</button>
+            </div>
+
+            <div class="md:col-span-8 p-8">
+
+                <form id="logoutForm" th:action="@{/logout}" method="post"></form>
+
+                <form id="updateForm" th:action="@{/profile/update}" method="post" class="space-y-6">
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-bold text-[#50453e] uppercase tracking-wider">Họ và tên</label>
+                            <input type="text" name="hoTen" th:value="${currentUser.hoTen}" class="w-full text-sm px-4 py-3 bg-[#f4f4f2] rounded-xl outline-none focus:ring-2 focus:ring-[#553722]/20 transition-all" />
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-bold text-[#50453e] uppercase tracking-wider">Số điện thoại</label>
+                            <input type="text" name="soDienThoai" th:value="${currentUser.soDienThoai}" class="w-full text-sm px-4 py-3 bg-[#f4f4f2] rounded-xl outline-none focus:ring-2 focus:ring-[#553722]/20 transition-all" />
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-bold text-[#50453e] uppercase tracking-wider">Lương (VNĐ)</label>
+                            <input type="text" th:value="${#numbers.formatDecimal(currentUser.luong, 0, 'COMMA', 0, 'POINT')}" disabled class="w-full text-sm px-4 py-3 bg-[#f4f4f2] rounded-xl text-gray-400 cursor-not-allowed" />
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-bold text-[#50453e] uppercase tracking-wider">Chức vụ</label>
+                            <input type="text" th:value="${currentUser.tenChucVu}" disabled class="w-full text-sm px-4 py-3 bg-[#f4f4f2] rounded-xl text-gray-400 cursor-not-allowed" />
+                        </div>
+                    </div>
+
+                    <div class="pt-6 border-t border-[#f4f4f2]">
+                        <h4 class="text-xs font-bold text-[#553722] uppercase tracking-widest mb-4">Thông tin bảo mật</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div class="space-y-1.5">
+                                <label class="text-[10px] font-bold text-[#50453e] uppercase tracking-wider">Tên đăng nhập</label>
+                                <input type="text" th:value="${currentUser.tenDangNhap}" disabled class="w-full text-sm px-4 py-3 bg-[#f4f4f2] rounded-xl text-gray-400 cursor-not-allowed" />
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-[10px] font-bold text-[#50453e] uppercase tracking-wider">Mật khẩu mới</label>
+                                <input type="password" name="matKhauMoi" placeholder="********" class="w-full text-sm px-4 py-3 bg-[#f4f4f2] rounded-xl outline-none focus:ring-2 focus:ring-[#553722]/20 transition-all" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4 pt-4">
+                        <button type="submit" form="updateForm" class="flex-1 py-3.5 bg-[#553722] hover:bg-[#6f4e37] text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-md">
+                            Lưu thay đổi
+                        </button>
+                        <button type="submit" form="logoutForm" class="px-6 py-3.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl text-xs font-bold uppercase tracking-wider transition-all">
+                            Đăng xuất
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>
