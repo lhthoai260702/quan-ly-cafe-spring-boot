@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout('Sơ Đồ Bàn - Café Harmony', 'tables', ~{::#tables-content})}">
+<body>
+
+<div id="tables-content" class="flex-1 flex flex-col h-full w-full relative">
+
+    <header class="bg-white border-b border-gray-200 px-8 py-4 flex justify-between items-center sticky top-0 z-10">
+        <div>
+            <h2 class="text-xl font-bold text-[#553722]">Sơ Đồ Bàn Phòng</h2>
+            <p class="text-xs text-gray-400 mt-0.5">Chọn một bàn cụ thể dưới đây để thực hiện các thao tác quản lý đơn hàng</p>
+        </div>
+    </header>
+
+    <main class="p-8 flex-1 space-y-6 overflow-y-auto pb-28">
+        <form action="/tables" method="get" class="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
+
+            <div class="flex flex-wrap gap-2">
+
+                <button type="submit" name="status" value="Tất cả" class="px-4 py-2 text-xs font-semibold rounded-xl transition-all shadow-sm"
+                        th:classappend="${currentStatus == 'Tất cả' ? 'bg-[#553722] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">
+                    Tất cả (<span th:text="${tongSoBan}">0</span>)
+                </button>
+                <button type="submit" name="status" value="Trống" class="px-4 py-2 text-xs font-semibold rounded-xl transition-all shadow-sm"
+                        th:classappend="${currentStatus == 'Trống' ? 'bg-[#553722] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">
+                    Trống (<span th:text="${soBanTrong}">0</span>)
+                </button>
+                <button type="submit" name="status" value="Có khách" class="px-4 py-2 text-xs font-semibold rounded-xl transition-all shadow-sm"
+                        th:classappend="${currentStatus == 'Có khách' ? 'bg-amber-500 text-white' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'}">
+                    Có khách (<span th:text="${soBanCoKhach}">0</span>)
+                </button>
+                <button type="submit" name="status" value="Đã đặt" class="px-4 py-2 text-xs font-semibold rounded-xl transition-all shadow-sm"
+                        th:classappend="${currentStatus == 'Đã đặt' ? 'bg-blue-500 text-white' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}">
+                    Đã đặt (<span th:text="${soBanDaDat}">0</span>)
+                </button>
+            </div>
+
+            <div class="relative flex w-full md:w-auto gap-2">
+                <div class="relative w-full md:w-64">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                    <input type="text" name="search" th:value="${currentSearch}" placeholder="Nhập tên bàn cần tìm..."
+                           class="w-full pl-9 pr-4 py-2 text-xs border border-gray-200 rounded-xl focus:outline-none focus:border-[#553722] text-gray-700">
+                </div>
+                <button type="submit" class="px-4 py-2 bg-[#553722] text-white rounded-xl text-xs font-semibold hover:bg-[#6f4e37] transition-all">Tìm</button>
+            </div>
+        </form>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4" id="tableGrid">
+            <div th:each="ban : ${danhSachBan}"
+                 th:id="'table-card-' + ${ban.maBan}"
+                 th:data-id="${ban.maBan}"
+                 th:data-ten="${ban.tenBan}"
+                 th:data-tinhtrang="${ban.tinhTrang}"
+                 onclick="handleTableClick(this)"
+                 class="table-card p-4 rounded-2xl border transition-all cursor-pointer relative shadow-sm hover:shadow-md flex flex-col justify-between h-32"
+                 th:classappend="${ban.tinhTrang == 'Đang sử dụng' ? 'bg-amber-50/60 border-amber-200' :
+                         (ban.tinhTrang == 'Đã đặt trước' ? 'bg-blue-50/60 border-blue-200' :
+                         'bg-white border-gray-200')}">
+
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="font-bold text-sm text-gray-800" th:text="${ban.tenBan}">Bàn X</h3>
+                    </div>
+
+                    <span class="text-[9px] px-2 py-0.5 font-bold uppercase tracking-wider rounded-md text-white"
+                          th:text="${ban.tinhTrang}"
+                          th:classappend="${ban.tinhTrang == 'Đang sử dụng' ? 'bg-amber-500' :
+                                  (ban.tinhTrang == 'Đã đặt trước' ? 'bg-blue-500' :
+                                  'bg-gray-400')}">
+                        Trống
+                    </span>
+                </div>
+
+                <div class="pt-2 border-t border-dashed border-gray-100 flex items-center justify-end">
+                    <div th:if="${ban.tinhTrang == 'Đang sử dụng'}">
+                        <span class="text-xs font-bold text-amber-600">Đang phục vụ</span>
+                    </div>
+                    <div th:if="${ban.tinhTrang == 'Đã đặt trước'}">
+                        <span class="text-xs font-bold text-blue-600">Giữ chỗ</span>
+                    </div>
+                    <div th:if="${ban.tinhTrang == 'Trống'}">
+                        <span class="text-xs font-medium text-emerald-600">Sẵn sàng</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="bottomActionBar" class="hidden absolute bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 shadow-[0_-10px_25px_-5px_rgba(0,0,0,0.1)] p-4 z-20 transition-all duration-300">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+
+            <div class="flex items-center gap-4">
+                <div class="p-3 bg-[#553722]/10 rounded-xl text-[#553722]" id="barIconBox">
+                    <i class="fa-solid fa-mug-saucer text-xl"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span id="selectedTableName" class="font-extrabold text-lg text-gray-800">Tên Bàn</span>
+                        <span id="selectedTableBadge" class="text-[10px] px-2 py-0.5 font-bold uppercase tracking-wider rounded-md text-white">Trạng thái</span>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-0.5">Mã số bàn hệ thống: #<span id="selectedTableId">0</span></p>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
+                <button onclick="executeAction('xem')" class="flex items-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs rounded-xl transition-all shadow-sm">
+                    <i class="fa-solid fa-eye text-[11px]"></i> Xem gọi món
+                </button>
+                <button id="btnGop" onclick="executeAction('gop')" class="flex items-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs rounded-xl transition-all shadow-sm">
+                    <i class="fa-solid fa-code-merge text-[11px]"></i> Gộp bàn
+                </button>
+                <button id="btnChuyen" onclick="executeAction('chuyen')" class="flex items-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs rounded-xl transition-all shadow-sm">
+                    <i class="fa-solid fa-arrow-right-arrow-left text-[11px]"></i> Chuyển bàn
+                </button>
+                <button id="btnTach" onclick="executeAction('tach')" class="flex items-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs rounded-xl transition-all shadow-sm">
+                    <i class="fa-solid fa-scissors text-[11px]"></i> Tách hóa đơn
+                </button>
+                <button id="btnThanhToan" onclick="executeAction('thanhtoan')" class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition-all shadow-md">
+                    <i class="fa-solid fa-credit-card text-[11px]"></i> Thanh toán
+                </button>
+                <button onclick="closeBottomBar()" class="ml-2 p-2 text-gray-400 hover:text-gray-600 rounded-lg transition-all" title="Bỏ chọn">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="orderModalOverlay" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 transition-all duration-300">
+        <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-xl mx-4 transform transition-all duration-300 scale-95 opacity-0" id="orderModalBox">
+            <div id="orderModalContainer"></div>
+        </div>
+    </div>
+
+    <div id="transferModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 transition-all duration-300">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all scale-100">
+            <h3 class="text-lg font-bold text-[#553722] mb-4"><i class="fa-solid fa-arrow-right-arrow-left mr-2"></i>Chuyển Bàn</h3>
+            <form th:action="@{/tables/transfer}" method="post">
+                <input type="hidden" name="tuMaBan" id="transferFromTableId">
+
+                <p class="text-sm text-gray-600 mb-4">Bàn đang phục vụ: <span id="transferFromTableName" class="font-bold text-amber-600 uppercase"></span></p>
+
+                <div class="mb-6">
+                    <label class="block text-xs font-semibold text-gray-700 mb-2">Chọn bàn trống để chuyển khách tới:</label>
+                    <select name="denMaBan" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#553722] focus:ring-1 focus:ring-[#553722]">
+                        <option th:each="ban : ${danhSachBanTrong}" th:value="${ban.maBan}" th:text="${ban.tenBan}"></option>
+                    </select>
+                </div>
+
+                <div class="flex justify-end gap-2">
+                    <button type="button" onclick="closeTransferModal()" class="px-4 py-2.5 bg-gray-100 text-gray-600 rounded-xl text-xs font-bold hover:bg-gray-200 transition-all">Hủy bỏ</button>
+                    <button type="submit" class="px-4 py-2.5 bg-[#553722] text-white rounded-xl text-xs font-bold hover:bg-[#6f4e37] shadow-md transition-all">Xác nhận chuyển</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="customErrorModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] transition-all duration-300">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all scale-100 text-center">
+            <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-100">
+                <i class="fa-solid fa-triangle-exclamation text-2xl text-red-500"></i>
+            </div>
+
+            <h3 class="text-lg font-bold text-gray-800 mb-2">Thông báo</h3>
+            <p id="customErrorMessage" class="text-sm text-gray-600 mb-6">Nội dung lỗi sẽ hiển thị ở đây.</p>
+
+            <button onclick="closeCustomError()" class="w-full py-2.5 bg-red-500 text-white rounded-xl text-sm font-bold hover:bg-red-600 shadow-md transition-all">
+                Đã hiểu
+            </button>
+        </div>
+    </div>
+
+    <div id="mergeModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 transition-all duration-300">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl p-6 transform transition-all scale-100">
+            <h3 class="text-lg font-bold text-[#553722] mb-4 border-b pb-2"><i class="fa-solid fa-code-merge mr-2"></i>Gộp Bàn</h3>
+
+            <form th:action="@{/tables/merge}" method="post">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 h-64 overflow-y-auto">
+                        <label class="block text-sm font-bold text-gray-700 mb-3 sticky top-0 bg-gray-50 pb-2">1. Chọn các bàn cần gộp đi:</label>
+                        <div class="space-y-2">
+                            <label th:each="ban : ${danhSachBanCoKhach}" class="flex items-center p-3 bg-white rounded-lg border border-gray-200 cursor-pointer hover:bg-amber-50 transition-all">
+                                <input type="checkbox" name="tuMaBanList" th:value="${ban.maBan}" class="w-4 h-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500">
+                                <span class="ml-3 text-sm font-semibold text-gray-700" th:text="${ban.tenBan}">Bàn 01</span>
+                            </label>
+                            <p th:if="${#lists.isEmpty(danhSachBanCoKhach)}" class="text-xs text-gray-500 italic">Không có bàn nào đang hoạt động.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 h-64 overflow-y-auto">
+                        <label class="block text-sm font-bold text-gray-700 mb-3 sticky top-0 bg-gray-50 pb-2">2. Chọn bàn đích gộp đến:</label>
+                        <div class="space-y-2">
+                            <label th:each="ban : ${danhSachBanCoKhach}" class="flex items-center p-3 bg-white rounded-lg border border-gray-200 cursor-pointer hover:bg-emerald-50 transition-all">
+                                <input type="radio" name="denMaBan" th:value="${ban.maBan}" required class="w-4 h-4 text-emerald-600 border-gray-300 focus:ring-emerald-500">
+                                <span class="ml-3 text-sm font-semibold text-gray-700" th:text="${ban.tenBan}">Bàn 01</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3">
+                    <button type="button" onclick="closeMergeModal()" class="px-5 py-2.5 bg-gray-100 text-gray-600 rounded-xl text-sm font-bold hover:bg-gray-200 transition-all">Hủy bỏ</button>
+                    <button type="submit" class="px-5 py-2.5 bg-[#553722] text-white rounded-xl text-sm font-bold hover:bg-[#6f4e37] shadow-md transition-all">Xác nhận Gộp</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="splitModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 transition-all duration-300">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-6 transform transition-all scale-100">
+            <h3 class="text-lg font-bold text-[#553722] mb-4 border-b pb-2"><i class="fa-solid fa-scissors mr-2"></i>Tách Hóa Đơn</h3>
+
+            <form th:action="@{/tables/split}" method="post">
+                <input type="hidden" name="tuMaBan" id="splitFromTableId">
+
+                <div class="mb-4">
+                    <p class="text-sm text-gray-600">Tách từ bàn: <span id="splitFromTableName" class="font-bold text-amber-600 uppercase"></span></p>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold text-gray-700 mb-2">Chọn bàn trống để chuyển món tách sang:</label>
+                    <select name="denMaBan" required class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#553722] focus:ring-1 focus:ring-[#553722]">
+                        <option th:each="ban : ${danhSachBanTrong}" th:value="${ban.maBan}" th:text="${ban.tenBan}"></option>
+                    </select>
+                </div>
+
+                <div class="border border-gray-200 rounded-xl overflow-hidden mb-6 max-h-60 overflow-y-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                        <tr class="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold sticky top-0">
+                            <th class="p-3">Tên món ăn/đồ uống</th>
+                            <th class="p-3 text-center" style="width: 140px;">Số lượng hiện tại</th>
+                            <th class="p-3 text-center" style="width: 140px;">Số lượng muốn tách</th>
+                        </tr>
+                        </thead>
+                        <tbody id="splitItemsTableBody" class="divide-y divide-gray-100 text-gray-700 bg-white">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="flex justify-end gap-2">
+                    <button type="button" onclick="closeSplitModal()" class="px-4 py-2.5 bg-gray-100 text-gray-600 rounded-xl text-xs font-bold hover:bg-gray-200 transition-all">Hủy bỏ</button>
+                    <button type="submit" class="px-4 py-2.5 bg-[#553722] text-white rounded-xl text-xs font-bold hover:bg-[#6f4e37] shadow-md transition-all">Xác nhận tách</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script th:src="@{/js/tables.js}"></script>
+</div>
+</body>
+</html>

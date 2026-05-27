@@ -14,7 +14,7 @@ public class WebSecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // Mã hóa mật khẩu chuẩn
+        return new BCryptPasswordEncoder();
     }
 
     @Bean

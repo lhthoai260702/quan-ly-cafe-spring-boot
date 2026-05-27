@@ -16,7 +16,6 @@ public class UserProfileDTO {
     private String anh;
     private Integer quyenHan; // 1: Quản lý, 2: Nhân viên
 
-    // Thuộc tính tiện ích để hiển thị chuỗi quyền hạn trên Header
     public String getQuyenHanString() {
         return (quyenHan != null && quyenHan == 1) ? "Quản lý" : "Nhân viên";
     }

@@ -19,6 +19,6 @@ public class GlobalControllerAdvice {
         if (principal != null) {
             return profileService.getCurrentUserProfile();
         }
-        return new UserProfileDTO(); // Trả về object rỗng nếu chưa đăng nhập
+        return new UserProfileDTO();
     }
 }

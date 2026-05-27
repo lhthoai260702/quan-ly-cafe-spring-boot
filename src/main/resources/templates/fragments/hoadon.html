@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+
+<div th:fragment="nội_dung_hóa_đơn" class="p-6">
+
+    <div class="flex justify-between items-center pb-4 border-b border-gray-100">
+        <div>
+            <h3 class="text-lg font-extrabold text-[#553722]" th:text="${order.tenBan} + ' - CHI TIẾT GỌI MÓN'">BÀN X - CHI TIẾT GỌI MÓN</h3>
+            <p class="text-xs text-gray-400 mt-0.5" th:if="${order.maHoaDon != null}">Mã hóa đơn tạm tính: #<span th:text="${order.maHoaDon}">0</span></p>
+        </div>
+        <button onclick="closeOrderModal()" class="text-gray-400 hover:text-gray-600 p-2 rounded-lg transition-all">
+            <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+    </div>
+
+    <div th:if="${#lists.isEmpty(order.danhSachMon)}" class="py-12 flex flex-col items-center justify-center text-center">
+        <div class="p-4 bg-gray-50 rounded-full text-gray-400 mb-3">
+            <i class="fa-solid fa-mug-hot text-3xl"></i>
+        </div>
+        <p class="text-sm font-semibold text-gray-500">Bàn hiện đang trống hoặc chưa gọi món</p>
+        <p class="text-xs text-gray-400 mt-1">Sử dụng thanh chức năng phía dưới để mở order món mới cho khách.</p>
+    </div>
+
+    <div th:if="${!#lists.isEmpty(order.danhSachMon)}" class="mt-4 space-y-4">
+        <div class="overflow-x-auto rounded-xl border border-gray-100 shadow-sm">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                <tr class="bg-gray-50 text-[11px] font-bold uppercase tracking-wider text-gray-500 border-b border-gray-100">
+                    <th class="py-3 px-4">Tên Món Tên Nước</th>
+                    <th class="py-3 px-4 text-center">SL</th>
+                    <th class="py-3 px-4 text-right">Đơn Giá</th>
+                    <th class="py-3 px-4 text-right">Thành Tiền</th>
+                </tr>
+                </thead>
+                <tbody class="text-xs divide-y divide-gray-50 text-gray-700">
+                <tr th:each="mon : ${order.danhSachMon}" class="hover:bg-gray-50/80 transition-all">
+                    <td class="py-3.5 px-4 font-semibold text-gray-800" th:text="${mon.tenMon}">Cà Phê Sữa Đá</td>
+                    <td class="py-3.5 px-4 text-center font-bold text-[#553722]" th:text="${mon.soLuong}">2</td>
+                    <td class="py-3.5 px-4 text-right" th:text="${#numbers.formatDecimal(mon.giaTaiThoiDiemBan, 0, 'COMMA', 0, 'POINT')} + ' đ'">25,000 đ</td>
+                    <td class="py-3.5 px-4 text-right font-extrabold text-gray-950" th:text="${#numbers.formatDecimal(mon.thanhTien, 0, 'COMMA', 0, 'POINT')} + ' đ'">50,000 đ</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="bg-[#553722]/5 p-4 rounded-xl flex justify-between items-center border border-[#553722]/10">
+            <span class="text-xs font-bold text-[#553722] uppercase tracking-wider">Tổng tiền tạm tính:</span>
+            <span class="text-lg font-black text-[#553722]" th:text="${#numbers.formatDecimal(order.tongTien, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</span>
+        </div>
+    </div>
+
+    <div class="mt-6 flex justify-end gap-2 pt-4 border-t border-gray-100">
+        <button onclick="closeOrderModal()" class="px-4 py-2 text-xs font-semibold text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all">
+            Đóng lại
+        </button>
+        <button th:if="${order.maHoaDon != null}" th:onclick="'window.location.href=\'/checkout/table/' + ${order.maBan} + '\''"
+                class="px-4 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-all shadow-sm">
+            In hóa đơn & Thanh toán
+        </button>
+    </div>
+
+</div>
+
+</body>
+</html>
