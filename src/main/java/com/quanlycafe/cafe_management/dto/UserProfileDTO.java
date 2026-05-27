@@ -5,6 +5,11 @@ import java.math.BigDecimal;
 
 @Data
 public class UserProfileDTO {
+    // Thêm 2 trường này phục vụ cho trang Quản lý nhân viên (Sửa, Xóa, Hiển thị)
+    private Integer maNhanVien;
+    private String diaChi;
+
+    // Các trường cũ giữ nguyên
     private String hoTen;
     private String soDienThoai;
     private BigDecimal luong;

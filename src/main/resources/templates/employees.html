@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout('Quản lý nhân viên', 'users', ~{::main})}">
+<head>
+    <title>Quản lý nhân viên</title>
+</head>
+<body>
+<main class="flex-1 p-6 md:p-8 overflow-y-auto bg-[#f9f9f7]">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
+        <div>
+            <h2 class="text-2xl font-bold text-[#1a1c1b] font-sans">Quản lý nhân viên</h2>
+            <p class="text-sm text-[#50453e] opacity-80 mt-1">Quản lý sơ lược hồ sơ làm việc, chức vụ và thông tin liên lạc.</p>
+        </div>
+        <button onclick="document.getElementById('addModal').classList.remove('hidden')"
+                class="flex items-center gap-2 bg-[#553722] hover:bg-[#6f4e37] text-white px-5 py-2.5 rounded-xl text-sm font-semibold uppercase tracking-wider transition-all duration-200 shadow-md">
+            <i data-lucide="user-plus" class="w-4 h-4"></i>
+            Tuyển nhân sự mới
+        </button>
+    </div>
+
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 bg-white p-4 rounded-2xl shadow-sm border border-[#e2e3e1]/30">
+        <div class="flex gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-hide shrink-0">
+
+            <a th:href="@{/employees}"
+               th:classappend="${param.role == null or param.role[0] == ''} ? 'bg-[#553722] text-white' : 'bg-[#f4f4f2] text-[#50453e] hover:bg-[#e8e8e6]'"
+               class="px-4 py-2 rounded-full text-xs font-bold shrink-0 transition-all block text-center">
+                Tất cả vị trí
+            </a>
+
+            <a th:href="@{/employees(role='quanly')}"
+               th:classappend="${param.role != null and param.role[0] == 'quanly'} ? 'bg-[#553722] text-white' : 'bg-[#f4f4f2] text-[#50453e] hover:bg-[#e8e8e6]'"
+               class="px-4 py-2 rounded-full text-xs font-bold shrink-0 transition-all block text-center">
+                Quản Lý
+            </a>
+
+            <a th:href="@{/employees(role='phucvu')}"
+               th:classappend="${param.role != null and param.role[0] == 'phucvu'} ? 'bg-[#553722] text-white' : 'bg-[#f4f4f2] text-[#50453e] hover:bg-[#e8e8e6]'"
+               class="px-4 py-2 rounded-full text-xs font-bold shrink-0 transition-all block text-center">
+                Nhân Viên Phục Vụ
+            </a>
+
+            <a th:href="@{/employees(role='phache')}"
+               th:classappend="${param.role != null and param.role[0] == 'phache'} ? 'bg-[#553722] text-white' : 'bg-[#f4f4f2] text-[#50453e] hover:bg-[#e8e8e6]'"
+               class="px-4 py-2 rounded-full text-xs font-bold shrink-0 transition-all block text-center">
+                Pha Chế
+            </a>
+        </div>
+
+        <form th:action="@{/employees}" method="GET" class="flex items-center bg-[#f4f4f2] rounded-full px-4 py-2.5 border border-[#e2e3e1]/20 max-w-md w-full">
+            <i data-lucide="search" class="w-4 h-4 text-[#50453e] opacity-70 mr-2"></i>
+
+            <input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm kiếm theo họ tên, username..."
+                   class="bg-transparent border-none outline-none text-xs text-[#1a1c1b] w-full placeholder:text-[#50453e]/70 focus:ring-0 p-0" />
+
+            <button type="submit" class="hidden"></button>
+        </form>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div th:each="emp : ${employees}" class="bg-white rounded-2xl p-5 shadow-sm border border-[#e2e3e1]/40 flex flex-col justify-between space-y-4 hover:shadow-md transition-shadow relative">
+            <div class="flex items-start gap-4">
+                <div class="w-12 h-12 rounded-full overflow-hidden shrink-0 bg-slate-100 border border-slate-100">
+                    <img th:src="@{'/images/' + ${emp.anh}}" alt="Avatar" class="w-full h-full object-cover" onerror="this.src='/images/user.png'"/>
+                </div>
+
+                <div class="min-w-0 flex-1">
+                    <h4 class="text-sm font-bold text-[#1a1c1b] truncate" th:text="${emp.hoTen}">Tên nhân viên</h4>
+                    <div class="flex items-center gap-1.5 text-xs text-[#50453e] opacity-80 mt-0.5">
+                        <i data-lucide="shield" class="w-3 h-3 text-[#553722]"></i>
+                        <span th:text="${emp.tenChucVu} + ' (u: ' + ${emp.tenDangNhap} + ')'">Chức vụ (u: user)</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 text-[11px] text-gray-500 mt-0.5">
+                        <i data-lucide="wallet" class="w-3 h-3"></i>
+                        <span th:text="'Lương: ' + ${#numbers.formatDecimal(emp.luong, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">Lương</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-1.5 border-t border-[#e2e3e1]/30 pt-3 text-[11px] text-[#50453e]">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="phone" class="w-3 h-3 text-gray-400 shrink-0"></i>
+                    <span th:text="${emp.soDienThoai}">Số điện thoại</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i data-lucide="map-pin" class="w-3 h-3 text-gray-400 shrink-0"></i>
+                    <span class="truncate" th:text="${emp.diaChi}">Địa chỉ</span>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-1.5 pt-2 border-t border-[#e2e3e1]/30">
+                <button class="flex items-center gap-1 px-3 py-1.5 text-[10px] uppercase font-bold tracking-wider text-[#553722] bg-[#ffdcc6]/20 hover:bg-[#ffdcc6]/40 border border-[#ffdcc6]/30 rounded-lg duration-150 transition-all">
+                    <i data-lucide="pen-line" class="w-3 h-3"></i>
+                    Sửa hồ sơ
+                </button>
+                <button class="p-1.5 text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg duration-150" title="Xóa hồ sơ nhân sự">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>
