@@ -25,41 +25,63 @@ function handleTableClick(element) {
     const iconBox = document.getElementById('barIconBox');
     iconBox.className = "p-3 rounded-xl text-white flex items-center justify-center ";
 
-    // Logic bật/tắt nút dựa trên tình trạng
+    // 1. Cập nhật màu sắc Icon dựa trên tình trạng
     if (tinhTrang === 'Đang sử dụng') {
         badge.classList.add('bg-amber-500');
         iconBox.classList.add('bg-amber-500');
-        toggleActionButtons(true); // Vô hiệu hóa nút chức năng
     } else if (tinhTrang === 'Đã đặt trước') {
         badge.classList.add('bg-blue-500');
         iconBox.classList.add('bg-blue-500');
-        toggleActionButtons(true); // Vô hiệu hóa nút chức năng
     } else {
         badge.classList.add('bg-gray-400');
         iconBox.classList.add('bg-gray-400');
-        toggleActionButtons(false); // Kích hoạt nút đặt bàn
     }
+
+    // 2. Kích hoạt đúng nút theo nghiệp vụ từng loại bàn
+    updateActionButtons(tinhTrang);
 
     document.getElementById('bottomActionBar').classList.remove('hidden');
 }
 
-function toggleActionButtons(isDisabled) {
-    // Các nút cần vô hiệu hóa khi bàn KHÔNG TRỐNG
-    const buttonsToToggle = [
-        document.getElementById('btnGop'),
-        document.getElementById('btnTach'),
-        document.getElementById('btnThanhToan'),
-        document.getElementById('btnDatBan')
-    ];
+// Thay thế hoàn toàn hàm toggleActionButtons cũ bằng hàm này
+function updateActionButtons(tinhTrang) {
+    // Lấy các nút cần vô hiệu hoá/kích hoạt
+    const btnThanhToan = document.getElementById('btnThanhToan');
+    const btnGop = document.getElementById('btnGop');
+    const btnTach = document.getElementById('btnTach');
+    const btnChuyen = document.getElementById('btnChuyen');
+    const btnDatBan = document.getElementById('btnDatBan');
 
-    buttonsToToggle.forEach(btn => {
+    // Cấu trúc hàm con giúp làm mờ và vô hiệu hoá nút
+    const setButtonDisabled = (btn, isDisabled) => {
         if (!btn) return;
         if (isDisabled) {
             btn.classList.add('opacity-40', 'pointer-events-none', 'cursor-not-allowed');
         } else {
             btn.classList.remove('opacity-40', 'pointer-events-none', 'cursor-not-allowed');
         }
-    });
+    };
+
+    // Áp dụng Logic nghiệp vụ
+    if (tinhTrang === 'Trống') {
+        setButtonDisabled(btnThanhToan, true); // Trống thì không thể thanh toán
+        setButtonDisabled(btnGop, true);       // Không thể gộp
+        setButtonDisabled(btnTach, true);      // Không thể tách
+        setButtonDisabled(btnChuyen, true);    // Không thể chuyển đi
+        setButtonDisabled(btnDatBan, false);   // SÁNG: Có thể đặt bàn
+    } else if (tinhTrang === 'Đã đặt trước') {
+        setButtonDisabled(btnThanhToan, true); // Chưa gọi món nên chưa thanh toán
+        setButtonDisabled(btnGop, true);
+        setButtonDisabled(btnTach, true);
+        setButtonDisabled(btnChuyen, true);
+        setButtonDisabled(btnDatBan, true);    // Đã đặt rồi không đặt đè lên nữa
+    } else if (tinhTrang === 'Đang sử dụng') {
+        setButtonDisabled(btnThanhToan, false); // SÁNG: Đã có bill thì được thanh toán
+        setButtonDisabled(btnGop, false);       // SÁNG: Được phép gộp
+        setButtonDisabled(btnTach, false);      // SÁNG: Được phép tách
+        setButtonDisabled(btnChuyen, false);    // SÁNG: Được phép chuyển
+        setButtonDisabled(btnDatBan, true);     // Đang ngồi không thể đặt giữ chỗ
+    }
 }
 
 function closeBottomBar() {
@@ -78,6 +100,7 @@ function executeAction(actionType) {
 
     switch(actionType) {
         case 'xem':
+        case 'thanhtoan':
             fetch(`/tables/${currentSelectedTableId}/order-details`)
                 .then(response => response.text())
                 .then(html => {
