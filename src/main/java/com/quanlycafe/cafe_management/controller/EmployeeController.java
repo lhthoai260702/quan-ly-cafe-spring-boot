@@ -6,7 +6,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
 
 import java.util.List;
 
@@ -44,5 +46,48 @@ public class EmployeeController {
         model.addAttribute("keyword", keyword);
 
         return "employees";
+    }
+
+    @PostMapping("/employees/add")
+    public String addEmployee(
+            @RequestParam String hoTen,
+            @RequestParam String soDienThoai,
+            @RequestParam String diaChi,
+            @RequestParam Integer maChucVu,
+            @RequestParam String tenDangNhap,
+            @RequestParam String matKhau
+    ) {
+        try {
+            employeeService.createEmployee(hoTen, soDienThoai, diaChi, maChucVu, tenDangNhap, matKhau);
+            return "redirect:/employees?success";
+        } catch (Exception e) {
+            return "redirect:/employees?error";
+        }
+    }
+
+    @PostMapping("/employees/edit")
+    public String editEmployee(
+            @RequestParam Integer maNhanVien,
+            @RequestParam String hoTen,
+            @RequestParam String soDienThoai,
+            @RequestParam String diaChi,
+            @RequestParam Integer maChucVu
+    ) {
+        try {
+            employeeService.updateEmployee(maNhanVien, hoTen, soDienThoai, diaChi, maChucVu);
+            return "redirect:/employees?success=edit";
+        } catch (Exception e) {
+            return "redirect:/employees?error=edit";
+        }
+    }
+
+    @PostMapping("/employees/delete")
+    public String deleteEmployee(@RequestParam Integer maNhanVien) {
+        try {
+            employeeService.deleteEmployee(maNhanVien);
+            return "redirect:/employees?success=delete";
+        } catch (Exception e) {
+            return "redirect:/employees?error=delete";
+        }
     }
 }
