@@ -2,6 +2,8 @@ package com.quanlycafe.cafe_management.controller;
 
 import com.quanlycafe.cafe_management.dto.UserProfileDTO;
 import com.quanlycafe.cafe_management.entity.Ban;
+import com.quanlycafe.cafe_management.entity.ThucDon;
+import com.quanlycafe.cafe_management.repository.ThucDonRepository;
 import com.quanlycafe.cafe_management.service.TablesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -23,6 +25,9 @@ public class TablesController {
     @Autowired
     private TablesService tablesService;
 
+    @Autowired
+    private ThucDonRepository thucDonRepository;
+
     @GetMapping("/tables")
     public String showTableMap(
             @RequestParam(name = "status", required = false) String status,
@@ -30,6 +35,7 @@ public class TablesController {
             Model model) {
 
         List<Ban> tatCaBan = tablesService.getAllTables();
+        List<ThucDon> danhSachThucDon = thucDonRepository.findAll();
 
         // 1. Đếm số lượng tổng
         long tongSoBan = tatCaBan.size();
@@ -62,6 +68,7 @@ public class TablesController {
         model.addAttribute("currentSearch", search != null ? search : "");
         model.addAttribute("danhSachBanTrong", tatCaBan.stream().filter(b -> "Trống".equalsIgnoreCase(b.getTinhTrang())).toList());
         model.addAttribute("danhSachBanCoKhach", tatCaBan.stream().filter(b -> "Đang sử dụng".equalsIgnoreCase(b.getTinhTrang())).toList());
+        model.addAttribute("danhSachThucDon", danhSachThucDon);
         return "tables";
     }
 
@@ -162,6 +169,26 @@ public class TablesController {
             redirectAttributes.addFlashAttribute("errorMessage", "Lỗi khi đặt bàn: " + e.getMessage());
         }
 
+        return "redirect:/tables";
+    }
+
+    @PostMapping("/tables/order")
+    public String xuLyGoiMon(
+            @ModelAttribute("currentUser") UserProfileDTO currentUser,
+            @RequestParam("maBan") Integer maBan,
+            @RequestParam(value = "maThucDon", required = false) List<Integer> danhSachMaMon,
+            @RequestParam(value = "soLuong", required = false) List<Integer> danhSachSoLuong,
+            RedirectAttributes redirectAttributes) {
+        try {
+            Integer maNhanVien = currentUser.getMaNhanVien();
+
+            if (danhSachMaMon != null && !danhSachMaMon.isEmpty()) {
+                tablesService.themMonVaoBan(maBan, maNhanVien, danhSachMaMon, danhSachSoLuong);
+                redirectAttributes.addFlashAttribute("successMessage", "Đã thêm món thành công!");
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi gọi món: " + e.getMessage());
+        }
         return "redirect:/tables";
     }
 }

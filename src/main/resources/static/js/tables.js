@@ -138,33 +138,15 @@ function executeAction(actionType) {
             break;
 
         case 'chonmon':
-            // 1. Gọi về Server để lấy mã HTML của bảng chọn món
-            fetch('/tables/' + currentSelectedTableId + '/menu')
-                .then(response => {
-                if(!response.ok) throw new Error("Lỗi khi tải thực đơn");
-                return response.text(); // Lấy dữ liệu dạng chuỗi HTML
-            })
-                .then(html => {
-                // 2. Nhúng HTML vào div đã chuẩn bị sẵn
-                document.getElementById('orderModalContainer').innerHTML = html;
-
-                // 3. Hiệu ứng hiển thị Modal
-                document.getElementById('orderModalOverlay').classList.remove('hidden');
-                setTimeout(() => {
-                    const box = document.getElementById('orderModalBox');
-                    box.classList.remove('scale-95', 'opacity-0');
-                    box.classList.add('scale-100', 'opacity-100');
-                }, 10);
-            })
-                .catch(error => {
-                console.error(error);
-                showCustomError("Lỗi kết nối", "Không thể tải danh sách thực đơn từ máy chủ.");
-            });
+            // Lấy mã bàn và tên bàn hiện tại truyền vào form ẩn
+            document.getElementById('orderTableId').value = currentSelectedTableId;
+            document.getElementById('orderTableNameDisplay').innerText = document.getElementById('selectedTableName').innerText;
+            // Hiển thị modal lên
+            document.getElementById('addOrderModal').classList.remove('hidden');
             break;
     }
 }
 
-// Modal Helpers
 function showCustomError(message) {
     document.getElementById('customErrorMessage').innerText = message;
     document.getElementById('customErrorModal').classList.remove('hidden');
@@ -185,10 +167,32 @@ function openBookingModal(tableId, tableName) {
 }
 
 function closeOrderModal() {
-    const box = document.getElementById('orderModalBox');
-    box.classList.remove('scale-100', 'opacity-100');
-    box.classList.add('scale-95', 'opacity-0');
+    document.getElementById('addOrderModal').classList.add('hidden');
+}
+
+function tangSoLuong(btn) {
+    let input = btn.previousElementSibling;
+    input.value = parseInt(input.value) + 1;
+}
+
+function giamSoLuong(btn) {
+    let input = btn.nextElementSibling;
+    if (parseInt(input.value) > 0) {
+        input.value = parseInt(input.value) - 1;
+    }
+}
+
+function closeViewOrderModal() {
+    const modalBox = document.getElementById('orderModalBox');
+    modalBox.classList.add('scale-95', 'opacity-0');
+
     setTimeout(() => {
         document.getElementById('orderModalOverlay').classList.add('hidden');
     }, 300);
 }
+
+document.getElementById('orderModalOverlay').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeViewOrderModal();
+    }
+});

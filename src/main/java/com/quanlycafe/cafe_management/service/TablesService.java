@@ -311,4 +311,62 @@ public class TablesService {
         ban.setTinhTrang("Đã đặt trước");
         banRepository.save(ban);
     }
+
+    @Transactional
+    public void themMonVaoBan(Integer maBan, Integer maNhanVien, List<Integer> danhSachMaMon, List<Integer> danhSachSoLuong) {
+        Ban ban = banRepository.findById(maBan)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bàn"));
+
+        Integer maHoaDon;
+
+        // 1. Kiểm tra trạng thái bàn và tìm/tạo Hóa Đơn
+        if ("Trống".equalsIgnoreCase(ban.getTinhTrang())) {
+            // Cập nhật trạng thái bàn
+            ban.setTinhTrang("Đang sử dụng");
+            banRepository.save(ban);
+
+            // Tạo hóa đơn mới
+            String sqlInsertHoaDon = "INSERT INTO hoadon (tongtien, trangthai) VALUES (0, 'Chưa thanh toán') RETURNING mahoadon";
+            maHoaDon = jdbcTemplate.queryForObject(sqlInsertHoaDon, Integer.class);
+
+            // Tạo Chi tiết đặt bàn liên kết Hóa đơn, Bàn và Nhân viên
+            String sqlInsertDatBan = "INSERT INTO chitietdatban (maban, manhanvien, mahoadon, tenkhachhang, ngaygiodat) VALUES (?, ?, ?, 'Khách vãng lai', CURRENT_TIMESTAMP)";
+            jdbcTemplate.update(sqlInsertDatBan, maBan, maNhanVien, maHoaDon);
+        } else {
+            // Tìm mã hóa đơn đang chưa thanh toán của bàn này
+            String sqlFindHoaDon = "SELECT hd.mahoadon FROM hoadon hd JOIN chitietdatban ctdb ON hd.mahoadon = ctdb.mahoadon WHERE ctdb.maban = ? AND hd.trangthai = 'Chưa thanh toán' LIMIT 1";
+            maHoaDon = jdbcTemplate.queryForObject(sqlFindHoaDon, Integer.class, maBan);
+        }
+
+        // 2. Thêm món vào Chi tiết hóa đơn
+        if (maHoaDon != null && danhSachMaMon != null) {
+            for (int i = 0; i < danhSachMaMon.size(); i++) {
+                Integer maMon = danhSachMaMon.get(i);
+                Integer soLuong = danhSachSoLuong.get(i);
+
+                if (soLuong > 0) {
+                    // Lấy giá hiện tại của món
+                    String sqlGiaMon = "SELECT giatienhientai FROM thucdon WHERE mathucdon = ?";
+                    Double giaTien = jdbcTemplate.queryForObject(sqlGiaMon, Double.class, maMon);
+                    Double thanhTien = giaTien * soLuong;
+
+                    // Kiểm tra món đã có trong hóa đơn chưa (nếu có thì cộng dồn, chưa thì insert)
+                    String checkExist = "SELECT count(*) FROM chitiethoadon WHERE mahoadon = ? AND mathucdon = ?";
+                    Integer count = jdbcTemplate.queryForObject(checkExist, Integer.class, maHoaDon, maMon);
+
+                    if (count != null && count > 0) {
+                        String updateMon = "UPDATE chitiethoadon SET soluong = soluong + ?, thanhtien = thanhtien + ? WHERE mahoadon = ? AND mathucdon = ?";
+                        jdbcTemplate.update(updateMon, soLuong, thanhTien, maHoaDon, maMon);
+                    } else {
+                        String insertMon = "INSERT INTO chitiethoadon (mathucdon, mahoadon, soluong, giataithoidiemban, thanhtien) VALUES (?, ?, ?, ?, ?)";
+                        jdbcTemplate.update(insertMon, maMon, maHoaDon, soLuong, giaTien, thanhTien);
+                    }
+                }
+            }
+
+            // 3. Cập nhật lại tổng tiền cho Hóa đơn
+            String updateTongTien = "UPDATE hoadon SET tongtien = (SELECT COALESCE(SUM(thanhtien), 0) FROM chitiethoadon WHERE mahoadon = ?) WHERE mahoadon = ?";
+            jdbcTemplate.update(updateTongTien, maHoaDon, maHoaDon);
+        }
+    }
 }
