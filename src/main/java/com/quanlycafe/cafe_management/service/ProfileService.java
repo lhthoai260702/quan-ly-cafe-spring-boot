@@ -46,6 +46,7 @@ public class ProfileService {
         Optional<NhanVien> nhanVienOpt = nhanVienRepository.findByTaiKhoan_TenDangNhap(username);
         if (nhanVienOpt.isPresent()) {
             NhanVien nv = nhanVienOpt.get();
+            dto.setMaNhanVien(nv.getMaNhanVien());
             dto.setHoTen(nv.getHoTen());
             dto.setSoDienThoai(nv.getSoDienThoai());
 

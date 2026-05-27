@@ -45,24 +45,24 @@
             </div>
         </form>
 
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4" id="tableGrid">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5" id="tableGrid">
             <div th:each="ban : ${danhSachBan}"
                  th:id="'table-card-' + ${ban.maBan}"
                  th:data-id="${ban.maBan}"
                  th:data-ten="${ban.tenBan}"
                  th:data-tinhtrang="${ban.tinhTrang}"
                  onclick="handleTableClick(this)"
-                 class="table-card p-4 rounded-2xl border transition-all cursor-pointer relative shadow-sm hover:shadow-md flex flex-col justify-between h-32"
+                 class="table-card p-4 rounded-2xl border transition-all cursor-pointer relative shadow-sm hover:shadow-md flex flex-col justify-between h-32 w-full"
                  th:classappend="${ban.tinhTrang == 'Đang sử dụng' ? 'bg-amber-50/60 border-amber-200' :
                          (ban.tinhTrang == 'Đã đặt trước' ? 'bg-blue-50/60 border-blue-200' :
                          'bg-white border-gray-200')}">
 
-                <div class="flex justify-between items-start">
-                    <div>
-                        <h3 class="font-bold text-sm text-gray-800" th:text="${ban.tenBan}">Bàn X</h3>
+                <div class="flex justify-between items-start gap-2">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-sm text-gray-800 truncate" th:text="${ban.tenBan}">Bàn X</h3>
                     </div>
 
-                    <span class="text-[9px] px-2 py-0.5 font-bold uppercase tracking-wider rounded-md text-white"
+                    <span class="w-[90px] flex-shrink-0 text-center inline-block text-[9px] px-1 py-1 font-bold uppercase tracking-wider rounded-md text-white shadow-sm"
                           th:text="${ban.tinhTrang}"
                           th:classappend="${ban.tinhTrang == 'Đang sử dụng' ? 'bg-amber-500' :
                                   (ban.tinhTrang == 'Đã đặt trước' ? 'bg-blue-500' :
@@ -71,57 +71,64 @@
                     </span>
                 </div>
 
-                <div class="pt-2 border-t border-dashed border-gray-100 flex items-center justify-end">
+                <div class="pt-2 border-t border-dashed border-gray-200 flex items-center justify-end">
                     <div th:if="${ban.tinhTrang == 'Đang sử dụng'}">
-                        <span class="text-xs font-bold text-amber-600">Đang phục vụ</span>
+                        <span class="text-xs font-bold text-amber-600"><i class="fa-solid fa-mug-hot mr-1"></i>Đang phục vụ</span>
                     </div>
                     <div th:if="${ban.tinhTrang == 'Đã đặt trước'}">
-                        <span class="text-xs font-bold text-blue-600">Giữ chỗ</span>
+                        <span class="text-xs font-bold text-blue-600"><i class="fa-solid fa-clock mr-1"></i>Giữ chỗ</span>
                     </div>
                     <div th:if="${ban.tinhTrang == 'Trống'}">
-                        <span class="text-xs font-medium text-emerald-600">Sẵn sàng</span>
+                        <span class="text-xs font-medium text-emerald-600"><i class="fa-solid fa-check mr-1"></i>Sẵn sàng</span>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <div id="bottomActionBar" class="hidden absolute bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 shadow-[0_-10px_25px_-5px_rgba(0,0,0,0.1)] p-4 z-20 transition-all duration-300">
-        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+    <div id="bottomActionBar" class="hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-8 py-4 flex flex-col sm:flex-row justify-between items-center gap-4 z-40 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
 
-            <div class="flex items-center gap-4">
-                <div class="p-3 bg-[#553722]/10 rounded-xl text-[#553722]" id="barIconBox">
-                    <i class="fa-solid fa-mug-saucer text-xl"></i>
-                </div>
-                <div>
-                    <div class="flex items-center gap-2">
-                        <span id="selectedTableName" class="font-extrabold text-lg text-gray-800">Tên Bàn</span>
-                        <span id="selectedTableBadge" class="text-[10px] px-2 py-0.5 font-bold uppercase tracking-wider rounded-md text-white">Trạng thái</span>
-                    </div>
-                    <p class="text-xs text-gray-400 mt-0.5">Mã số bàn hệ thống: #<span id="selectedTableId">0</span></p>
-                </div>
+        <div class="flex items-center gap-4 w-full sm:w-auto">
+            <div id="barIconBox" class="p-3 rounded-xl text-white flex items-center justify-center bg-gray-400">
+                <i class="fa-solid fa-mug-hot text-lg"></i>
             </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <h4 id="selectedTableName" class="font-bold text-sm text-gray-800">BÀN CHƯA CHỌN</h4>
+                    <span id="selectedTableBadge" class="text-[9px] px-1.5 py-0.5 font-bold uppercase tracking-wider rounded-md text-white bg-gray-400">TRỐNG</span>
+                </div>
+                <p class="text-[11px] text-gray-400 mt-0.5">Mã số bàn hệ thống: #<span id="selectedTableId">0</span></p>
+            </div>
+        </div>
 
-            <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
-                <button onclick="executeAction('xem')" class="flex items-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs rounded-xl transition-all shadow-sm">
-                    <i class="fa-solid fa-eye text-[11px]"></i> Xem gọi món
-                </button>
-                <button id="btnGop" onclick="executeAction('gop')" class="flex items-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs rounded-xl transition-all shadow-sm">
-                    <i class="fa-solid fa-code-merge text-[11px]"></i> Gộp bàn
-                </button>
-                <button id="btnChuyen" onclick="executeAction('chuyen')" class="flex items-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs rounded-xl transition-all shadow-sm">
-                    <i class="fa-solid fa-arrow-right-arrow-left text-[11px]"></i> Chuyển bàn
-                </button>
-                <button id="btnTach" onclick="executeAction('tach')" class="flex items-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs rounded-xl transition-all shadow-sm">
-                    <i class="fa-solid fa-scissors text-[11px]"></i> Tách hóa đơn
-                </button>
-                <button id="btnThanhToan" onclick="executeAction('thanhtoan')" class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition-all shadow-md">
-                    <i class="fa-solid fa-credit-card text-[11px]"></i> Thanh toán
-                </button>
-                <button onclick="closeBottomBar()" class="ml-2 p-2 text-gray-400 hover:text-gray-600 rounded-lg transition-all" title="Bỏ chọn">
-                    <i class="fa-solid fa-xmark text-sm"></i>
-                </button>
-            </div>
+        <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
+            <button onclick="executeAction('xem')" class="flex items-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs rounded-xl transition-all shadow-sm">
+                <i class="fa-solid fa-eye text-[11px]"></i> Xem gọi món
+            </button>
+            <button id="btnChonMon" onclick="executeAction('chonmon')" class="flex items-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs rounded-xl transition-all shadow-sm">
+                <i class="fa-solid fa-utensils text-[11px]"></i> Chọn món
+            </button>
+            <button id="btnDatBan" onclick="executeAction('datban')" class="flex items-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs rounded-xl transition-all shadow-sm">
+                <i class="fa-solid fa-calendar-check text-[11px]"></i> Đặt bàn
+            </button>
+            <button id="btnGop" onclick="executeAction('gop')" class="flex items-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs rounded-xl transition-all shadow-sm">
+                <i class="fa-solid fa-code-merge text-[11px]"></i> Gộp bàn
+            </button>
+            <button id="btnChuyen" onclick="executeAction('chuyen')" class="flex items-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs rounded-xl transition-all shadow-sm">
+                <i class="fa-solid fa-arrow-right-arrow-left text-[11px]"></i> Chuyển bàn
+            </button>
+            <button id="btnTach" onclick="executeAction('tach')" class="flex items-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs rounded-xl transition-all shadow-sm">
+                <i class="fa-solid fa-scissors text-[11px]"></i> Tách hóa đơn
+            </button>
+            <button id="btnInAn" onclick="executeAction('inan')" class="flex items-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs rounded-xl transition-all shadow-sm">
+                <i class="fa-solid fa-print text-[11px]"></i> Cài đặt in ấn
+            </button>
+            <button id="btnThanhToan" onclick="executeAction('thanhtoan')" class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition-all shadow-md">
+                <i class="fa-solid fa-credit-card text-[11px]"></i> Thanh toán
+            </button>
+            <button onclick="closeBottomBar()" class="ml-2 p-2 text-gray-400 hover:text-gray-600 rounded-lg transition-all" title="Bỏ chọn">
+                <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
         </div>
     </div>
 
@@ -240,6 +247,47 @@
                 <div class="flex justify-end gap-2">
                     <button type="button" onclick="closeSplitModal()" class="px-4 py-2.5 bg-gray-100 text-gray-600 rounded-xl text-xs font-bold hover:bg-gray-200 transition-all">Hủy bỏ</button>
                     <button type="submit" class="px-4 py-2.5 bg-[#553722] text-white rounded-xl text-xs font-bold hover:bg-[#6f4e37] shadow-md transition-all">Xác nhận tách</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="bookingModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 transition-all duration-300">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all scale-100">
+            <h3 class="text-lg font-bold text-[#553722] mb-4 border-b pb-2">
+                <i class="fa-solid fa-calendar-check mr-2"></i>Đặt Bàn Trước
+            </h3>
+
+            <form id="bookingForm" th:action="@{/tables/booking}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                <input type="hidden" name="maBan" id="bookingTableId">
+                <p class="text-sm text-gray-600 mb-4">Đang thao tác đặt bàn: <span id="bookingTableName" class="font-bold text-blue-600 uppercase"></span></p>
+
+                <div class="space-y-4 mb-6">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Tên khách hàng (*)</label>
+                        <input type="text" name="tenKhachHang" required placeholder="Nhập tên khách hàng" class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Số điện thoại</label>
+                        <input type="text" name="sdtKhachHang" placeholder="Nhập số điện thoại" class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 mb-1">Ngày đặt (*)</label>
+                            <input type="date" name="ngayDat" id="bookingDate" required class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 mb-1">Giờ đến (*)</label>
+                            <input type="time" name="gioDat" id="bookingTime" required class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2">
+                    <button type="button" onclick="closeBookingModal()" class="px-4 py-2.5 bg-gray-100 text-gray-600 rounded-xl text-xs font-bold hover:bg-gray-200 transition-all">Hủy bỏ</button>
+                    <button type="submit" class="px-4 py-2.5 bg-blue-500 text-white rounded-xl text-xs font-bold hover:bg-blue-600 shadow-md transition-all">Xác nhận đặt bàn</button>
                 </div>
             </form>
         </div>

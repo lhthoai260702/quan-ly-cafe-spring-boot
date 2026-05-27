@@ -3,8 +3,11 @@ package com.quanlycafe.cafe_management.service;
 import com.quanlycafe.cafe_management.entity.Ban;
 import com.quanlycafe.cafe_management.dto.ChiTietGoiMonDTO;
 import com.quanlycafe.cafe_management.dto.ThongTinBanGoiMonDTO;
-import com.quanlycafe.cafe_management.repository.BanRepository;
+import com.quanlycafe.cafe_management.entity.ChiTietDatBan;
+import com.quanlycafe.cafe_management.entity.HoaDon;
+import com.quanlycafe.cafe_management.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -13,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
-import java.sql.Statement;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -24,10 +27,20 @@ public class TablesService {
     private BanRepository banRepository;
 
     @Autowired
-    private JdbcTemplate jdbcTemplate; // Sử dụng để viết câu lệnh SQL Join chính xác nhất
+    private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private HoaDonRepository hoaDonRepository;
+
+    @Autowired
+    private ChiTietDatBanRepository chiTietDatBanRepository;
+
+    public Ban findById(Integer maBan) {
+        return banRepository.findById(maBan).orElse(null);
+    }
 
     public List<Ban> getAllTables() {
-        return banRepository.findAll();
+        return banRepository.findAll(Sort.by(Sort.Direction.ASC, "tenBan"));
     }
 
     public ThongTinBanGoiMonDTO getChiTietGoiMonTheoBan(Integer maBan) {
@@ -56,8 +69,12 @@ public class TablesService {
             List<Map<String, Object>> rows = jdbcTemplate.queryForList(sqlHoaDon, maBan);
             if (!rows.isEmpty()) {
                 Map<String, Object> row = rows.get(0);
-                Integer maHoaDon = (Integer) row.get("mahoadon");
-                BigDecimal tongTienDb = (BigDecimal) row.get("tongtien");
+
+                // [SỬA LỖI Ở ĐÂY] Dùng Number thay vì Integer/BigDecimal để tránh lỗi ClassCastException
+                Number maHoaDonDb = (Number) row.get("mahoadon");
+                Integer maHoaDon = maHoaDonDb != null ? maHoaDonDb.intValue() : null;
+
+                Number tongTienDb = (Number) row.get("tongtien");
                 Double tongTien = tongTienDb != null ? tongTienDb.doubleValue() : 0.0;
 
                 dto.setMaHoaDon(maHoaDon);
@@ -73,8 +90,11 @@ public class TablesService {
                     ChiTietGoiMonDTO item = new ChiTietGoiMonDTO();
                     item.setTenMon(rs.getString("tenmon"));
                     item.setSoLuong(rs.getInt("soluong"));
-                    item.setGiaTaiThoiDiemBan(rs.getBigDecimal("giataithoidiemban").doubleValue());
-                    item.setThanhTien(rs.getBigDecimal("thanhtien").doubleValue());
+
+                    // [SỬA LỖI Ở ĐÂY] Dùng trực tiếp getDouble sẽ an toàn hơn việc getBigDecimal rồi .doubleValue()
+                    item.setGiaTaiThoiDiemBan(rs.getDouble("giataithoidiemban"));
+                    item.setThanhTien(rs.getDouble("thanhtien"));
+
                     return item;
                 }, maHoaDon);
 
@@ -211,7 +231,7 @@ public class TablesService {
                     "INSERT INTO chitietdatban (maban, mahoadon, manhanvien, tenkhachhang, sdtkhachhang, ngaygiodat) VALUES (?, ?, ?, ?, ?, ?)",
                     denMaBan, maHoaDonMoi, maNhanVien, tenKhachHang, sdtKhachHang, ngayGioDat
             );
-            
+
             // 4. Bắt đầu lặp qua danh sách món để tách số lượng dữ liệu gửi lên
             for (int i = 0; i < mathucdonList.size(); i++) {
                 Integer maThucDon = mathucdonList.get(i);
@@ -262,5 +282,33 @@ public class TablesService {
             e.printStackTrace();
             return false;
         }
+    }
+
+    @Transactional
+    public void datBanTruoc(Integer maBan, Integer maNhanVien, String tenKhachHang, String sdtKhachHang, LocalDateTime ngayGioDat) {
+        // 1. Tạo mới hóa đơn
+        HoaDon hoaDonMoi = new HoaDon();
+        hoaDonMoi.setTrangThai("Chưa thanh toán");
+        hoaDonMoi.setTongTien(0.0);
+        hoaDonMoi = hoaDonRepository.save(hoaDonMoi);
+
+        // 2. Tạo thông tin Chi Tiết Đặt Bàn
+        ChiTietDatBan datBan = new ChiTietDatBan();
+        datBan.setMaBan(maBan);
+        datBan.setMaHoaDon(hoaDonMoi.getMaHoaDon());
+        datBan.setTenKhachHang(tenKhachHang);
+        datBan.setSdtKhachHang(sdtKhachHang);
+        datBan.setNgayGioDat(ngayGioDat);
+
+        // SỬ DỤNG MÃ NHÂN VIÊN TỪ CONTROLLER TRUYỀN XUỐNG
+        datBan.setMaNhanVien(maNhanVien);
+
+        chiTietDatBanRepository.save(datBan);
+
+        // 3. Đổi trạng thái bàn
+        Ban ban = banRepository.findById(maBan)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bàn yêu cầu"));
+        ban.setTinhTrang("Đã đặt trước");
+        banRepository.save(ban);
     }
 }

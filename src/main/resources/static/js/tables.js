@@ -7,42 +7,59 @@ function handleTableClick(element) {
 
     currentSelectedTableId = maBan;
 
+    // Reset style các card khác
     const cards = document.getElementsByClassName('table-card');
     for (let card of cards) {
         card.classList.remove('border-[#553722]', 'ring-2', 'ring-[#553722]/50');
     }
     element.classList.add('border-[#553722]', 'ring-2', 'ring-[#553722]/50');
 
+    // Cập nhật thông tin lên thanh công cụ
     document.getElementById('selectedTableId').innerText = maBan;
     document.getElementById('selectedTableName').innerText = tenBan.toUpperCase();
 
     const badge = document.getElementById('selectedTableBadge');
     badge.innerText = tinhTrang;
-    badge.className = "text-[10px] px-2 py-0.5 font-bold uppercase tracking-wider rounded-md text-white";
+    badge.className = "text-[9px] px-1.5 py-0.5 font-bold uppercase tracking-wider rounded-md text-white";
 
     const iconBox = document.getElementById('barIconBox');
-    iconBox.className = "p-3 rounded-xl text-white ";
+    iconBox.className = "p-3 rounded-xl text-white flex items-center justify-center ";
 
+    // Logic bật/tắt nút dựa trên tình trạng
     if (tinhTrang === 'Đang sử dụng') {
         badge.classList.add('bg-amber-500');
         iconBox.classList.add('bg-amber-500');
-        toggleActionButtons(false);
+        toggleActionButtons(true); // Vô hiệu hóa nút chức năng
     } else if (tinhTrang === 'Đã đặt trước') {
         badge.classList.add('bg-blue-500');
         iconBox.classList.add('bg-blue-500');
-        toggleActionButtons(true);
+        toggleActionButtons(true); // Vô hiệu hóa nút chức năng
     } else {
         badge.classList.add('bg-gray-400');
         iconBox.classList.add('bg-gray-400');
-        toggleActionButtons(true);
+        toggleActionButtons(false); // Kích hoạt nút đặt bàn
     }
 
     document.getElementById('bottomActionBar').classList.remove('hidden');
 }
 
 function toggleActionButtons(isDisabled) {
-    const btns = [document.getElementById('btnGop'), document.getElementById('btnTach'), document.getElementById('btnThanhToan')];
-    btns.forEach(btn => isDisabled ? btn.classList.add('opacity-50', 'pointer-events-none') : btn.classList.remove('opacity-50', 'pointer-events-none'));
+    // Các nút cần vô hiệu hóa khi bàn KHÔNG TRỐNG
+    const buttonsToToggle = [
+        document.getElementById('btnGop'),
+        document.getElementById('btnTach'),
+        document.getElementById('btnThanhToan'),
+        document.getElementById('btnDatBan')
+    ];
+
+    buttonsToToggle.forEach(btn => {
+        if (!btn) return;
+        if (isDisabled) {
+            btn.classList.add('opacity-40', 'pointer-events-none', 'cursor-not-allowed');
+        } else {
+            btn.classList.remove('opacity-40', 'pointer-events-none', 'cursor-not-allowed');
+        }
+    });
 }
 
 function closeBottomBar() {
@@ -54,16 +71,10 @@ function closeBottomBar() {
     currentSelectedTableId = null;
 }
 
-function closeOrderModal() {
-    const overlay = document.getElementById('orderModalOverlay');
-    const box = document.getElementById('orderModalBox');
-    box.classList.add('scale-95', 'opacity-0');
-    setTimeout(() => overlay.classList.add('hidden'), 150);
-}
-
 function executeAction(actionType) {
     if (!currentSelectedTableId) return;
     const tableName = document.getElementById('selectedTableName').innerText;
+    const tableStatus = document.getElementById('selectedTableBadge').innerText;
 
     switch(actionType) {
         case 'xem':
@@ -74,12 +85,12 @@ function executeAction(actionType) {
                     document.getElementById('orderModalOverlay').classList.remove('hidden');
                     setTimeout(() => document.getElementById('orderModalBox').classList.remove('scale-95', 'opacity-0'), 20);
                 })
-                .catch(err => showCustomError("Không thể kết nối đến máy chủ!"));
+                .catch(() => showCustomError("Không thể kết nối đến máy chủ!"));
             break;
 
         case 'chuyen':
-            if (document.getElementById('selectedTableBadge').innerText !== 'ĐANG SỬ DỤNG') {
-                showCustomError('Lỗi: Chỉ có thể chuyển những bàn ĐANG CÓ KHÁCH!');
+            if (tableStatus !== 'ĐANG SỬ DỤNG') {
+                showCustomError('Lỗi: Chỉ có thể chuyển bàn đang có khách!');
                 return;
             }
             document.getElementById('transferFromTableId').value = currentSelectedTableId;
@@ -87,90 +98,97 @@ function executeAction(actionType) {
             document.getElementById('transferModal').classList.remove('hidden');
             break;
 
-        case 'thanhtoan':
-            showCustomError(`Tính năng đang phát triển: Mở hóa đơn thanh toán cho [${tableName}]`);
-            break;
-
         case 'gop':
-            if (document.getElementById('selectedTableBadge').innerText !== 'ĐANG SỬ DỤNG') {
-                showCustomError('Lỗi: Chỉ có thể gộp những bàn ĐANG CÓ KHÁCH!');
+            if (tableStatus !== 'ĐANG SỬ DỤNG') {
+                showCustomError('Lỗi: Chỉ có thể gộp bàn đang có khách!');
                 return;
-            }
-            const radios = document.getElementsByName('denMaBan');
-            for(let i=0; i<radios.length; i++) {
-                if(radios[i].value == currentSelectedTableId) {
-                    radios[i].checked = true;
-                    break;
-                }
             }
             document.getElementById('mergeModal').classList.remove('hidden');
             break;
 
         case 'tach':
-            if (document.getElementById('selectedTableBadge').innerText !== 'ĐANG SỬ DỤNG') {
-                showCustomError('Lỗi: Chỉ có thể tách hóa đơn đối với những bàn ĐANG CÓ KHÁCH!');
+            if (tableStatus !== 'ĐANG SỬ DỤNG') {
+                showCustomError('Lỗi: Chỉ có thể tách hóa đơn bàn đang có khách!');
                 return;
             }
-
             document.getElementById('splitFromTableId').value = currentSelectedTableId;
             document.getElementById('splitFromTableName').innerText = tableName;
-
-            // Gọi AJAX Fetch API để kéo danh sách món ăn của bàn này về dạng JSON
             fetch(`/tables/${currentSelectedTableId}/items`)
                 .then(response => response.json())
                 .then(items => {
                     const tbody = document.getElementById('splitItemsTableBody');
-                    tbody.innerHTML = ''; // Làm sạch popup trước khi chèn mới
-
-                    if (items.length === 0) {
-                        tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-gray-400 italic">Bàn này chưa có món ăn nào để tách!</td></tr>`;
-                        return;
-                    }
-
+                    tbody.innerHTML = items.length === 0 ? `<tr><td colspan="3" class="p-4 text-center text-gray-400 italic">Bàn trống!</td></tr>` : '';
                     items.forEach(item => {
                         const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td class="p-3 font-semibold text-gray-800">
-                                ${item.tenmon}
-                                <input type="hidden" name="mathucdonList" value="${item.mathucdon}">
-                            </td>
-                            <td class="p-3 text-center font-bold text-gray-500">${item.soluong}</td>
-                            <td class="p-3 text-center">
-                                <input type="number" name="soluongTachList" value="0" min="0" max="${item.soluong}"
-                                       class="w-24 px-2 py-1 border border-gray-200 rounded-lg text-center font-extrabold text-gray-700 focus:outline-none focus:border-[#553722] focus:ring-1 focus:ring-[#553722]">
-                            </td>
-                        `;
+                        row.innerHTML = `<td class="p-3 font-semibold">${item.tenmon}<input type="hidden" name="mathucdonList" value="${item.mathucdon}"></td>
+                                         <td class="p-3 text-center">${item.soluong}</td>
+                                         <td class="p-3 text-center"><input type="number" name="soluongTachList" value="0" min="0" max="${item.soluong}" class="w-16 border rounded text-center"></td>`;
                         tbody.appendChild(row);
                     });
-
-                    // Bật hiển thị Popup Tách lên màn hình
                     document.getElementById('splitModal').classList.remove('hidden');
-                })
-                .catch(err => showCustomError("Không thể lấy danh sách món ăn của bàn từ máy chủ!"));
+                });
             break;
 
-        default:
-            showCustomError(`Đang bảo trì tính năng: ${actionType}`);
+        case 'datban':
+            if (tableStatus !== 'TRỐNG') {
+                showCustomError("Lỗi", "Bàn này không thể đặt trước!");
+                return;
+            }
+            openBookingModal(currentSelectedTableId, tableName);
+            break;
+
+        case 'chonmon':
+            // 1. Gọi về Server để lấy mã HTML của bảng chọn món
+            fetch('/tables/' + currentSelectedTableId + '/menu')
+                .then(response => {
+                if(!response.ok) throw new Error("Lỗi khi tải thực đơn");
+                return response.text(); // Lấy dữ liệu dạng chuỗi HTML
+            })
+                .then(html => {
+                // 2. Nhúng HTML vào div đã chuẩn bị sẵn
+                document.getElementById('orderModalContainer').innerHTML = html;
+
+                // 3. Hiệu ứng hiển thị Modal
+                document.getElementById('orderModalOverlay').classList.remove('hidden');
+                setTimeout(() => {
+                    const box = document.getElementById('orderModalBox');
+                    box.classList.remove('scale-95', 'opacity-0');
+                    box.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            })
+                .catch(error => {
+                console.error(error);
+                showCustomError("Lỗi kết nối", "Không thể tải danh sách thực đơn từ máy chủ.");
+            });
+            break;
     }
 }
 
-function closeTransferModal() {
-    document.getElementById('transferModal').classList.add('hidden');
-}
-
+// Modal Helpers
 function showCustomError(message) {
     document.getElementById('customErrorMessage').innerText = message;
     document.getElementById('customErrorModal').classList.remove('hidden');
 }
+function closeCustomError() { document.getElementById('customErrorModal').classList.add('hidden'); }
+function closeTransferModal() { document.getElementById('transferModal').classList.add('hidden'); }
+function closeMergeModal() { document.getElementById('mergeModal').classList.add('hidden'); }
+function closeSplitModal() { document.getElementById('splitModal').classList.add('hidden'); }
+function closeBookingModal() { document.getElementById('bookingModal').classList.add('hidden'); }
 
-function closeCustomError() {
-    document.getElementById('customErrorModal').classList.add('hidden');
+function openBookingModal(tableId, tableName) {
+    document.getElementById('bookingTableId').value = tableId;
+    document.getElementById('bookingTableName').innerText = tableName;
+    const now = new Date();
+    document.getElementById('bookingDate').value = now.toISOString().split('T')[0];
+    document.getElementById('bookingTime').value = now.toTimeString().slice(0,5);
+    document.getElementById('bookingModal').classList.remove('hidden');
 }
 
-function closeMergeModal() {
-    document.getElementById('mergeModal').classList.add('hidden');
-}
-
-function closeSplitModal() {
-    document.getElementById('splitModal').classList.add('hidden');
+function closeOrderModal() {
+    const box = document.getElementById('orderModalBox');
+    box.classList.remove('scale-100', 'opacity-100');
+    box.classList.add('scale-95', 'opacity-0');
+    setTimeout(() => {
+        document.getElementById('orderModalOverlay').classList.add('hidden');
+    }, 300);
 }
