@@ -167,6 +167,11 @@ function executeAction(actionType) {
             // Hiển thị modal lên
             document.getElementById('addOrderModal').classList.remove('hidden');
             break;
+
+        case 'inan':
+            // Hiển thị modal cài đặt in ấn
+            document.getElementById('printSettingsModal').classList.remove('hidden');
+            break;
     }
 }
 
@@ -219,3 +224,15 @@ document.getElementById('orderModalOverlay').addEventListener('click', function(
         closeViewOrderModal();
     }
 });
+
+// Hàm đóng Modal In ấn
+function closePrintSettingsModal() {
+    document.getElementById('printSettingsModal').classList.add('hidden');
+}
+
+// Hàm xử lý lưu cấu hình (Mô phỏng lưu thành công)
+function savePrintSettings() {
+    // Em có thể nâng cấp viết hàm lưu vào LocalStorage hoặc gửi qua Session sau, hiện tại ta thông báo trực quan:
+    alert("Đã lưu cấu hình thiết bị in ấn của quầy thành công!");
+    closePrintSettingsModal();
+}
