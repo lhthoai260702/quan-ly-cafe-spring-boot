@@ -191,4 +191,15 @@ public class TablesController {
         }
         return "redirect:/tables";
     }
+
+    @PostMapping("/tables/checkout")
+    public String xuLyThanhToan(@RequestParam("maBan") Integer maBan, RedirectAttributes redirectAttributes) {
+        try {
+            tablesService.thanhToanHoaDon(maBan);
+            redirectAttributes.addFlashAttribute("successMessage", "Thanh toán thành công! Bàn đã được dọn trống.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi thanh toán: " + e.getMessage());
+        }
+        return "redirect:/tables";
+    }
 }

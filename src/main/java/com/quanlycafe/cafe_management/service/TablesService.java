@@ -7,6 +7,7 @@ import com.quanlycafe.cafe_management.entity.ChiTietDatBan;
 import com.quanlycafe.cafe_management.entity.HoaDon;
 import com.quanlycafe.cafe_management.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -367,6 +368,31 @@ public class TablesService {
             // 3. Cập nhật lại tổng tiền cho Hóa đơn
             String updateTongTien = "UPDATE hoadon SET tongtien = (SELECT COALESCE(SUM(thanhtien), 0) FROM chitiethoadon WHERE mahoadon = ?) WHERE mahoadon = ?";
             jdbcTemplate.update(updateTongTien, maHoaDon, maHoaDon);
+        }
+    }
+
+    @Transactional
+    public void thanhToanHoaDon(Integer maBan) {
+        // 1. Tìm mã hóa đơn đang 'Chưa thanh toán' của bàn hiện tại
+        String sqlFindHoaDon = "SELECT hd.mahoadon FROM hoadon hd " +
+                "JOIN chitietdatban ctdb ON hd.mahoadon = ctdb.mahoadon " +
+                "WHERE ctdb.maban = ? AND hd.trangthai = 'Chưa thanh toán' LIMIT 1";
+
+        Integer maHoaDon = null;
+        try {
+            maHoaDon = jdbcTemplate.queryForObject(sqlFindHoaDon, Integer.class, maBan);
+        } catch (EmptyResultDataAccessException e) {
+            throw new RuntimeException("Không tìm thấy hóa đơn chưa thanh toán cho bàn này!");
+        }
+
+        if (maHoaDon != null) {
+            // 2. Đổi trạng thái Hóa đơn thành 'Đã thanh toán'
+            String sqlUpdateHoaDon = "UPDATE hoadon SET trangthai = 'Đã thanh toán' WHERE mahoadon = ?";
+            jdbcTemplate.update(sqlUpdateHoaDon, maHoaDon);
+
+            // 3. Giải phóng Bàn (đổi tình trạng về 'Trống')
+            String sqlUpdateBan = "UPDATE ban SET tinhtrang = 'Trống' WHERE maban = ?";
+            jdbcTemplate.update(sqlUpdateBan, maBan);
         }
     }
 }
