@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout('Thống kê báo cáo', 'report', ~{::main})}">
+<head>
+    <title>Thống kê báo cáo</title>
+</head>
+<body>
+<main class="flex-1 p-6 md:p-8 overflow-y-auto bg-[#f9f9f7]">
+    <div class="mb-8">
+        <h2 class="text-2xl font-bold text-[#1a1c1b] font-sans">Thống kê & Báo cáo Tổng hợp</h2>
+        <p class="text-sm text-[#50453e] opacity-80 mt-1">Phân tích biểu đồ doanh thu, xu hướng đơn hàng và tình hình tài chính.</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#e2e3e1]/80">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-bold text-gray-800 flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                        <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+                    </div>
+                    Doanh thu 7 ngày gần nhất
+                </h3>
+            </div>
+            <div class="relative h-72 w-full"><canvas id="revenueChart"></canvas></div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#e2e3e1]/80">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-bold text-gray-800 flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
+                        <i data-lucide="trending-up" class="w-4 h-4"></i>
+                    </div>
+                    Lượng đơn hàng (7 ngày qua)
+                </h3>
+            </div>
+            <div class="relative h-72 w-full"><canvas id="orderChart"></canvas></div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#e2e3e1]/80">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-bold text-gray-800 flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center">
+                        <i data-lucide="coffee" class="w-4 h-4"></i>
+                    </div>
+                    Top 5 món bán chạy nhất
+                </h3>
+            </div>
+            <div class="relative h-72 w-full"><canvas id="dishChart"></canvas></div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#e2e3e1]/80">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-bold text-gray-800 flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center">
+                        <i data-lucide="pie-chart" class="w-4 h-4"></i>
+                    </div>
+                    Cơ cấu Thu - Chi (Tháng này)
+                </h3>
+            </div>
+            <div class="relative h-72 w-full"><canvas id="financeChart"></canvas></div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+
+    <script th:inline="javascript">
+        window.addEventListener('load', function() {
+
+            // 1. Data Doanh Thu
+            const revLabels = /*[[${revenueLabels}]]*/ [];
+            const revData = /*[[${revenueValues}]]*/ [];
+
+            // 2. Data Món ăn
+            const dishLabels = /*[[${dishLabels}]]*/ [];
+            const dishData = /*[[${dishValues}]]*/ [];
+
+            // 3. Data Đơn hàng
+            const orderLabels = /*[[${orderLabels}]]*/ [];
+            const orderData = /*[[${orderValues}]]*/ [];
+
+            // 4. Data Thu Chi
+            const financeLabels = /*[[${financeLabels}]]*/ [];
+            const financeData = /*[[${financeValues}]]*/ [];
+
+            // --- VẼ BIỂU ĐỒ 1 (BAR) ---
+            new Chart(document.getElementById('revenueChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: revLabels,
+                    datasets: [{
+                        label: 'Doanh thu', data: revData,
+                        backgroundColor: '#10b981', borderRadius: 6, barThickness: 24
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => (c.raw || 0).toLocaleString('vi-VN') + ' đ' } } },
+                    scales: { y: { beginAtZero: true, ticks: { callback: (v) => v===0 ? '0' : (v/1000)+'k' } } }
+                }
+            });
+
+            // --- VẼ BIỂU ĐỒ 2 (LINE) ---
+            new Chart(document.getElementById('orderChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: orderLabels,
+                    datasets: [{
+                        label: 'Số lượng đơn', data: orderData,
+                        borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 3, fill: true, tension: 0.4, pointBackgroundColor: '#ffffff', pointBorderColor: '#3b82f6', pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                }
+            });
+
+            // --- VẼ BIỂU ĐỒ 3 (DOUGHNUT) ---
+            new Chart(document.getElementById('dishChart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: dishLabels,
+                    datasets: [{
+                        data: dishData,
+                        backgroundColor: ['#f59e0b', '#8b5cf6', '#ec4899', '#3b82f6', '#14b8a6'],
+                        borderWidth: 0, hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, cutout: '60%',
+                    plugins: { legend: { position: 'right', labels: { usePointStyle: true, padding: 20 } } }
+                }
+            });
+
+            // --- VẼ BIỂU ĐỒ 4 (PIE) ---
+            new Chart(document.getElementById('financeChart').getContext('2d'), {
+                type: 'pie',
+                data: {
+                    labels: financeLabels,
+                    datasets: [{
+                        data: financeData,
+                        backgroundColor: ['#10b981', '#f43f5e'], // Xanh ngọc (Thu), Đỏ mận (Chi)
+                        borderWidth: 2, borderColor: '#ffffff', hoverOffset: 6
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } },
+                        tooltip: { callbacks: { label: (c) => ' ' + (c.raw || 0).toLocaleString('vi-VN') + ' đ' } }
+                    }
+                }
+            });
+        });
+    </script>
+</main>
+</body>
+</html>

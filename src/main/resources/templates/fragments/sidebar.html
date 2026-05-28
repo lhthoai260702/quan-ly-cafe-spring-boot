@@ -14,8 +14,8 @@
     </div>
 
     <div class="flex-1 flex flex-col gap-1 px-2 overflow-y-auto">
-        <a th:href="@{/dashboard}"
-           th:classappend="${activeTab == 'dashboard'} ? 'bg-[#ffdcc6] text-[#553722] font-bold border-l-4 border-[#553722]' : 'text-[#50453e] hover:bg-[#e8e8e6] opacity-85 hover:opacity-100'"
+        <a th:href="@{/home}"
+           th:classappend="${activeTab == 'home'} ? 'bg-[#ffdcc6] text-[#553722] font-bold border-l-4 border-[#553722]' : 'text-[#50453e] hover:bg-[#e8e8e6] opacity-85 hover:opacity-100'"
            class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-sans">
             <i data-lucide="home" class="w-5 h-5"></i>
             <span class="text-sm font-medium">Trang chủ</span>
@@ -49,7 +49,6 @@
             <span class="text-sm font-medium">Quản lý thực đơn</span>
         </a>
 
-        <!-- Các mục mới thêm vào -->
         <a th:href="@{/equipment}"
            th:classappend="${activeTab == 'equipment'} ? 'bg-[#ffdcc6] text-[#553722] font-bold border-l-4 border-[#553722]' : 'text-[#50453e] hover:bg-[#e8e8e6] opacity-85 hover:opacity-100'"
            class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-sans">
@@ -85,8 +84,8 @@
             <span class="text-sm font-medium">Quản lý dữ liệu</span>
         </a>
 
-        <a th:href="@{/analytics}"
-           th:classappend="${activeTab == 'analytics'} ? 'bg-[#ffdcc6] text-[#553722] font-bold border-l-4 border-[#553722]' : 'text-[#50453e] hover:bg-[#e8e8e6] opacity-85 hover:opacity-100'"
+        <a th:href="@{/report}"
+           th:classappend="${activeTab == 'report'} ? 'bg-[#ffdcc6] text-[#553722] font-bold border-l-4 border-[#553722]' : 'text-[#50453e] hover:bg-[#e8e8e6] opacity-85 hover:opacity-100'"
            class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-sans">
             <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
             <span class="text-sm font-medium">Thống kê & Báo cáo</span>
