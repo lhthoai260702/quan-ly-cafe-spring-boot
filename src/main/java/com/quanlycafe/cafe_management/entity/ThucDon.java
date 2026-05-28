@@ -1,10 +1,8 @@
 package com.quanlycafe.cafe_management.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
+import lombok.*;
+import java.math.BigDecimal;
 @Entity
 @Table(name = "thucdon")
 @Data
@@ -20,8 +18,8 @@ public class ThucDon {
     @Column(name = "tenmon", nullable = false, length = 100)
     private String tenMon;
 
-    @Column(name = "giatienhientai", nullable = false)
-    private Double giaTienHienTai;
+    @Column(name = "giatienhientai", nullable = false, precision = 12, scale = 2)
+    private BigDecimal giaTienHienTai;
 
     @Column(name = "loaimon", length = 50)
     private String loaiMon;
