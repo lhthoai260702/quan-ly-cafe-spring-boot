@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout('Quản lý Dữ liệu', 'data', ~{::main})}">
+<head>
+    <title>Quản lý Dữ liệu</title>
+</head>
+<body>
+<main class="flex-1 p-6 md:p-8 overflow-y-auto bg-[#f9f9f7]">
+    <div class="mb-8">
+        <h2 class="text-2xl font-bold text-[#1a1c1b] font-sans">Quản lý Dữ liệu Hệ thống</h2>
+        <p class="text-sm text-[#50453e] opacity-80 mt-1">Sao lưu dự phòng và phục hồi cơ sở dữ liệu để đảm bảo an toàn thông tin quán.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+        <div class="bg-white rounded-2xl shadow-sm border border-[#e2e3e1]/80 overflow-hidden flex flex-col">
+            <div class="bg-emerald-50 px-6 py-4 border-b border-emerald-100 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                    <i data-lucide="database-backup" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-emerald-800 text-lg">Sao lưu dữ liệu</h3>
+                    <p class="text-xs text-emerald-600">Lưu trữ toàn bộ thông tin hiện tại thành file (.sql)</p>
+                </div>
+            </div>
+
+            <div class="p-6 flex-1 flex flex-col justify-between">
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Tên file sao lưu</label>
+                        <div class="relative">
+                            <input type="text" id="backup-filename" value="CafeHarmony_Backup_20260528.sql" readonly
+                                   class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-4 pr-10 py-2.5 text-sm font-mono text-gray-500 cursor-not-allowed">
+                            <i data-lucide="lock" class="w-4 h-4 text-gray-400 absolute right-3 top-3"></i>
+                        </div>
+                        <p class="text-[11px] text-gray-500 mt-1">Hệ thống sẽ tự động đặt tên theo ngày giờ hiện tại.</p>
+                    </div>
+
+                    <div id="backup-progress-container" class="hidden">
+                        <div class="flex justify-between text-xs font-bold mb-1">
+                            <span class="text-emerald-700">Đang trích xuất dữ liệu...</span>
+                            <span id="backup-progress-text" class="text-emerald-700">0%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                            <div id="backup-progress-bar" class="bg-emerald-500 h-2.5 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-6 mt-6 border-t border-gray-100">
+                    <button type="button" id="btn-backup" onclick="simulateBackup()"
+                            class="w-full py-3 bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 transition-colors shadow-md flex justify-center items-center gap-2">
+                        <i data-lucide="download-cloud" class="w-4 h-4"></i> Tiến hành Sao Lưu
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-[#e2e3e1]/80 overflow-hidden flex flex-col relative">
+
+            <div class="absolute top-0 right-0 bg-rose-500 text-white text-[9px] font-bold uppercase tracking-wider px-3 py-1 rounded-bl-xl">
+                Cẩn thận
+            </div>
+
+            <div class="bg-rose-50 px-6 py-4 border-b border-rose-100 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+                    <i data-lucide="database-zap" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-rose-800 text-lg">Phục hồi dữ liệu</h3>
+                    <p class="text-xs text-rose-600">Ghi đè dữ liệu cũ từ file Backup đã có</p>
+                </div>
+            </div>
+
+            <div class="p-6 flex-1 flex flex-col justify-between">
+                <div class="space-y-5">
+
+                    <div class="bg-amber-50 border-l-4 border-amber-500 p-3 rounded-r-lg">
+                        <p class="text-xs text-amber-800 leading-relaxed font-medium">
+                            <i data-lucide="alert-triangle" class="w-3.5 h-3.5 inline-block mr-1 mb-0.5"></i>
+                            Quá trình này sẽ <strong>xóa toàn bộ dữ liệu hiện tại</strong> và thay thế bằng dữ liệu trong file bạn chọn. Vui lòng kiểm tra kỹ trước khi thực hiện!
+                        </p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Chọn file phục hồi (.sql)</label>
+                        <input type="file" id="restore-file" accept=".sql,.bak"
+                               class="block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-rose-50 file:text-rose-700 hover:file:bg-rose-100 transition-all border border-gray-200 rounded-xl cursor-pointer bg-gray-50">
+                    </div>
+
+                    <div id="restore-progress-container" class="hidden">
+                        <div class="flex justify-between text-xs font-bold mb-1">
+                            <span class="text-rose-700">Đang ghi đè cơ sở dữ liệu...</span>
+                            <span id="restore-progress-text" class="text-rose-700">0%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                            <div id="restore-progress-bar" class="bg-rose-500 h-2.5 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-6 mt-6 border-t border-gray-100">
+                    <button type="button" id="btn-restore" onclick="simulateRestore()"
+                            class="w-full py-3 bg-rose-600 text-white rounded-xl text-sm font-bold hover:bg-rose-700 transition-colors shadow-md flex justify-center items-center gap-2">
+                        <i data-lucide="upload-cloud" class="w-4 h-4"></i> Tiến hành Phục Hồi
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Fake logic chạy thanh Progress Bar cho chức năng Sao lưu
+        function simulateBackup() {
+            const btn = document.getElementById('btn-backup');
+            const container = document.getElementById('backup-progress-container');
+            const bar = document.getElementById('backup-progress-bar');
+            const text = document.getElementById('backup-progress-text');
+
+            // Disable nút
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+            container.classList.remove('hidden');
+
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.floor(Math.random() * 10) + 5; // Tăng ngẫu nhiên 5-15%
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+
+                    // Hoàn thành
+                    setTimeout(() => {
+                        alert("Sao lưu thành công! File đã được lưu vào máy tính của bạn.");
+                        // Reset giao diện
+                        container.classList.add('hidden');
+                        bar.style.width = '0%';
+                        text.innerText = '0%';
+                        btn.disabled = false;
+                        btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }, 500);
+                }
+                bar.style.width = progress + '%';
+                text.innerText = progress + '%';
+            }, 300);
+        }
+
+        // Fake logic chạy thanh Progress Bar cho chức năng Phục hồi
+        function simulateRestore() {
+            const fileInput = document.getElementById('restore-file');
+            if(!fileInput.files.length) {
+                alert("Vui lòng chọn một file (.sql) trước khi phục hồi!");
+                return;
+            }
+
+            if(!confirm("CẢNH BÁO: Bạn có chắc chắn muốn ghi đè toàn bộ dữ liệu hệ thống? Thao tác này không thể hoàn tác!")) {
+                return;
+            }
+
+            const btn = document.getElementById('btn-restore');
+            const container = document.getElementById('restore-progress-container');
+            const bar = document.getElementById('restore-progress-bar');
+            const text = document.getElementById('restore-progress-text');
+
+            // Disable nút
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+            container.classList.remove('hidden');
+
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.floor(Math.random() * 8) + 2;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+
+                    setTimeout(() => {
+                        alert("Phục hồi dữ liệu thành công! Hệ thống sẽ tự động tải lại.");
+                        location.reload();
+                    }, 600);
+                }
+                bar.style.width = progress + '%';
+                text.innerText = progress + '%';
+            }, 400);
+        }
+    </script>
+</main>
+</body>
+</html>
