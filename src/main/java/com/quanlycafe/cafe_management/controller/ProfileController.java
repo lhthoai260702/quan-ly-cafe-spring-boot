@@ -9,17 +9,20 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 public class ProfileController {
 
+    // Hiển thị trang profile
     @GetMapping("/profile")
     public String showProfile(Model model) {
         return "profile";
     }
 
+    // Cập nhật cấu hình cửa hàng
     @PostMapping("/profile/update-business")
     public String updateBusiness(RedirectAttributes redirectAttributes) {
         redirectAttributes.addFlashAttribute("successMsg", "Đã cập nhật thành công cấu hình cửa hàng!");
         return "redirect:/profile";
     }
 
+    // Thay đổi mật khẩu
     @PostMapping("/profile/change-password")
     public String changePassword(RedirectAttributes redirectAttributes) {
         redirectAttributes.addFlashAttribute("successMsg", "Đổi mật khẩu thành công!");

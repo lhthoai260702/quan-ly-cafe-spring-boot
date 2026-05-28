@@ -8,7 +8,6 @@ import java.util.List;
 
 @Repository
 public interface ThucDonRepository extends JpaRepository<ThucDon, Integer> {
-
     List<ThucDon> findByLoaiMon(String loaiMon);
     List<ThucDon> findByTenMonContainingIgnoreCase(String tenMon);
 }

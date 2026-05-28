@@ -22,7 +22,7 @@ public class TaiKhoan {
     private String matKhau;
 
     @Column(name = "quyenhan", nullable = false)
-    private Integer quyenHan; // 1: Quản lý, 2: Nhân viên (Đã đổi thành Integer khớp DB)
+    private Integer quyenHan; // 1: Quản lý, 2: Nhân viên
 
     @Column(name = "anh", columnDefinition = "TEXT")
     private String anh;

@@ -14,6 +14,7 @@ public class GlobalControllerAdvice {
     @Autowired
     private ProfileService profileService;
 
+    // Lấy thông tin người dùng hiện tại
     @ModelAttribute("currentUser")
     public UserProfileDTO getCurrentUser(Principal principal) {
         if (principal != null) {

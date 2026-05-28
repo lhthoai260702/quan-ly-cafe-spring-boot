@@ -20,7 +20,6 @@ public class ThucDon {
     @Column(name = "tenmon", nullable = false, length = 100)
     private String tenMon;
 
-    // Sử dụng Double để khớp với kiểu tính toán trong TablesService
     @Column(name = "giatienhientai", nullable = false)
     private Double giaTienHienTai;
 

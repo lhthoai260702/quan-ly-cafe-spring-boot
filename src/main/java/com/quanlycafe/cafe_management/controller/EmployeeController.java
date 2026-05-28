@@ -18,6 +18,7 @@ public class EmployeeController {
 
     private final EmployeeService employeeService;
 
+    // Hiển thị trang quản lý nhân viên
     @GetMapping("/employees")
     public String showEmployeeManager(
             @RequestParam(required = false) String role,
@@ -48,6 +49,7 @@ public class EmployeeController {
         return "employees";
     }
 
+    // Thêm nhân viên
     @PostMapping("/employees/add")
     public String addEmployee(
             @RequestParam String hoTen,
@@ -65,6 +67,7 @@ public class EmployeeController {
         }
     }
 
+    // Sửa nhân viên
     @PostMapping("/employees/edit")
     public String editEmployee(
             @RequestParam Integer maNhanVien,
@@ -81,6 +84,7 @@ public class EmployeeController {
         }
     }
 
+    // Xóa nhân viên
     @PostMapping("/employees/delete")
     public String deleteEmployee(@RequestParam Integer maNhanVien) {
         try {

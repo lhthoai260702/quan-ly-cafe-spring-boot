@@ -28,6 +28,7 @@ public class TablesController {
     @Autowired
     private ThucDonRepository thucDonRepository;
 
+    // Hiển thị danh sách bàn
     @GetMapping("/tables")
     public String showTableMap(
             @RequestParam(name = "status", required = false) String status,
@@ -72,6 +73,7 @@ public class TablesController {
         return "tables";
     }
 
+    // Hiển thị danh sách món
     @GetMapping("/tables/{maBan}/order-details")
     public String getOrderDetailsFragment(@PathVariable("maBan") Integer maBan, Model model) {
         ThongTinBanGoiMonDTO thongTinGoiMon = tablesService.getChiTietGoiMonTheoBan(maBan);
@@ -80,6 +82,7 @@ public class TablesController {
         return "fragments/hoadon :: nội_dung_hóa_đơn";
     }
 
+    // Chuyển bàn
     @PostMapping("/tables/transfer")
     public String transferTable(@RequestParam("tuMaBan") Integer tuMaBan,
                                 @RequestParam("denMaBan") Integer denMaBan) {
@@ -87,6 +90,7 @@ public class TablesController {
         return "redirect:/tables";
     }
 
+    // Gộp bàn
     @PostMapping("/tables/merge")
     public String mergeTables(@RequestParam(value = "tuMaBanList", required = false) List<Integer> tuMaBanList,
                               @RequestParam(value = "denMaBan", required = true) Integer denMaBan,
@@ -114,6 +118,7 @@ public class TablesController {
         return "redirect:/tables";
     }
 
+    // Tách bàn
     @GetMapping("/tables/{maBan}/items")
     @ResponseBody
     public List<Map<String, Object>> getTableItemsJson(@PathVariable("maBan") Integer maBan) {
@@ -136,9 +141,10 @@ public class TablesController {
         return "redirect:/tables";
     }
 
+    // Đặt bàn
     @PostMapping("/tables/booking")
     public String handleBookingTable(
-            @ModelAttribute("currentUser") UserProfileDTO currentUser, // <-- Lấy trực tiếp từ GlobalControllerAdvice
+            @ModelAttribute("currentUser") UserProfileDTO currentUser,
             @RequestParam("maBan") Integer maBan,
             @RequestParam("tenKhachHang") String tenKhachHang,
             @RequestParam(value = "sdtKhachHang", required = false) String sdtKhachHang,
@@ -172,6 +178,7 @@ public class TablesController {
         return "redirect:/tables";
     }
 
+    // Chọn món
     @PostMapping("/tables/order")
     public String xuLyGoiMon(
             @ModelAttribute("currentUser") UserProfileDTO currentUser,
@@ -192,6 +199,7 @@ public class TablesController {
         return "redirect:/tables";
     }
 
+    // Thanh toán
     @PostMapping("/tables/checkout")
     public String xuLyThanhToan(@RequestParam("maBan") Integer maBan, RedirectAttributes redirectAttributes) {
         try {
