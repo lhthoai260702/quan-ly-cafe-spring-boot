@@ -27,7 +27,7 @@ public class WebSecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/login") // Mở trang giao diện của mình
                         .loginProcessingUrl("/login") // Nơi Spring xử lý form Submit
-                        .defaultSuccessUrl("/dashboard", true) // Chuyển đến dashboard khi thành công
+                        .defaultSuccessUrl("/home", true) // Chuyển đến home khi thành công
                         .failureUrl("/login?error=true") // Trả về lỗi nếu sai mật khẩu
                         .permitAll()
                 )

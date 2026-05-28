@@ -7,86 +7,109 @@
 
     <link rel="icon" type="image/png" th:href="@{/images/login.png}">
 
-    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script th:src="@{/js/tailwind-config.js}"></script>
-    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet"/>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body { font-family: 'Hanken Grotesk', sans-serif; }
+
+        /* Hiệu ứng chuyển động mượt mà cho các khối màu nền (Blobs) */
+        @keyframes blob {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .animate-blob {
+            animation: blob 8s infinite;
+        }
+        .animation-delay-2000 {
+            animation-delay: 2s;
+        }
+        .animation-delay-4000 {
+            animation-delay: 4s;
+        }
+    </style>
 </head>
 
-<body class="bg-surface text-on-surface font-body-lg min-h-screen flex items-center justify-center relative overflow-hidden">
-<div class="absolute inset-0 z-0 opacity-10">
-    <img alt="Background pattern" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBrVMBbMyBoEATqrDP9Dbani1LDrQH-IY8ELXjxnjHhkBHiEbOdyJm4lIcD6voKbqo7KQIe2erN_ywMqOUpleGctIchjWxhT6riaG5sUTE4osrVEGlYFAL3zRYsorsvGy6hQtCTaFxpUVGKXwzuNCE40NH0e2RKW3CvrIVEb_kfTSvSkpYxTRo7Q8DzVOd0AyFuSz5dAbe_KLKuPrL0TaBtSw5PhlUcLxb6_tEzy2NAEyhfkoaxm49yi0VTFSkGms3ku0rC7j4BF4"/>
+<body class="bg-[#f4f4f2] text-[#1a1c1b] min-h-screen flex items-center justify-center relative overflow-hidden selection:bg-[#553722] selection:text-white">
+
+<div class="absolute w-full h-full flex items-center justify-center overflow-hidden z-0 pointer-events-none">
+    <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-[#ffdcc6] rounded-full mix-blend-multiply filter blur-3xl opacity-60 animate-blob"></div>
+    <div class="absolute top-1/3 right-1/4 w-96 h-96 bg-[#e2e3e1] rounded-full mix-blend-multiply filter blur-3xl opacity-60 animate-blob animation-delay-2000"></div>
+    <div class="absolute bottom-1/4 left-1/3 w-96 h-96 bg-[#d1c4bc] rounded-full mix-blend-multiply filter blur-3xl opacity-60 animate-blob animation-delay-4000"></div>
 </div>
 
-<main class="w-full max-w-md mx-margin z-10">
-    <div class="bg-surface-container-lowest rounded-xl shadow-[0_4px_24px_rgba(85,55,34,0.08)] p-lg border border-surface-container-highest">
+<div class="relative z-10 w-full max-w-[420px] mx-4 bg-white/70 backdrop-blur-xl border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.08)] rounded-3xl p-8 sm:p-10">
 
-        <div class="text-center mb-lg">
-            <div class="inline-flex items-center justify-center w-16 h-16 bg-primary-container text-on-primary-container rounded-full mb-md">
-                <span class="material-symbols-outlined" style="font-size: 32px; font-variation-settings: 'FILL' 1;">local_cafe</span>
-            </div>
-            <h1 class="font-headline-lg text-headline-lg text-primary mb-xs">Bean & Brew</h1>
-            <p class="font-body-md text-body-md text-on-surface-variant">Hệ thống quản lý quán cà phê</p>
+    <div class="text-center mb-8">
+        <div class="w-16 h-16 bg-[#553722] rounded-2xl shadow-lg flex items-center justify-center mx-auto mb-4 transform rotate-3 hover:rotate-0 transition-transform duration-300">
+            <i data-lucide="coffee" class="w-8 h-8 text-white"></i>
         </div>
-
-        <div th:if="${param.error}" class="bg-error-container text-on-error-container px-4 py-3 rounded-lg mb-4 text-center font-body-md">
-            Sai tên đăng nhập hoặc mật khẩu! Vui lòng thử lại.
-        </div>
-
-        <div th:if="${param.logout}" class="bg-secondary-container text-on-secondary-container px-4 py-3 rounded-lg mb-4 text-center font-body-md">
-            Bạn đã đăng xuất thành công khỏi hệ thống.
-        </div>
-
-        <form th:action="@{/login}" method="post" class="space-y-md">
-
-            <div>
-                <label class="block font-label-md text-label-md text-on-surface-variant mb-xs uppercase tracking-wider" for="username">Tên đăng nhập</label>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-sm flex items-center pointer-events-none text-on-surface-variant">
-                        <span class="material-symbols-outlined" style="font-size: 20px;">person</span>
-                    </div>
-                    <input class="block w-full pl-10 pr-sm py-3 bg-surface-container-low border-transparent rounded-lg focus:border-primary focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary font-body-md text-body-md text-on-surface transition-colors duration-200" id="username" name="username" placeholder="Nhập tên đăng nhập của bạn" type="text" required/>
-                </div>
-            </div>
-
-            <div>
-                <label class="block font-label-md text-label-md text-on-surface-variant mb-xs uppercase tracking-wider" for="password">Mật khẩu</label>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-sm flex items-center pointer-events-none text-on-surface-variant">
-                        <span class="material-symbols-outlined" style="font-size: 20px;">lock</span>
-                    </div>
-                    <input class="block w-full pl-10 pr-10 py-3 bg-surface-container-low border-transparent rounded-lg focus:border-primary focus:bg-surface-container-lowest focus:ring-1 focus:ring-primary font-body-md text-body-md text-on-surface transition-colors duration-200" id="password" name="password" placeholder="••••••••" type="password" required/>
-                    <button class="absolute inset-y-0 right-0 pr-sm flex items-center text-on-surface-variant hover:text-primary transition-colors" type="button">
-                        <span class="material-symbols-outlined" style="font-size: 20px;">visibility_off</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="flex items-center justify-between pt-sm">
-                <div class="flex items-center">
-                    <input class="h-4 w-4 text-primary focus:ring-primary border-outline-variant rounded bg-surface-container-low" id="remember-me" name="remember-me" type="checkbox"/>
-                    <label class="ml-2 block font-body-md text-body-md text-on-surface-variant" for="remember-me">
-                        Ghi nhớ đăng nhập
-                    </label>
-                </div>
-                <div class="text-sm">
-                    <a class="font-body-md text-body-md text-primary hover:text-primary-fixed-dim transition-colors" href="#">Quên mật khẩu?</a>
-                </div>
-            </div>
-
-            <div class="pt-sm">
-                <button class="w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-lg shadow-sm text-on-primary bg-primary hover:bg-surface-tint focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary font-label-md text-label-md uppercase tracking-wider transition-all duration-200 active:scale-[0.98]" type="submit">
-                    Đăng nhập
-                    <span class="material-symbols-outlined" style="font-size: 18px;">arrow_forward</span>
-                </button>
-            </div>
-        </form>
-
-        <div class="mt-lg text-center">
-            <p class="font-body-md text-body-md text-on-surface-variant text-opacity-70">© 2024 Café Harmony Management</p>
-        </div>
+        <h1 class="text-3xl font-bold text-[#1a1c1b] tracking-tight">Café Harmony</h1>
+        <p class="text-sm text-[#50453e] mt-2 opacity-80">Đăng nhập để quản lý hệ thống</p>
     </div>
-</main>
+
+    <div th:if="${param.error}" class="mb-6 p-4 bg-rose-50 border border-rose-100 rounded-xl flex items-start gap-3 animate-pulse">
+        <i data-lucide="alert-circle" class="w-5 h-5 text-rose-500 shrink-0 mt-0.5"></i>
+        <p class="text-sm text-rose-700 font-medium">Tên đăng nhập hoặc mật khẩu không chính xác!</p>
+    </div>
+    <div th:if="${param.logout}" class="mb-6 p-4 bg-emerald-50 border border-emerald-100 rounded-xl flex items-start gap-3">
+        <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-500 shrink-0 mt-0.5"></i>
+        <p class="text-sm text-emerald-700 font-medium">Bạn đã đăng xuất thành công.</p>
+    </div>
+
+    <form th:action="@{/login}" method="POST" class="space-y-5">
+
+        <div>
+            <label for="username" class="block text-[11px] font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Tên đăng nhập</label>
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <i data-lucide="user" class="w-4 h-4 text-gray-400"></i>
+                </div>
+                <input type="text" id="username" name="username" required autofocus placeholder="Nhập tài khoản..."
+                       class="w-full bg-white/80 border border-gray-200 rounded-xl pl-11 pr-4 py-3 text-sm text-[#1a1c1b] focus:bg-white focus:outline-none focus:border-[#553722] focus:ring-1 focus:ring-[#553722] transition-all placeholder:text-gray-400">
+            </div>
+        </div>
+
+        <div>
+            <div class="flex justify-between items-center mb-1.5">
+                <label for="password" class="block text-[11px] font-bold text-[#50453e] uppercase tracking-wider">Mật khẩu</label>
+                <a href="#" class="text-xs font-bold text-[#553722] hover:text-[#6f4e37] transition-colors">Quên mật khẩu?</a>
+            </div>
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <i data-lucide="lock" class="w-4 h-4 text-gray-400"></i>
+                </div>
+                <input type="password" id="password" name="password" required placeholder="••••••••"
+                       class="w-full bg-white/80 border border-gray-200 rounded-xl pl-11 pr-4 py-3 text-sm text-[#1a1c1b] focus:bg-white focus:outline-none focus:border-[#553722] focus:ring-1 focus:ring-[#553722] transition-all placeholder:text-gray-400">
+            </div>
+        </div>
+
+        <div class="flex items-center pt-1 pb-2">
+            <input type="checkbox" id="remember-me" name="remember-me"
+                   class="w-4 h-4 text-[#553722] bg-white border-gray-300 rounded focus:ring-[#553722] cursor-pointer">
+            <label for="remember-me" class="ml-2.5 block text-sm text-[#50453e] font-semibold cursor-pointer select-none">
+                Ghi nhớ đăng nhập
+            </label>
+        </div>
+
+        <button type="submit"
+                class="w-full py-3.5 px-4 bg-[#553722] hover:bg-[#6f4e37] text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 group">
+            <span>Đăng nhập hệ thống</span>
+            <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+        </button>
+    </form>
+
+    <div class="mt-8 pt-6 border-t border-gray-200/60 text-center">
+        <p class="text-[11px] font-semibold text-[#50453e] opacity-60 uppercase tracking-wide">© 2026 Café Harmony</p>
+    </div>
+</div>
+
+<script>
+    lucide.createIcons();
+</script>
 </body>
 </html>
