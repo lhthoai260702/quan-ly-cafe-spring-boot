@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout('Quản lý Ngân sách', 'budget', ~{::main})}">
+<head>
+    <title>Quản lý Ngân sách</title>
+</head>
+<body>
+<main class="flex-1 p-6 md:p-8 overflow-y-auto bg-[#f9f9f7]">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
+        <div>
+            <h2 class="text-2xl font-bold text-[#1a1c1b] font-sans">Quản lý Ngân sách (Thu - Chi)</h2>
+            <p class="text-sm text-[#50453e] opacity-80 mt-1">Theo dõi doanh thu bán hàng và kiểm soát các khoản chi phí phát sinh.</p>
+        </div>
+        <button onclick="document.getElementById('addExpenseModal').classList.remove('hidden')"
+                class="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold uppercase tracking-wider transition-all shadow-md">
+            <i data-lucide="minus-circle" class="w-4 h-4"></i>
+            Thêm khoản chi mới
+        </button>
+    </div>
+
+    <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#e2e3e1]/60 mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
+        <form th:action="@{/budget}" method="GET" class="flex flex-wrap items-end gap-6 w-full">
+            <div>
+                <label class="block text-xs font-bold text-gray-500 mb-1.5 uppercase tracking-wider">Từ ngày</label>
+                <input type="date" name="fromDate" th:value="${fromDate}" required onchange="this.form.submit()"
+                       class="px-4 py-2 bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl text-sm focus:border-[#553722] focus:ring-1 focus:ring-[#553722] text-[#1a1c1b] font-medium transition-all cursor-pointer">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-500 mb-1.5 uppercase tracking-wider">Đến ngày</label>
+                <input type="date" name="toDate" th:value="${toDate}" required onchange="this.form.submit()"
+                       class="px-4 py-2 bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl text-sm focus:border-[#553722] focus:ring-1 focus:ring-[#553722] text-[#1a1c1b] font-medium transition-all cursor-pointer">
+            </div>
+            <div class="ml-auto text-sm text-gray-500 italic mt-2 md:mt-0 flex items-center">
+                <i data-lucide="mouse-pointer-click" class="w-4 h-4 mr-1"></i> Bấm vào từng dòng để xem chi tiết
+            </div>
+        </form>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-[#e2e3e1]/60 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm whitespace-nowrap">
+                <thead class="bg-[#f4f4f2] text-[#50453e] font-bold uppercase text-[11px] tracking-wider border-b border-[#e2e3e1]">
+                <tr>
+                    <th class="px-6 py-4">Ngày giao dịch</th>
+                    <th class="px-6 py-4 text-right text-emerald-700">Tiền Thu (Doanh thu)</th>
+                    <th class="px-6 py-4 text-right text-rose-700">Tiền Chi (Chi phí)</th>
+                    <th class="px-6 py-4 text-right">Lợi nhuận gộp (Net)</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-[#e2e3e1]/40 text-[#1a1c1b]">
+
+                <tr th:each="row : ${reportList}"
+                    th:data-date="${row.ngay}"
+                    th:data-datestr="${#temporals.format(row.ngay, 'dd/MM/yyyy')}"
+                    onclick="openDetailModal(this.getAttribute('data-date'), this.getAttribute('data-datestr'))"
+                    class="hover:bg-amber-50 cursor-pointer transition-colors group relative">
+
+                    <td class="px-6 py-4 font-bold text-[#553722]">
+                        <i data-lucide="calendar" class="w-4 h-4 inline-block mr-1 text-gray-400 group-hover:text-[#553722] transition-colors"></i>
+                        <span th:text="${#temporals.format(row.ngay, 'dd/MM/yyyy')}">01/01/2026</span>
+                    </td>
+                    <td class="px-6 py-4 text-right font-semibold text-emerald-600" th:text="${#numbers.formatInteger(row.thu, 0, 'COMMA')} + ' đ'">100,000 đ</td>
+                    <td class="px-6 py-4 text-right font-semibold text-rose-600" th:text="${#numbers.formatInteger(row.chi, 0, 'COMMA')} + ' đ'">50,000 đ</td>
+                    <td class="px-6 py-4 text-right font-extrabold"
+                        th:classappend="${(row.thu - row.chi) >= 0} ? 'text-emerald-700' : 'text-rose-700'"
+                        th:text="${#numbers.formatInteger(row.thu - row.chi, 0, 'COMMA')} + ' đ'">50,000 đ</td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(reportList)}">
+                    <td colspan="4" class="px-6 py-12 text-center text-gray-400 italic">
+                        <i data-lucide="file-x" class="w-10 h-10 mx-auto mb-2 opacity-50"></i>
+                        Không có dữ liệu thu chi trong khoảng thời gian này.
+                    </td>
+                </tr>
+                </tbody>
+
+                <tfoot th:if="${not #lists.isEmpty(reportList)}" class="bg-gray-50 border-t-2 border-gray-200">
+                <tr>
+                    <td class="px-6 py-5 font-extrabold uppercase text-gray-800 text-sm">TỔNG CỘNG:</td>
+                    <td class="px-6 py-5 text-right font-extrabold text-emerald-600 text-base" th:text="${#numbers.formatInteger(totalThu, 0, 'COMMA')} + ' đ'">0 đ</td>
+                    <td class="px-6 py-5 text-right font-extrabold text-rose-600 text-base" th:text="${#numbers.formatInteger(totalChi, 0, 'COMMA')} + ' đ'">0 đ</td>
+                    <td class="px-6 py-5 text-right font-extrabold text-lg"
+                        th:classappend="${totalNet >= 0} ? 'text-emerald-700' : 'text-rose-700'"
+                        th:text="${#numbers.formatInteger(totalNet, 0, 'COMMA')} + ' đ'">0 đ</td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <div id="hidden-details" class="hidden">
+        <div th:each="row : ${reportList}" th:id="'detail-data-' + ${row.ngay}">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-emerald-50/50 rounded-xl p-4 border border-emerald-100">
+                    <h4 class="font-bold text-emerald-800 border-b border-emerald-200 pb-2 mb-3 flex items-center gap-2">
+                        <i data-lucide="trending-up" class="w-4 h-4"></i> Danh sách Thu (Hóa Đơn)
+                    </h4>
+                    <ul class="space-y-3 max-h-72 overflow-y-auto pr-2 custom-scrollbar">
+                        <li th:each="hd : ${row.danhSachThu}" class="text-sm bg-white p-2.5 rounded-lg border border-emerald-100 shadow-sm flex flex-col gap-1">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-gray-700">HĐ #[[${hd.maHoaDon}]]</span>
+                                <span class="font-bold text-emerald-600">[[${#numbers.formatInteger(hd.tongTien, 0, 'COMMA')}]] đ</span>
+                            </div>
+                            <span class="text-[10px] text-gray-500 flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i> Lập lúc: [[${#temporals.format(hd.ngayGioTao, 'HH:mm - dd/MM')}]]</span>
+                        </li>
+                        <li th:if="${#lists.isEmpty(row.danhSachThu)}" class="text-gray-400 italic text-sm py-4 text-center">Không phát sinh hóa đơn nào.</li>
+                    </ul>
+                </div>
+
+                <div class="bg-rose-50/50 rounded-xl p-4 border border-rose-100">
+                    <h4 class="font-bold text-rose-800 border-b border-rose-200 pb-2 mb-3 flex items-center gap-2">
+                        <i data-lucide="trending-down" class="w-4 h-4"></i> Danh sách Khoản Chi
+                    </h4>
+                    <ul class="space-y-3 max-h-72 overflow-y-auto pr-2 custom-scrollbar">
+                        <li th:each="ct : ${row.danhSachChi}" class="text-sm bg-white p-2.5 rounded-lg border border-rose-100 shadow-sm flex flex-col gap-1">
+                            <div class="flex justify-between items-start">
+                                <span class="font-bold text-gray-700 whitespace-normal pr-2">[[${ct.tenKhoanChi}]]</span>
+                                <span class="font-bold text-rose-600 shrink-0">[[${#numbers.formatInteger(ct.soTien, 0, 'COMMA')}]] đ</span>
+                            </div>
+                            <span class="text-[10px] text-gray-500 flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i> Chi lúc: [[${#temporals.format(ct.ngayChi, 'HH:mm - dd/MM')}]]</span>
+                        </li>
+                        <li th:if="${#lists.isEmpty(row.danhSachChi)}" class="text-gray-400 italic text-sm py-4 text-center">Không phát sinh khoản chi nào.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="detailModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden mx-4">
+            <div class="px-6 py-4 bg-[#f9f9f7] border-b border-[#e2e3e1]/60 flex justify-between items-center">
+                <h3 class="font-bold text-[#1a1c1b] text-lg">Chi tiết giao dịch ngày <span id="modal-date-title" class="text-amber-600"></span></h3>
+                <button type="button" onclick="document.getElementById('detailModal').classList.add('hidden')" class="text-gray-400 hover:text-rose-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-6 bg-white" id="modal-detail-content">
+
+            </div>
+            <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end">
+                <button type="button" onclick="document.getElementById('detailModal').classList.add('hidden')" class="px-5 py-2 bg-gray-200 text-gray-700 rounded-xl font-bold text-sm hover:bg-gray-300 transition-colors shadow-sm">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="addExpenseModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden">
+            <div class="px-6 py-4 bg-rose-50 border-b border-rose-100 flex justify-between items-center">
+                <h3 class="font-bold text-rose-800 flex items-center gap-2"><i data-lucide="minus-circle" class="w-4 h-4"></i> Thêm Khoản Chi</h3>
+                <button type="button" onclick="document.getElementById('addExpenseModal').classList.add('hidden')" class="text-rose-400 hover:text-rose-800"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form th:action="@{/budget/add-expense}" method="POST" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Mục đích chi (*)</label>
+                    <input type="text" name="tenKhoanChi" required placeholder="VD: Trả tiền điện, Mua đá lạnh..."
+                           class="w-full bg-white border border-gray-300 rounded-xl px-4 py-2 text-sm focus:border-rose-500 focus:ring-1 focus:ring-rose-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Số tiền chi (VNĐ) (*)</label>
+                    <input type="number" name="soTien" required min="1000" step="1000" placeholder="500000"
+                           class="w-full bg-white border border-gray-300 rounded-xl px-4 py-2 text-lg font-bold focus:border-rose-500 focus:ring-1 focus:ring-rose-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Ngày chi</label>
+                    <input type="date" name="ngayChi" required th:value="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"
+                           class="w-full bg-white border border-gray-300 rounded-xl px-4 py-2 text-sm focus:border-rose-500 focus:ring-1 focus:ring-rose-500 text-gray-700 font-medium">
+                </div>
+
+                <div class="pt-4 flex justify-end gap-2">
+                    <button type="button" onclick="document.getElementById('addExpenseModal').classList.add('hidden')" class="px-4 py-2 bg-gray-100 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-200">Hủy</button>
+                    <button type="submit" class="px-4 py-2 bg-rose-600 text-white rounded-xl text-sm font-bold hover:bg-rose-700">Lưu khoản chi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openDetailModal(dateKey, dateStr) {
+            // Đổi tiêu đề popup
+            document.getElementById('modal-date-title').textContent = dateStr;
+
+            // Tìm thẻ div ẩn chứa dữ liệu chi tiết của ngày đó
+            let hiddenData = document.getElementById('detail-data-' + dateKey);
+            let detailContent = document.getElementById('modal-detail-content');
+
+            if (hiddenData) {
+                // Copy toàn bộ HTML sang thân Popup
+                detailContent.innerHTML = hiddenData.innerHTML;
+            } else {
+                detailContent.innerHTML = '<p class="text-center text-gray-500 italic py-4">Lỗi: Không tải được dữ liệu chi tiết.</p>';
+            }
+
+            // Kích hoạt lại icon SVG (nếu đang dùng thư viện Lucide)
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+
+            // Hiện Popup
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+
+        // Style nhỏ cho thanh scroll bên trong danh sách chi tiết
+        document.head.insertAdjacentHTML("beforeend", `<style>
+            .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+            .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+            .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+        </style>`);
+    </script>
+</main>
+</body>
+</html>
