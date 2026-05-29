@@ -17,10 +17,12 @@ public class MarketingService {
 
     private final KhuyenMaiRepository khuyenMaiRepository;
 
+    // 1. Lấy tất cả các khuyến mãi
     public List<KhuyenMai> getAllPromotions() {
         return khuyenMaiRepository.findAll(Sort.by(Sort.Direction.DESC, "maKhuyenMai"));
     }
 
+    // 2. Tìm kiếm
     public List<KhuyenMai> searchPromotions(String keyword) {
         return khuyenMaiRepository.findByTenKhuyenMaiContainingIgnoreCaseOrderByMaKhuyenMaiDesc(keyword);
     }
@@ -37,6 +39,7 @@ public class MarketingService {
         }
     }
 
+    // 3. Tạo khuyến mãi
     @Transactional
     public void createPromotion(String tenKhuyenMai, LocalDate ngayBatDau, LocalDate ngayKetThuc,
                                 String loaiKhuyenMai, Double giaTriGiam, String moTa) {
@@ -52,6 +55,7 @@ public class MarketingService {
         khuyenMaiRepository.save(km);
     }
 
+    // 4. Sửa khuyến mãi
     @Transactional
     public void updatePromotion(Integer maKhuyenMai, String tenKhuyenMai, LocalDate ngayBatDau,
                                 LocalDate ngayKetThuc, String loaiKhuyenMai, Double giaTriGiam, String moTa) {
@@ -69,6 +73,7 @@ public class MarketingService {
         khuyenMaiRepository.save(km);
     }
 
+    // 5. Xóa khuyến mãi
     @Transactional
     public void deletePromotion(Integer maKhuyenMai) {
         khuyenMaiRepository.deleteById(maKhuyenMai);

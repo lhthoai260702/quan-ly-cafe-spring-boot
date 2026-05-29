@@ -19,6 +19,7 @@ public class BudgetController {
 
     private final BudgetService budgetService;
 
+    // Hiển thị trang báo cáo Thu - Chi
     @GetMapping("/budget")
     public String showBudget(
             @RequestParam(required = false) String fromDate,
@@ -51,6 +52,7 @@ public class BudgetController {
         return "budget";
     }
 
+    // Thêm khoản chi
     @PostMapping("/budget/add-expense")
     public String addExpense(
             @RequestParam String tenKhoanChi,

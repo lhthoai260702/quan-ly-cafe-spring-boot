@@ -22,6 +22,7 @@ public class BudgetService {
     private final HoaDonRepository hoaDonRepository;
     private final ChiTieuRepository chiTieuRepository;
 
+    // 1. Lấy báo cáo Thu - Chi
     public List<ThuChiDTO> getThuChiReport(LocalDate startDate, LocalDate endDate) {
         LocalDateTime start = startDate.atStartOfDay();
         LocalDateTime end = endDate.atTime(LocalTime.MAX);
@@ -30,7 +31,7 @@ public class BudgetService {
         // 1. Lấy dữ liệu Thu
         List<HoaDon> hoaDons = hoaDonRepository.findByNgayGioTaoBetweenAndTrangThai(start, end, "Đã thanh toán");
         for (HoaDon hd : hoaDons) {
-            if(hd.getNgayGioTao() != null) {
+            if (hd.getNgayGioTao() != null) {
                 LocalDate date = hd.getNgayGioTao().toLocalDate();
                 reportMap.putIfAbsent(date, new ThuChiDTO(date, BigDecimal.ZERO, BigDecimal.ZERO));
 
@@ -46,7 +47,7 @@ public class BudgetService {
         // 2. Lấy dữ liệu Chi
         List<ChiTieu> chiTieus = chiTieuRepository.findByNgayChiBetween(start, end);
         for (ChiTieu ct : chiTieus) {
-            if(ct.getNgayChi() != null) {
+            if (ct.getNgayChi() != null) {
                 LocalDate date = ct.getNgayChi().toLocalDate();
                 reportMap.putIfAbsent(date, new ThuChiDTO(date, BigDecimal.ZERO, BigDecimal.ZERO));
 
@@ -62,6 +63,7 @@ public class BudgetService {
         return new ArrayList<>(reportMap.values());
     }
 
+    // 3. Thêm khoản chi
     @Transactional
     public void addExpense(String tenKhoanChi, Double soTien, LocalDate ngayChi) {
         ChiTieu ct = new ChiTieu();

@@ -19,18 +19,22 @@ public class InventoryService {
     private final HangHoaRepository hangHoaRepository;
     private final DonViTinhRepository donViTinhRepository;
 
+    // 1. Lấy tất cả các mặt hàng
     public List<HangHoa> getAllItems() {
         return hangHoaRepository.findAll(Sort.by(Sort.Direction.ASC, "maHangHoa"));
     }
 
+    // 2. Tìm kiếm
     public List<HangHoa> searchItems(String keyword) {
         return hangHoaRepository.findByTenHangHoaContainingIgnoreCaseOrderByMaHangHoaAsc(keyword);
     }
 
+    // 3. Lấy tất cả các đơn vị tính
     public List<DonViTinh> getAllUnits() {
         return donViTinhRepository.findAll();
     }
 
+    // 4. Tạo mặt hàng
     @Transactional
     public void createItem(String tenHangHoa, Double soLuong, Integer maDonViTinh, Double donGia) {
         DonViTinh unit = donViTinhRepository.findById(maDonViTinh).orElse(null);
@@ -42,6 +46,7 @@ public class InventoryService {
         hangHoaRepository.save(item);
     }
 
+    // 5. Sửa mặt hàng
     @Transactional
     public void updateItem(Integer maHangHoa, String tenHangHoa, Integer maDonViTinh, Double donGia) {
         HangHoa item = hangHoaRepository.findById(maHangHoa).orElseThrow();
@@ -52,6 +57,7 @@ public class InventoryService {
         hangHoaRepository.save(item);
     }
 
+    // 6. Xóa mặt hàng
     @Transactional
     public void deleteItem(Integer maHangHoa) {
         hangHoaRepository.deleteById(maHangHoa);

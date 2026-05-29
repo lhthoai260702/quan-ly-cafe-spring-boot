@@ -17,6 +17,7 @@ public class InventoryController {
 
     private final InventoryService inventoryService;
 
+    // Hiển thị trang quản lý hàng hóa
     @GetMapping("/inventory")
     public String showInventory(
             @RequestParam(required = false) String keyword,
@@ -37,6 +38,7 @@ public class InventoryController {
         return "inventory";
     }
 
+    // Thêm hàng hóa
     @PostMapping("/inventory/add")
     public String addItem(@RequestParam String tenHangHoa, @RequestParam Double soLuong,
                           @RequestParam Integer maDonViTinh, @RequestParam Double donGia) {
@@ -44,6 +46,7 @@ public class InventoryController {
         return "redirect:/inventory?success=add";
     }
 
+    // Sửa hàng hóa
     @PostMapping("/inventory/edit")
     public String editItem(@RequestParam Integer maHangHoa, @RequestParam String tenHangHoa,
                            @RequestParam Integer maDonViTinh, @RequestParam Double donGia) {
@@ -51,18 +54,21 @@ public class InventoryController {
         return "redirect:/inventory?success=edit";
     }
 
+    // Xóa hàng hóa
     @PostMapping("/inventory/delete")
     public String deleteItem(@RequestParam Integer maHangHoa) {
         inventoryService.deleteItem(maHangHoa);
         return "redirect:/inventory?success=delete";
     }
 
+    // Nhập hàng
     @PostMapping("/inventory/import")
     public String importStock(@RequestParam Integer maHangHoa, @RequestParam Double soLuongNhap) {
         inventoryService.importStock(maHangHoa, soLuongNhap);
         return "redirect:/inventory?success=import";
     }
 
+    // Xuất hàng
     @PostMapping("/inventory/export")
     public String exportStock(@RequestParam Integer maHangHoa, @RequestParam Double soLuongXuat) {
         try {

@@ -7,7 +7,6 @@ import com.quanlycafe.cafe_management.repository.HoaDonRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -19,7 +18,7 @@ import java.util.*;
 public class ReportService {
 
     private final HoaDonRepository hoaDonRepository;
-    private final ChiTieuRepository chiTieuRepository; // Gọi thêm kho lưu Chi Tiêu
+    private final ChiTieuRepository chiTieuRepository;
 
     // 1. Biểu đồ Doanh thu (7 ngày)
     public Map<String, Object> getRevenueLast7Days() {
@@ -79,7 +78,7 @@ public class ReportService {
         return Map.of("labels", labels, "data", data);
     }
 
-    // 4. Biểu đồ Tỉ lệ Thu - Chi (Trong tháng hiện tại)
+    // 4. Biểu đồ Tỉ lệ Thu - Chi
     public Map<String, Object> getIncomeExpenseCurrentMonth() {
         LocalDate startOfMonth = LocalDate.now().withDayOfMonth(1); // Ngày đầu tháng
         LocalDateTime start = startOfMonth.atStartOfDay();
@@ -95,10 +94,10 @@ public class ReportService {
         // Tính tổng Chi
         List<ChiTieu> expenses = chiTieuRepository.findByNgayChiBetween(start, end);
         Double totalChi = expenses.stream()
-                .map(ct -> ct.getSoTien() != null ? ct.getSoTien().doubleValue() : 0.0) // Đưa BigDecimal về Double để tính
+                .map(ct -> ct.getSoTien() != null ? ct.getSoTien().doubleValue() : 0.0)
                 .reduce(0.0, Double::sum);
 
-        // Gửi mảng gồm 2 phần tử: [Tổng Thu, Tổng Chi]
+        //[Tổng Thu, Tổng Chi]
         return Map.of("labels", Arrays.asList("Tổng Thu", "Tổng Chi"), "data", Arrays.asList(totalThu, totalChi));
     }
 }

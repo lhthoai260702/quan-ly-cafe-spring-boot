@@ -17,6 +17,7 @@ public class MenuController {
 
     private final MenuService menuService;
 
+    // Hiển thị trang menu
     @GetMapping("/menu")
     public String showMenuManager(
             @RequestParam(required = false, defaultValue = "all") String category,
@@ -43,6 +44,7 @@ public class MenuController {
         return "menu";
     }
 
+    // Thêm món
     @PostMapping("/menu/add")
     public String addMenuItem(
             @RequestParam String tenMon,
@@ -57,6 +59,7 @@ public class MenuController {
         }
     }
 
+    // Sửa món
     @PostMapping("/menu/edit")
     public String editMenuItem(
             @RequestParam Integer maThucDon,
@@ -72,6 +75,7 @@ public class MenuController {
         }
     }
 
+    // Xóa món
     @PostMapping("/menu/delete")
     public String deleteMenuItem(@RequestParam Integer maThucDon) {
         try {

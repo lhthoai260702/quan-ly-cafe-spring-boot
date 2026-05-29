@@ -18,6 +18,7 @@ public class MarketingController {
 
     private final MarketingService marketingService;
 
+    // Hiển thị trang marketing
     @GetMapping("/marketing")
     public String showMarketing(
             @RequestParam(required = false) String keyword,
@@ -37,6 +38,7 @@ public class MarketingController {
         return "marketing";
     }
 
+    // Thêm chương trình khuyến mãi
     @PostMapping("/marketing/add")
     public String addPromotion(
             @RequestParam String tenKhuyenMai,
@@ -55,6 +57,7 @@ public class MarketingController {
         }
     }
 
+    // Sửa chương trình khuyến mãi
     @PostMapping("/marketing/edit")
     public String editPromotion(
             @RequestParam Integer maKhuyenMai,
@@ -74,6 +77,7 @@ public class MarketingController {
         }
     }
 
+    // Xóa chương trình khuyến mãi
     @PostMapping("/marketing/delete")
     public String deletePromotion(@RequestParam Integer maKhuyenMai) {
         try {

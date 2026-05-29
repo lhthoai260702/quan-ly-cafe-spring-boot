@@ -14,6 +14,7 @@ public class ReportController {
 
     private final ReportService reportService;
 
+    // Hiển thị trang báo cáo
     @GetMapping("/report")
     public String showReport(Model model) {
 

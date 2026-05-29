@@ -15,10 +15,12 @@ public class MenuService {
 
     private final ThucDonRepository thucDonRepository;
 
+    // 1. Lấy tất cả các món
     public List<ThucDon> getAllMenuItems() {
         return thucDonRepository.findAll();
     }
 
+    // 2. Lấy các món theo loại
     public List<ThucDon> getMenuItemsByCategory(String category) {
         if (category == null || category.trim().isEmpty() || category.equalsIgnoreCase("all")) {
             return getAllMenuItems();
@@ -26,14 +28,17 @@ public class MenuService {
         return thucDonRepository.findByLoaiMon(category);
     }
 
+    // 3. Tìm kiếm
     public List<ThucDon> searchMenuItems(String keyword) {
         return thucDonRepository.findByTenMonContainingIgnoreCase(keyword);
     }
 
+    // 4. Lấy danh sách loại món
     public List<String> getAllCategories() {
         return thucDonRepository.findDistinctLoaiMon();
     }
 
+    // 5. Tạo món
     @Transactional
     public void createMenuItem(String tenMon, Double giaTienHienTai, String loaiMon) {
         ThucDon mon = new ThucDon();
@@ -43,6 +48,7 @@ public class MenuService {
         thucDonRepository.save(mon);
     }
 
+    // 6. Sửa món
     @Transactional
     public void updateMenuItem(Integer maThucDon, String tenMon, Double giaTienHienTai, String loaiMon) {
         ThucDon mon = thucDonRepository.findById(maThucDon)
@@ -54,6 +60,7 @@ public class MenuService {
         thucDonRepository.save(mon);
     }
 
+    // 7. Xóa món
     @Transactional
     public void deleteMenuItem(Integer maThucDon) {
         if (thucDonRepository.existsById(maThucDon)) {
