@@ -5,24 +5,27 @@
     <title>Quản lý Kho hàng</title>
 </head>
 <body>
-<main class="flex-1 p-6 md:p-8 overflow-y-auto bg-[#f9f9f7]">
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
+<main class="flex-1 p-4 md:p-8 overflow-y-auto bg-[#f9f9f7]">
+
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 md:mb-8 gap-4">
         <div>
-            <h2 class="text-2xl font-bold text-[#1a1c1b] font-sans">Quản lý Kho hàng</h2>
-            <p class="text-sm text-[#50453e] opacity-80 mt-1">Kiểm soát nguyên vật liệu, nhập xuất và tính giá trị tồn kho.</p>
+            <h2 class="text-xl md:text-2xl font-bold text-[#1a1c1b] font-sans">Quản lý Kho hàng</h2>
+            <p class="text-xs md:text-sm text-[#50453e] opacity-80 mt-1">Kiểm soát nguyên vật liệu, nhập xuất và tính
+                giá trị tồn kho.</p>
         </div>
         <button onclick="document.getElementById('addModal').classList.remove('hidden')"
-                class="flex items-center gap-2 bg-[#553722] hover:bg-[#6f4e37] text-white px-5 py-2.5 rounded-xl text-sm font-semibold uppercase tracking-wider transition-all shadow-md">
+                class="w-full md:w-auto justify-center flex items-center gap-2 bg-[#553722] hover:bg-[#6f4e37] text-white px-5 py-2.5 rounded-xl text-sm font-semibold uppercase tracking-wider transition-all shadow-md">
             <i data-lucide="package-plus" class="w-4 h-4"></i>
             Khai báo hàng mới
         </button>
     </div>
 
-    <div class="bg-white p-4 rounded-t-2xl shadow-sm border border-[#e2e3e1]/60 flex justify-between items-center">
-        <form th:action="@{/inventory}" method="GET" class="flex items-center bg-[#f4f4f2] rounded-full px-4 py-2 border border-[#e2e3e1]/40 max-w-sm w-full">
-            <i data-lucide="search" class="w-4 h-4 text-[#50453e] opacity-70 mr-2"></i>
+    <div class="bg-white p-4 rounded-t-2xl shadow-sm border border-[#e2e3e1]/60 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <form th:action="@{/inventory}" method="GET"
+              class="flex items-center bg-[#f4f4f2] rounded-full px-4 py-2 border border-[#e2e3e1]/40 w-full sm:max-w-sm">
+            <i data-lucide="search" class="w-4 h-4 text-[#50453e] opacity-70 mr-2 shrink-0"></i>
             <input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm tên hàng hóa..."
-                   class="bg-transparent border-none outline-none text-sm text-[#1a1c1b] w-full placeholder:text-[#50453e]/70 focus:ring-0 p-0" />
+                   class="bg-transparent border-none outline-none text-xs md:text-sm text-[#1a1c1b] w-full placeholder:text-[#50453e]/70 focus:ring-0 p-0"/>
             <button type="submit" class="hidden"></button>
         </form>
     </div>
@@ -32,63 +35,76 @@
             <table class="w-full text-left text-sm whitespace-nowrap">
                 <thead class="bg-[#f4f4f2] text-[#50453e] font-bold uppercase text-[10px] tracking-wider">
                 <tr>
-                    <th class="px-6 py-4">Mã</th>
-                    <th class="px-6 py-4">Tên hàng hóa</th>
-                    <th class="px-6 py-4 text-center">Tồn kho</th>
-                    <th class="px-6 py-4 text-center">Đơn vị</th>
-                    <th class="px-6 py-4 text-right">Đơn giá</th>
-                    <th class="px-6 py-4 text-right">Tổng giá trị</th>
-                    <th class="px-6 py-4 text-center">Nhập / Xuất</th>
-                    <th class="px-6 py-4 text-center">Thao tác</th>
+                    <th class="px-4 md:px-6 py-4">Mã</th>
+                    <th class="px-4 md:px-6 py-4">Tên hàng hóa</th>
+                    <th class="px-4 md:px-6 py-4 text-center">Tồn kho</th>
+                    <th class="px-4 md:px-6 py-4 text-center">Đơn vị</th>
+                    <th class="px-4 md:px-6 py-4 text-right">Đơn giá</th>
+                    <th class="px-4 md:px-6 py-4 text-right">Tổng giá trị</th>
+                    <th class="px-4 md:px-6 py-4 text-center">Nhập / Xuất</th>
+                    <th class="px-4 md:px-6 py-4 text-center">Thao tác</th>
                 </tr>
                 </thead>
                 <tbody class="divide-y divide-[#e2e3e1]/40 text-[#1a1c1b]">
                 <tr th:each="item : ${items}" class="hover:bg-[#f9f9f7] transition-colors">
-                    <td class="px-6 py-4 font-mono text-xs text-gray-500" th:text="'#' + ${item.maHangHoa}">#1</td>
-                    <td class="px-6 py-4 font-bold" th:text="${item.tenHangHoa}">Cà phê hạt</td>
-                    <td class="px-6 py-4 text-center">
+                    <td class="px-4 md:px-6 py-4 font-mono text-xs text-gray-500" th:text="'#' + ${item.maHangHoa}">#1
+                    </td>
+                    <td class="px-4 md:px-6 py-4 font-bold" th:text="${item.tenHangHoa}">Cà phê hạt</td>
+                    <td class="px-4 md:px-6 py-4 text-center">
                             <span th:classappend="${item.soLuong < 5} ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'"
                                   class="px-2.5 py-1 rounded-md font-bold text-xs"
                                   th:text="${item.soLuong}">20</span>
                     </td>
-                    <td class="px-6 py-4 text-center text-xs text-gray-500" th:text="${item.donViTinh != null ? item.donViTinh.tenDonVi : ''}">Kg</td>
-                    <td class="px-6 py-4 text-right text-amber-600 font-semibold" th:text="${#numbers.formatInteger(item.donGia, 0, 'COMMA')} + ' đ'">50,000 đ</td>
-                    <td class="px-6 py-4 text-right font-bold" th:text="${#numbers.formatInteger(item.soLuong * item.donGia, 0, 'COMMA')} + ' đ'">1,000,000 đ</td>
+                    <td class="px-4 md:px-6 py-4 text-center text-xs text-gray-500"
+                        th:text="${item.donViTinh != null ? item.donViTinh.tenDonVi : ''}">Kg
+                    </td>
+                    <td class="px-4 md:px-6 py-4 text-right text-amber-600 font-semibold"
+                        th:text="${#numbers.formatInteger(item.donGia, 0, 'COMMA')} + ' đ'">50,000 đ
+                    </td>
+                    <td class="px-4 md:px-6 py-4 text-right font-bold"
+                        th:text="${#numbers.formatInteger(item.soLuong * item.donGia, 0, 'COMMA')} + ' đ'">1,000,000 đ
+                    </td>
 
-                    <td class="px-6 py-4 text-center">
+                    <td class="px-4 md:px-6 py-4 text-center">
                         <div class="flex items-center justify-center gap-2">
                             <button type="button" th:data-id="${item.maHangHoa}" th:data-name="${item.tenHangHoa}"
                                     onclick="openImportModal(this.getAttribute('data-id'), this.getAttribute('data-name'))"
-                                    class="p-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white rounded transition-all" title="Nhập thêm hàng">
+                                    class="p-1.5 md:p-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white rounded-lg transition-all"
+                                    title="Nhập thêm hàng">
                                 <i data-lucide="arrow-down-to-line" class="w-4 h-4"></i>
                             </button>
 
                             <button type="button" th:if="${item.soLuong > 0}"
-                                    th:data-id="${item.maHangHoa}" th:data-name="${item.tenHangHoa}" th:data-qty="${item.soLuong}"
+                                    th:data-id="${item.maHangHoa}" th:data-name="${item.tenHangHoa}"
+                                    th:data-qty="${item.soLuong}"
                                     onclick="openExportModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-qty'))"
-                                    class="p-1.5 bg-amber-50 text-amber-600 hover:bg-amber-500 hover:text-white rounded transition-all" title="Xuất kho">
+                                    class="p-1.5 md:p-2 bg-amber-50 text-amber-600 hover:bg-amber-500 hover:text-white rounded-lg transition-all"
+                                    title="Xuất kho">
                                 <i data-lucide="arrow-up-from-line" class="w-4 h-4"></i>
                             </button>
 
                             <button type="button" th:if="${item.soLuong <= 0}" disabled
-                                    class="p-1.5 bg-gray-100 text-gray-400 opacity-60 cursor-not-allowed rounded" title="Hết hàng, không thể xuất">
+                                    class="p-1.5 md:p-2 bg-gray-100 text-gray-400 opacity-60 cursor-not-allowed rounded-lg"
+                                    title="Hết hàng, không thể xuất">
                                 <i data-lucide="arrow-up-from-line" class="w-4 h-4"></i>
                             </button>
                         </div>
                     </td>
 
-                    <td class="px-6 py-4 text-center">
+                    <td class="px-4 md:px-6 py-4 text-center">
                         <div class="flex items-center justify-center gap-3">
                             <button type="button"
                                     th:data-id="${item.maHangHoa}" th:data-name="${item.tenHangHoa}"
-                                    th:data-unit="${item.donViTinh != null ? item.donViTinh.maDonViTinh : ''}" th:data-price="${#numbers.formatInteger(item.donGia, 0)}"
+                                    th:data-unit="${item.donViTinh != null ? item.donViTinh.maDonViTinh : ''}"
+                                    th:data-price="${#numbers.formatInteger(item.donGia, 0)}"
                                     onclick="openEditModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-unit'), this.getAttribute('data-price'))"
-                                    class="text-blue-600 hover:text-blue-800 transition-colors" title="Sửa thông tin">
+                                    class="text-blue-600 hover:text-blue-800 transition-colors p-1"
+                                    title="Sửa thông tin">
                                 <i data-lucide="pen" class="w-4 h-4"></i>
                             </button>
                             <button type="button" th:data-id="${item.maHangHoa}" th:data-name="${item.tenHangHoa}"
                                     onclick="openDeleteModal(this.getAttribute('data-id'), this.getAttribute('data-name'))"
-                                    class="text-rose-500 hover:text-rose-700 transition-colors" title="Xóa hàng">
+                                    class="text-rose-500 hover:text-rose-700 transition-colors p-1" title="Xóa hàng">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
                         </div>
@@ -96,139 +112,202 @@
                 </tr>
 
                 <tr th:if="${#lists.isEmpty(items)}">
-                    <td colspan="8" class="px-6 py-10 text-center text-gray-400 italic">Kho đang trống hoặc không tìm thấy kết quả.</td>
+                    <td colspan="8" class="px-6 py-10 text-center text-gray-400 italic text-sm">Kho đang trống hoặc
+                        không tìm thấy kết quả.
+                    </td>
                 </tr>
                 </tbody>
             </table>
         </div>
     </div>
 
-    <div id="addModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
-            <div class="px-6 py-4 border-b border-[#e2e3e1]/60 flex justify-between bg-[#f9f9f7]">
+    <div id="addModal"
+         class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="px-5 py-4 border-b border-[#e2e3e1]/60 flex justify-between shrink-0 bg-[#f9f9f7]">
                 <h3 class="font-bold text-[#1a1c1b]">Khai báo hàng hóa mới</h3>
-                <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')" class="text-gray-400 hover:text-rose-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')"
+                        class="text-gray-400 hover:text-rose-600"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <form th:action="@{/inventory/add}" method="POST" class="p-6 space-y-4">
+            <form th:action="@{/inventory/add}" method="POST" class="p-5 overflow-y-auto space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-[#50453e] mb-1">Tên mặt hàng</label>
-                    <input type="text" name="tenHangHoa" required class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2 text-sm focus:border-[#553722]">
+                    <input type="text" name="tenHangHoa" required
+                           class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] focus:ring-1 focus:ring-[#553722] transition-all">
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-[#50453e] mb-1">Số lượng ban đầu</label>
-                        <input type="number" step="0.1" name="soLuong" value="0" class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2 text-sm focus:border-[#553722]">
+                        <input type="number" step="0.1" name="soLuong" value="0"
+                               class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-[#50453e] mb-1">Đơn vị tính</label>
-                        <select name="maDonViTinh" required class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2 text-sm focus:border-[#553722]">
+                        <select name="maDonViTinh" required
+                                class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
                             <option th:each="u : ${units}" th:value="${u.maDonViTinh}" th:text="${u.tenDonVi}"></option>
                         </select>
                     </div>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-[#50453e] mb-1">Đơn giá nhập (VNĐ)</label>
-                    <input type="number" name="donGia" required class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2 text-sm focus:border-[#553722]">
+                    <input type="number" name="donGia" required
+                           class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
                 </div>
-                <div class="pt-4 flex justify-end gap-2">
-                    <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')" class="px-4 py-2 rounded-xl text-sm font-bold bg-gray-100 text-gray-600">Hủy</button>
-                    <button type="submit" class="px-4 py-2 rounded-xl text-sm font-bold bg-[#553722] text-white">Lưu hàng hóa</button>
+                <div class="pt-4 flex flex-col-reverse sm:flex-row justify-end gap-3 mt-2">
+                    <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')"
+                            class="w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-bold bg-gray-100 hover:bg-gray-200 text-gray-600 transition-all text-center">
+                        Hủy
+                    </button>
+                    <button type="submit"
+                            class="w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-bold bg-[#553722] hover:bg-[#6f4e37] text-white shadow-md transition-all flex justify-center items-center">
+                        Lưu hàng hóa
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 
-    <div id="importModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden">
-            <div class="px-6 py-4 bg-emerald-50 border-b border-emerald-100 flex justify-between">
-                <h3 class="font-bold text-emerald-800 flex items-center gap-2"><i data-lucide="arrow-down-to-line" class="w-4 h-4"></i> Nhập Kho</h3>
-                <button type="button" onclick="document.getElementById('importModal').classList.add('hidden')" class="text-emerald-400 hover:text-emerald-800"><i data-lucide="x" class="w-5 h-5"></i></button>
+    <div id="importModal"
+         class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl w-full max-w-sm max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="px-5 py-4 bg-emerald-50 border-b border-emerald-100 flex justify-between shrink-0">
+                <h3 class="font-bold text-emerald-800 flex items-center gap-2"><i data-lucide="arrow-down-to-line"
+                                                                                  class="w-4 h-4"></i> Nhập Kho</h3>
+                <button type="button" onclick="document.getElementById('importModal').classList.add('hidden')"
+                        class="text-emerald-400 hover:text-emerald-800"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <form th:action="@{/inventory/import}" method="POST" class="p-6">
+            <form th:action="@{/inventory/import}" method="POST" class="p-5 overflow-y-auto">
                 <input type="hidden" name="maHangHoa" id="import_id">
-                <p class="text-sm text-gray-600 mb-4">Cộng thêm số lượng cho mặt hàng: <strong id="import_name" class="text-emerald-700"></strong></p>
+                <p class="text-sm text-gray-600 mb-4">Cộng thêm số lượng cho mặt hàng: <strong id="import_name"
+                                                                                               class="text-emerald-700"></strong>
+                </p>
                 <div class="mb-6">
-                    <label class="block text-xs font-bold text-gray-700 mb-1">Số lượng nhập thêm</label>
-                    <input type="number" step="0.1" name="soLuongNhap" required min="0.1" class="w-full bg-white border border-gray-300 rounded-xl px-4 py-2 text-lg font-bold text-center focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
+                    <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">Số lượng nhập
+                        thêm</label>
+                    <input type="number" step="0.1" name="soLuongNhap" required min="0.1"
+                           class="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-lg font-bold text-center focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
                 </div>
-                <div class="flex justify-end gap-2">
-                    <button type="button" onclick="document.getElementById('importModal').classList.add('hidden')" class="px-4 py-2 bg-gray-100 rounded-xl text-sm font-bold">Hủy</button>
-                    <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700">Xác nhận Nhập</button>
+                <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 border-t border-gray-100 pt-4">
+                    <button type="button" onclick="document.getElementById('importModal').classList.add('hidden')"
+                            class="w-full sm:w-auto px-4 py-2.5 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm font-bold text-gray-600 transition-all text-center">
+                        Hủy
+                    </button>
+                    <button type="submit"
+                            class="w-full sm:w-auto px-4 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-bold hover:bg-emerald-700 shadow-md transition-all flex justify-center items-center">
+                        Xác nhận Nhập
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 
-    <div id="exportModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden">
-            <div class="px-6 py-4 bg-amber-50 border-b border-amber-100 flex justify-between">
-                <h3 class="font-bold text-amber-800 flex items-center gap-2"><i data-lucide="arrow-up-from-line" class="w-4 h-4"></i> Xuất Kho</h3>
-                <button type="button" onclick="document.getElementById('exportModal').classList.add('hidden')" class="text-amber-400 hover:text-amber-800"><i data-lucide="x" class="w-5 h-5"></i></button>
+    <div id="exportModal"
+         class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl w-full max-w-sm max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="px-5 py-4 bg-amber-50 border-b border-amber-100 flex justify-between shrink-0">
+                <h3 class="font-bold text-amber-800 flex items-center gap-2"><i data-lucide="arrow-up-from-line"
+                                                                                class="w-4 h-4"></i> Xuất Kho</h3>
+                <button type="button" onclick="document.getElementById('exportModal').classList.add('hidden')"
+                        class="text-amber-400 hover:text-amber-800"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <form th:action="@{/inventory/export}" method="POST" class="p-6" onsubmit="return validateExport()">
+            <form th:action="@{/inventory/export}" method="POST" class="p-5 overflow-y-auto"
+                  onsubmit="return validateExport()">
                 <input type="hidden" name="maHangHoa" id="export_id">
                 <input type="hidden" id="export_max_qty" value="0">
-                <p class="text-sm text-gray-600 mb-4">Trừ bớt số lượng cho mặt hàng: <strong id="export_name" class="text-amber-700"></strong></p>
+                <p class="text-sm text-gray-600 mb-4">Trừ bớt số lượng cho mặt hàng: <strong id="export_name"
+                                                                                             class="text-amber-700"></strong>
+                </p>
                 <div class="mb-6">
-                    <label class="block text-xs font-bold text-gray-700 mb-1">Số lượng xuất (Tồn kho: <span id="export_display_max" class="text-rose-600">0</span>)</label>
+                    <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">Số lượng xuất
+                        (Tồn kho: <span id="export_display_max" class="text-rose-600">0</span>)</label>
                     <input type="number" step="0.1" name="soLuongXuat" id="export_input" required min="0.1"
                            oninvalid="this.setCustomValidity('Vui lòng nhập số lượng hợp lệ (lớn hơn 0)')"
                            oninput="this.setCustomValidity(''); document.getElementById('export_error_msg').classList.add('hidden');"
-                           class="w-full bg-white border border-gray-300 rounded-xl px-4 py-2 text-lg font-bold text-center focus:border-amber-500 focus:ring-1 focus:ring-amber-500">
+                           class="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-lg font-bold text-center focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all">
 
-                    <p id="export_error_msg" class="text-xs font-bold text-rose-600 mt-2 hidden bg-rose-50 p-2 rounded-lg">
-                        <i data-lucide="alert-circle" class="w-3 h-3 inline-block mr-1"></i> Số lượng xuất vượt quá tồn kho!
+                    <p id="export_error_msg"
+                       class="text-xs font-bold text-rose-600 mt-2 hidden bg-rose-50 p-2 rounded-lg">
+                        <i data-lucide="alert-circle" class="w-3 h-3 inline-block mr-1"></i> Số lượng xuất vượt quá tồn
+                        kho!
                     </p>
                 </div>
-                <div class="flex justify-end gap-2">
-                    <button type="button" onclick="document.getElementById('exportModal').classList.add('hidden')" class="px-4 py-2 bg-gray-100 rounded-xl text-sm font-bold">Hủy</button>
-                    <button type="submit" class="px-4 py-2 bg-amber-500 text-white rounded-xl text-sm font-bold hover:bg-amber-600">Xác nhận Xuất</button>
+                <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 border-t border-gray-100 pt-4">
+                    <button type="button" onclick="document.getElementById('exportModal').classList.add('hidden')"
+                            class="w-full sm:w-auto px-4 py-2.5 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm font-bold text-gray-600 transition-all text-center">
+                        Hủy
+                    </button>
+                    <button type="submit"
+                            class="w-full sm:w-auto px-4 py-2.5 bg-amber-500 text-white rounded-xl text-sm font-bold hover:bg-amber-600 shadow-md transition-all flex justify-center items-center">
+                        Xác nhận Xuất
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 
-    <div id="editModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
-            <div class="px-6 py-4 border-b border-[#e2e3e1]/60 flex justify-between bg-[#f9f9f7]">
+    <div id="editModal"
+         class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="px-5 py-4 border-b border-[#e2e3e1]/60 flex justify-between shrink-0 bg-[#f9f9f7]">
                 <h3 class="font-bold text-[#1a1c1b]">Sửa thông tin hàng</h3>
-                <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="text-gray-400 hover:text-rose-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')"
+                        class="text-gray-400 hover:text-rose-600"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <form th:action="@{/inventory/edit}" method="POST" class="p-6 space-y-4">
+            <form th:action="@{/inventory/edit}" method="POST" class="p-5 overflow-y-auto space-y-4">
                 <input type="hidden" name="maHangHoa" id="edit_id">
                 <div>
                     <label class="block text-xs font-bold text-[#50453e] mb-1">Tên mặt hàng</label>
-                    <input type="text" name="tenHangHoa" id="edit_name" required class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2 text-sm focus:border-[#553722]">
+                    <input type="text" name="tenHangHoa" id="edit_name" required
+                           class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] focus:ring-1 focus:ring-[#553722] transition-all">
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-[#50453e] mb-1">Đơn vị tính</label>
-                        <select name="maDonViTinh" id="edit_unit" required class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2 text-sm focus:border-[#553722]">
+                        <select name="maDonViTinh" id="edit_unit" required
+                                class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
                             <option th:each="u : ${units}" th:value="${u.maDonViTinh}" th:text="${u.tenDonVi}"></option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-[#50453e] mb-1">Đơn giá (VNĐ)</label>
-                        <input type="number" name="donGia" id="edit_price" required class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2 text-sm focus:border-[#553722]">
+                        <input type="number" name="donGia" id="edit_price" required
+                               class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
                     </div>
                 </div>
-                <div class="pt-4 flex justify-end gap-2">
-                    <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="px-4 py-2 rounded-xl text-sm font-bold bg-gray-100 text-gray-600">Hủy</button>
-                    <button type="submit" class="px-4 py-2 rounded-xl text-sm font-bold bg-[#553722] text-white">Lưu thay đổi</button>
+                <div class="pt-4 flex flex-col-reverse sm:flex-row justify-end gap-3 mt-2 border-t border-[#e2e3e1]/60">
+                    <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')"
+                            class="w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-bold bg-gray-100 hover:bg-gray-200 text-gray-600 transition-all text-center">
+                        Hủy
+                    </button>
+                    <button type="submit"
+                            class="w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-bold bg-[#553722] hover:bg-[#6f4e37] text-white shadow-md transition-all flex justify-center items-center">
+                        Lưu thay đổi
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 
-    <div id="deleteModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl p-6 text-center">
-            <div class="w-14 h-14 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4"><i data-lucide="alert-triangle" class="w-7 h-7"></i></div>
+    <div id="deleteModal"
+         class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl p-6 text-center overflow-hidden">
+            <div class="w-14 h-14 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="alert-triangle" class="w-7 h-7"></i></div>
             <h3 class="font-bold text-lg mb-2">Xác nhận xóa hàng</h3>
-            <p class="text-sm text-gray-500 mb-6">Xóa <strong id="delete_name" class="text-rose-600"></strong> khỏi danh mục kho?</p>
-            <form th:action="@{/inventory/delete}" method="POST" class="flex gap-3">
+            <p class="text-sm text-gray-500 mb-6 leading-relaxed">Xóa <strong id="delete_name"
+                                                                              class="text-rose-600"></strong> khỏi danh
+                mục kho?</p>
+            <form th:action="@{/inventory/delete}" method="POST" class="flex flex-col sm:flex-row gap-3">
                 <input type="hidden" name="maHangHoa" id="delete_id">
-                <button type="button" onclick="document.getElementById('deleteModal').classList.add('hidden')" class="flex-1 py-2 bg-gray-100 rounded-xl font-bold">Hủy</button>
-                <button type="submit" class="flex-1 py-2 bg-rose-600 text-white rounded-xl font-bold">Xóa</button>
+                <button type="button" onclick="document.getElementById('deleteModal').classList.add('hidden')"
+                        class="w-full sm:flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm font-bold text-gray-600 transition-all order-2 sm:order-1">
+                    Hủy
+                </button>
+                <button type="submit"
+                        class="w-full sm:flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white shadow-md rounded-xl text-sm font-bold transition-all order-1 sm:order-2">
+                    Xóa
+                </button>
             </form>
         </div>
     </div>
@@ -240,29 +319,24 @@
             document.getElementById('importModal').classList.remove('hidden');
         }
 
-        // Đã cập nhật để nhận thêm biến maxQty
         function openExportModal(id, name, maxQty) {
             document.getElementById('export_id').value = id;
             document.getElementById('export_name').textContent = name;
 
-            // Set thông tin giới hạn
             document.getElementById('export_max_qty').value = maxQty;
             document.getElementById('export_display_max').textContent = maxQty;
 
-            // Reset form
             document.getElementById('export_input').value = '';
             document.getElementById('export_error_msg').classList.add('hidden');
 
             document.getElementById('exportModal').classList.remove('hidden');
         }
 
-        // Logic check số lượng khi submit
         function validateExport() {
             let inputQty = parseFloat(document.getElementById('export_input').value);
             let maxQty = parseFloat(document.getElementById('export_max_qty').value);
 
             if (inputQty > maxQty) {
-                // Hiện lỗi và block gửi form
                 document.getElementById('export_error_msg').classList.remove('hidden');
                 if (typeof lucide !== 'undefined') {
                     lucide.createIcons();

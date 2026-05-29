@@ -5,193 +5,269 @@
     <title>Quản lý Marketing</title>
 </head>
 <body>
-<main class="flex-1 p-6 md:p-8 overflow-y-auto bg-[#f9f9f7]">
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
+<main class="flex-1 p-4 md:p-8 overflow-y-auto bg-[#f9f9f7]">
+
+    <!-- Phần Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 md:mb-8 gap-4">
         <div>
-            <h2 class="text-2xl font-bold text-[#1a1c1b] font-sans">Quản lý Marketing & Khuyến Mãi</h2>
-            <p class="text-sm text-[#50453e] opacity-80 mt-1">Tổ chức sự kiện, phát hành mã giảm giá và kích cầu doanh thu.</p>
+            <h2 class="text-xl md:text-2xl font-bold text-[#1a1c1b] font-sans">Quản lý Marketing & Khuyến Mãi</h2>
+            <p class="text-xs md:text-sm text-[#50453e] opacity-80 mt-1">Tổ chức sự kiện, phát hành mã giảm giá và kích
+                cầu doanh thu.</p>
         </div>
+        <!-- Cải tiến: Nút bấm w-full trên điện thoại -->
         <button onclick="document.getElementById('addModal').classList.remove('hidden')"
-                class="flex items-center gap-2 bg-[#553722] hover:bg-[#6f4e37] text-white px-5 py-2.5 rounded-xl text-sm font-semibold uppercase tracking-wider transition-all shadow-md">
+                class="w-full md:w-auto justify-center flex items-center gap-2 bg-[#553722] hover:bg-[#6f4e37] text-white px-5 py-2.5 rounded-xl text-sm font-semibold uppercase tracking-wider transition-all shadow-md">
             <i data-lucide="ticket" class="w-4 h-4"></i>
             Tạo chương trình mới
         </button>
     </div>
 
-    <div class="bg-white p-4 rounded-t-2xl shadow-sm border border-[#e2e3e1]/60 flex justify-between items-center">
-        <form th:action="@{/marketing}" method="GET" class="flex items-center bg-[#f4f4f2] rounded-full px-4 py-2 border border-[#e2e3e1]/40 max-w-md w-full">
-            <i data-lucide="search" class="w-4 h-4 text-[#50453e] opacity-70 mr-2"></i>
+    <!-- Thanh tìm kiếm -->
+    <div class="bg-white p-4 rounded-t-2xl shadow-sm border border-[#e2e3e1]/60 flex flex-col md:flex-row justify-between items-center gap-4">
+        <form th:action="@{/marketing}" method="GET"
+              class="flex items-center bg-[#f4f4f2] rounded-full px-4 py-2 border border-[#e2e3e1]/40 w-full md:max-w-md">
+            <i data-lucide="search" class="w-4 h-4 text-[#50453e] opacity-70 mr-2 shrink-0"></i>
             <input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm theo tên chương trình..."
-                   class="bg-transparent border-none outline-none text-sm text-[#1a1c1b] w-full placeholder:text-[#50453e]/70 focus:ring-0 p-0" />
+                   class="bg-transparent border-none outline-none text-xs md:text-sm text-[#1a1c1b] w-full placeholder:text-[#50453e]/70 focus:ring-0 p-0"/>
             <button type="submit" class="hidden"></button>
         </form>
     </div>
 
+    <!-- Bảng dữ liệu -->
     <div class="bg-white rounded-b-2xl shadow-sm border border-t-0 border-[#e2e3e1]/60 overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-sm whitespace-nowrap">
                 <thead class="bg-[#f4f4f2] text-[#50453e] font-bold uppercase text-[10px] tracking-wider">
                 <tr>
-                    <th class="px-6 py-4 w-1/4">Tên chương trình</th>
-                    <th class="px-6 py-4 text-center">Thời gian áp dụng</th>
-                    <th class="px-6 py-4 text-center">Loại KM</th>
-                    <th class="px-6 py-4 text-right">Giá trị giảm</th>
-                    <th class="px-6 py-4 text-center">Trạng thái</th>
-                    <th class="px-6 py-4 text-center">Thao tác</th>
+                    <th class="px-4 md:px-6 py-4 w-1/4">Tên chương trình</th>
+                    <th class="px-4 md:px-6 py-4 text-center">Thời gian áp dụng</th>
+                    <th class="px-4 md:px-6 py-4 text-center">Loại KM</th>
+                    <th class="px-4 md:px-6 py-4 text-right">Giá trị giảm</th>
+                    <th class="px-4 md:px-6 py-4 text-center">Trạng thái</th>
+                    <th class="px-4 md:px-6 py-4 text-center">Thao tác</th>
                 </tr>
                 </thead>
                 <tbody class="divide-y divide-[#e2e3e1]/40 text-[#1a1c1b]">
                 <tr th:each="km : ${promotions}" class="hover:bg-[#f9f9f7] transition-colors">
-                    <td class="px-6 py-4">
+                    <td class="px-4 md:px-6 py-4">
                         <p class="font-bold text-[#553722]" th:text="${km.tenKhuyenMai}">Khai trương</p>
-                        <p class="text-[11px] text-gray-500 mt-1 truncate max-w-[200px]" th:text="${km.moTa}">Mô tả ngắn...</p>
+                        <p class="text-[10px] md:text-[11px] text-gray-500 mt-1 truncate max-w-[150px] md:max-w-[200px]"
+                           th:text="${km.moTa}">Mô tả ngắn...</p>
                     </td>
-                    <td class="px-6 py-4 text-center text-xs text-gray-600 font-mono">
+                    <td class="px-4 md:px-6 py-4 text-center text-[11px] md:text-xs text-gray-600 font-mono">
                         <span th:text="${#temporals.format(km.ngayBatDau, 'dd/MM/yyyy')}">01/01/2026</span>
                         <i data-lucide="arrow-right" class="w-3 h-3 inline-block mx-1 text-gray-400"></i>
                         <span th:text="${#temporals.format(km.ngayKetThuc, 'dd/MM/yyyy')}">31/01/2026</span>
                     </td>
-                    <td class="px-6 py-4 text-center">
-                        <span class="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-md font-bold text-[10px] uppercase" th:text="${km.loaiKhuyenMai}">Phần trăm</span>
+                    <td class="px-4 md:px-6 py-4 text-center">
+                        <span class="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-md font-bold text-[9px] md:text-[10px] uppercase"
+                              th:text="${km.loaiKhuyenMai}">Phần trăm</span>
                     </td>
-                    <td class="px-6 py-4 text-right font-bold text-rose-600">
-                        <span th:if="${km.loaiKhuyenMai == 'Phần trăm'}" th:text="'- ' + ${#numbers.formatInteger(km.giaTriGiam, 0)} + '%'">- 10%</span>
-                        <span th:if="${km.loaiKhuyenMai != 'Phần trăm'}" th:text="'- ' + ${#numbers.formatInteger(km.giaTriGiam, 0, 'COMMA')} + ' đ'">- 50.000 đ</span>
+                    <td class="px-4 md:px-6 py-4 text-right font-bold text-rose-600 text-xs md:text-sm">
+                        <span th:if="${km.loaiKhuyenMai == 'Phần trăm'}"
+                              th:text="'- ' + ${#numbers.formatInteger(km.giaTriGiam, 0)} + '%'">- 10%</span>
+                        <span th:if="${km.loaiKhuyenMai != 'Phần trăm'}"
+                              th:text="'- ' + ${#numbers.formatInteger(km.giaTriGiam, 0, 'COMMA')} + ' đ'">- 50.000 đ</span>
                     </td>
-                    <td class="px-6 py-4 text-center">
-                        <span th:if="${km.trangThai == 'Đang diễn ra'}" class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full font-bold text-[10px] uppercase"><span class="w-1.5 h-1.5 bg-emerald-500 rounded-full inline-block mr-1.5 animate-pulse"></span>Đang diễn ra</span>
-                        <span th:if="${km.trangThai == 'Sắp diễn ra'}" class="px-3 py-1 bg-amber-100 text-amber-700 rounded-full font-bold text-[10px] uppercase">Sắp diễn ra</span>
-                        <span th:if="${km.trangThai == 'Đã kết thúc'}" class="px-3 py-1 bg-gray-100 text-gray-500 rounded-full font-bold text-[10px] uppercase">Đã kết thúc</span>
+                    <td class="px-4 md:px-6 py-4 text-center">
+                        <span th:if="${km.trangThai == 'Đang diễn ra'}"
+                              class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full font-bold text-[9px] md:text-[10px] uppercase"><span
+                                class="w-1.5 h-1.5 bg-emerald-500 rounded-full inline-block mr-1.5 animate-pulse"></span>Đang diễn ra</span>
+                        <span th:if="${km.trangThai == 'Sắp diễn ra'}"
+                              class="px-3 py-1 bg-amber-100 text-amber-700 rounded-full font-bold text-[9px] md:text-[10px] uppercase">Sắp diễn ra</span>
+                        <span th:if="${km.trangThai == 'Đã kết thúc'}"
+                              class="px-3 py-1 bg-gray-100 text-gray-500 rounded-full font-bold text-[9px] md:text-[10px] uppercase">Đã kết thúc</span>
                     </td>
-                    <td class="px-6 py-4 text-center">
+                    <td class="px-4 md:px-6 py-4 text-center">
                         <div class="flex items-center justify-center gap-3">
                             <button type="button"
                                     th:data-id="${km.maKhuyenMai}" th:data-name="${km.tenKhuyenMai}"
                                     th:data-start="${km.ngayBatDau}" th:data-end="${km.ngayKetThuc}"
-                                    th:data-type="${km.loaiKhuyenMai}" th:data-val="${#numbers.formatInteger(km.giaTriGiam, 0)}"
+                                    th:data-type="${km.loaiKhuyenMai}"
+                                    th:data-val="${#numbers.formatInteger(km.giaTriGiam, 0)}"
                                     th:data-desc="${km.moTa}"
                                     onclick="openEditModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-start'), this.getAttribute('data-end'), this.getAttribute('data-type'), this.getAttribute('data-val'), this.getAttribute('data-desc'))"
-                                    class="text-blue-600 hover:text-blue-800 transition-colors" title="Sửa khuyến mãi">
+                                    class="text-blue-600 hover:text-blue-800 transition-colors p-1"
+                                    title="Sửa khuyến mãi">
                                 <i data-lucide="pen" class="w-4 h-4"></i>
                             </button>
                             <button type="button" th:data-id="${km.maKhuyenMai}" th:data-name="${km.tenKhuyenMai}"
                                     onclick="openDeleteModal(this.getAttribute('data-id'), this.getAttribute('data-name'))"
-                                    class="text-rose-500 hover:text-rose-700 transition-colors" title="Xóa">
+                                    class="text-rose-500 hover:text-rose-700 transition-colors p-1" title="Xóa">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
                         </div>
                     </td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(promotions)}">
-                    <td colspan="6" class="px-6 py-10 text-center text-gray-400 italic">Hiện tại chưa có chương trình khuyến mãi nào.</td>
+                    <td colspan="6" class="px-4 md:px-6 py-10 text-center text-gray-400 italic text-xs md:text-sm">Hiện
+                        tại chưa có chương trình khuyến mãi nào.
+                    </td>
                 </tr>
                 </tbody>
             </table>
         </div>
     </div>
 
-    <div id="addModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden">
-            <div class="px-6 py-4 border-b border-[#e2e3e1]/60 flex justify-between bg-[#f9f9f7]">
-                <h3 class="font-bold text-[#1a1c1b]"><i data-lucide="ticket" class="w-4 h-4 inline-block mr-2 text-[#553722]"></i>Tạo Khuyến Mãi Mới</h3>
-                <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')" class="text-gray-400 hover:text-rose-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+    <!-- Modal Tạo Mới -->
+    <div id="addModal"
+         class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm p-4">
+        <!-- Cải tiến: max-h-[90vh], flex-col để form có thể scroll bên trong -->
+        <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="px-5 py-4 border-b border-[#e2e3e1]/60 flex justify-between shrink-0 bg-[#f9f9f7]">
+                <h3 class="font-bold text-[#1a1c1b] flex items-center"><i data-lucide="ticket"
+                                                                          class="w-4 h-4 inline-block mr-2 text-[#553722]"></i>Tạo
+                    Khuyến Mãi Mới</h3>
+                <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')"
+                        class="text-gray-400 hover:text-rose-600"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <form th:action="@{/marketing/add}" method="POST" class="p-6 space-y-4">
+
+            <form th:action="@{/marketing/add}" method="POST" class="p-5 overflow-y-auto space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-[#50453e] mb-1">Tên chương trình (*)</label>
-                    <input type="text" name="tenKhuyenMai" required class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2 text-sm focus:border-[#553722]">
+                    <input type="text" name="tenKhuyenMai" required
+                           class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] focus:ring-1 focus:ring-[#553722] transition-all">
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+
+                <!-- Cải tiến: Chia 1 cột trên mobile, 2 cột trên tablet/PC -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-[#50453e] mb-1">Ngày bắt đầu (*)</label>
-                        <input type="date" name="ngayBatDau" required class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2 text-sm focus:border-[#553722]">
+                        <input type="date" name="ngayBatDau" required
+                               class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-[#50453e] mb-1">Ngày kết thúc (*)</label>
-                        <input type="date" name="ngayKetThuc" required class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2 text-sm focus:border-[#553722]">
+                        <input type="date" name="ngayKetThuc" required
+                               class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
                     </div>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-[#50453e] mb-1">Loại khuyến mãi</label>
-                        <select name="loaiKhuyenMai" required class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2 text-sm focus:border-[#553722]">
+                        <select name="loaiKhuyenMai" required
+                                class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
                             <option value="Phần trăm">Giảm theo % (Phần trăm)</option>
                             <option value="Số tiền">Giảm trực tiếp (Tiền mặt)</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-[#50453e] mb-1">Mức giảm (*)</label>
-                        <input type="number" name="giaTriGiam" required min="1" class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2 text-sm focus:border-[#553722]">
+                        <input type="number" name="giaTriGiam" required min="1"
+                               class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
                     </div>
                 </div>
+
                 <div>
                     <label class="block text-xs font-bold text-[#50453e] mb-1">Mô tả chi tiết</label>
-                    <textarea name="moTa" rows="2" class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2 text-sm focus:border-[#553722]" placeholder="Điều kiện áp dụng..."></textarea>
+                    <textarea name="moTa" rows="2"
+                              class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all"
+                              placeholder="Điều kiện áp dụng..."></textarea>
                 </div>
-                <div class="pt-4 flex justify-end gap-2">
-                    <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')" class="px-4 py-2 rounded-xl text-sm font-bold bg-gray-100 text-gray-600">Hủy</button>
-                    <button type="submit" class="px-4 py-2 rounded-xl text-sm font-bold bg-[#553722] text-white">Lưu chương trình</button>
+
+                <!-- Cải tiến: Cụm nút xếp dọc trên mobile -->
+                <div class="pt-4 mt-2 border-t border-[#e2e3e1]/60 flex flex-col-reverse sm:flex-row justify-end gap-3">
+                    <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')"
+                            class="w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-bold bg-gray-100 hover:bg-gray-200 text-gray-600 transition-all text-center">
+                        Hủy
+                    </button>
+                    <button type="submit"
+                            class="w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-bold bg-[#553722] hover:bg-[#6f4e37] text-white shadow-md transition-all text-center">
+                        Lưu chương trình
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 
-    <div id="editModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden">
-            <div class="px-6 py-4 border-b border-[#e2e3e1]/60 flex justify-between bg-[#f9f9f7]">
+    <!-- Modal Cập Nhật -->
+    <div id="editModal"
+         class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="px-5 py-4 border-b border-[#e2e3e1]/60 flex justify-between shrink-0 bg-[#f9f9f7]">
                 <h3 class="font-bold text-[#1a1c1b]">Cập nhật Khuyến Mãi</h3>
-                <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="text-gray-400 hover:text-rose-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')"
+                        class="text-gray-400 hover:text-rose-600"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <form th:action="@{/marketing/edit}" method="POST" class="p-6 space-y-4">
+
+            <form th:action="@{/marketing/edit}" method="POST" class="p-5 overflow-y-auto space-y-4">
                 <input type="hidden" name="maKhuyenMai" id="edit_id">
                 <div>
                     <label class="block text-xs font-bold text-[#50453e] mb-1">Tên chương trình</label>
-                    <input type="text" name="tenKhuyenMai" id="edit_name" required class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2 text-sm focus:border-[#553722]">
+                    <input type="text" name="tenKhuyenMai" id="edit_name" required
+                           class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] focus:ring-1 focus:ring-[#553722] transition-all">
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-[#50453e] mb-1">Ngày bắt đầu</label>
-                        <input type="date" name="ngayBatDau" id="edit_start" required class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2 text-sm focus:border-[#553722]">
+                        <input type="date" name="ngayBatDau" id="edit_start" required
+                               class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-[#50453e] mb-1">Ngày kết thúc</label>
-                        <input type="date" name="ngayKetThuc" id="edit_end" required class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2 text-sm focus:border-[#553722]">
+                        <input type="date" name="ngayKetThuc" id="edit_end" required
+                               class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
                     </div>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-[#50453e] mb-1">Loại khuyến mãi</label>
-                        <select name="loaiKhuyenMai" id="edit_type" required class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2 text-sm focus:border-[#553722]">
+                        <select name="loaiKhuyenMai" id="edit_type" required
+                                class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
                             <option value="Phần trăm">Giảm theo % (Phần trăm)</option>
                             <option value="Số tiền">Giảm trực tiếp (Tiền mặt)</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-[#50453e] mb-1">Mức giảm</label>
-                        <input type="number" name="giaTriGiam" id="edit_val" required min="1" class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2 text-sm focus:border-[#553722]">
+                        <input type="number" name="giaTriGiam" id="edit_val" required min="1"
+                               class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
                     </div>
                 </div>
+
                 <div>
                     <label class="block text-xs font-bold text-[#50453e] mb-1">Mô tả chi tiết</label>
-                    <textarea name="moTa" id="edit_desc" rows="2" class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2 text-sm focus:border-[#553722]"></textarea>
+                    <textarea name="moTa" id="edit_desc" rows="2"
+                              class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all"></textarea>
                 </div>
-                <div class="pt-4 flex justify-end gap-2">
-                    <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="px-4 py-2 rounded-xl text-sm font-bold bg-gray-100 text-gray-600">Hủy</button>
-                    <button type="submit" class="px-4 py-2 rounded-xl text-sm font-bold bg-[#553722] text-white">Lưu thay đổi</button>
+
+                <div class="pt-4 mt-2 border-t border-[#e2e3e1]/60 flex flex-col-reverse sm:flex-row justify-end gap-3">
+                    <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')"
+                            class="w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-bold bg-gray-100 hover:bg-gray-200 text-gray-600 transition-all text-center">
+                        Hủy
+                    </button>
+                    <button type="submit"
+                            class="w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-bold bg-[#553722] hover:bg-[#6f4e37] text-white shadow-md transition-all text-center">
+                        Lưu thay đổi
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 
-    <div id="deleteModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl p-6 text-center">
-            <div class="w-14 h-14 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4"><i data-lucide="alert-triangle" class="w-7 h-7"></i></div>
+    <!-- Modal Xóa -->
+    <div id="deleteModal"
+         class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl p-6 text-center overflow-hidden">
+            <div class="w-14 h-14 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="alert-triangle" class="w-7 h-7"></i></div>
             <h3 class="font-bold text-lg mb-2">Dừng khuyến mãi</h3>
-            <p class="text-sm text-gray-500 mb-6">Bạn có chắc muốn xóa chương trình <strong id="delete_name" class="text-rose-600"></strong>?</p>
-            <form th:action="@{/marketing/delete}" method="POST" class="flex gap-3">
+            <p class="text-sm text-gray-500 mb-6 leading-relaxed">Bạn có chắc muốn xóa chương trình <strong
+                    id="delete_name" class="text-rose-600"></strong>?</p>
+
+            <form th:action="@{/marketing/delete}" method="POST" class="flex flex-col sm:flex-row gap-3">
                 <input type="hidden" name="maKhuyenMai" id="delete_id">
-                <button type="button" onclick="document.getElementById('deleteModal').classList.add('hidden')" class="flex-1 py-2 bg-gray-100 rounded-xl font-bold">Hủy</button>
-                <button type="submit" class="flex-1 py-2 bg-rose-600 text-white rounded-xl font-bold">Đồng ý Xóa</button>
+                <button type="button" onclick="document.getElementById('deleteModal').classList.add('hidden')"
+                        class="w-full sm:flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm font-bold text-gray-600 transition-all order-2 sm:order-1">
+                    Hủy
+                </button>
+                <button type="submit"
+                        class="w-full sm:flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white shadow-md rounded-xl text-sm font-bold transition-all order-1 sm:order-2">
+                    Đồng ý Xóa
+                </button>
             </form>
         </div>
     </div>

@@ -2,13 +2,114 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout :: layout('Trang chủ | Café Harmony', 'home', ~{::section})}">
 <body>
-<section class="p-6 md:p-8">
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
+<section class="p-4 md:p-8">
+
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 md:mb-8 gap-4">
         <div>
-            <h2 class="text-2xl md:text-3xl font-bold text-[#1a1c1b] font-sans">Xin chào, Admin! 👋</h2>
-            <p class="text-[#50453e] mt-1 opacity-80 text-sm md:text-base">Hôm nay là một ngày tuyệt vời để phục vụ những ly cà phê ngon.</p>
+            <h2 class="text-xl md:text-3xl font-bold text-[#1a1c1b] font-sans">Xin chào, <span
+                    th:text="${currentUser != null ? currentUser.hoTen : 'Admin'}">Admin</span>! 👋</h2>
+            <p class="text-[#50453e] mt-1 opacity-80 text-xs md:text-sm">Hôm nay là một ngày tuyệt vời để phục vụ những
+                ly cà phê ngon.</p>
+        </div>
+
+        <a th:href="@{/tables}"
+           class="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#553722] hover:bg-[#6f4e37] text-white px-5 py-2.5 rounded-xl text-sm font-semibold uppercase tracking-wider transition-all shadow-md shrink-0">
+            <i data-lucide="coffee" class="w-4 h-4"></i>
+            Đến Sơ đồ bàn ngay
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
+
+        <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-[#e2e3e1]/60 flex items-center gap-4 hover:shadow-md transition-shadow cursor-pointer">
+            <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                <i data-lucide="banknote" class="w-5 h-5 md:w-6 md:h-6"></i>
+            </div>
+            <div>
+                <p class="text-[10px] md:text-[11px] text-gray-500 font-bold uppercase tracking-wider mb-0.5">Doanh thu
+                    hôm nay</p>
+                <h3 class="text-base md:text-xl font-bold text-[#1a1c1b]">2,450k đ</h3>
+            </div>
+        </div>
+
+        <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-[#e2e3e1]/60 flex items-center gap-4 hover:shadow-md transition-shadow cursor-pointer">
+            <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                <i data-lucide="shopping-bag" class="w-5 h-5 md:w-6 md:h-6"></i>
+            </div>
+            <div>
+                <p class="text-[10px] md:text-[11px] text-gray-500 font-bold uppercase tracking-wider mb-0.5">Đơn hàng
+                    mới</p>
+                <h3 class="text-base md:text-xl font-bold text-[#1a1c1b]">42 đơn</h3>
+            </div>
+        </div>
+
+        <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-[#e2e3e1]/60 flex items-center gap-4 hover:shadow-md transition-shadow cursor-pointer">
+            <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                <i data-lucide="users" class="w-5 h-5 md:w-6 md:h-6"></i>
+            </div>
+            <div>
+                <p class="text-[10px] md:text-[11px] text-gray-500 font-bold uppercase tracking-wider mb-0.5">Khách phục
+                    vụ</p>
+                <h3 class="text-base md:text-xl font-bold text-[#1a1c1b]">128 khách</h3>
+            </div>
+        </div>
+
+        <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-[#e2e3e1]/60 flex items-center gap-4 hover:shadow-md transition-shadow cursor-pointer">
+            <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+                <i data-lucide="cup-soda" class="w-5 h-5 md:w-6 md:h-6"></i>
+            </div>
+            <div>
+                <p class="text-[10px] md:text-[11px] text-gray-500 font-bold uppercase tracking-wider mb-0.5">Món bán
+                    chạy</p>
+                <h3 class="text-base md:text-xl font-bold text-[#1a1c1b] truncate w-24 md:w-auto">Cà phê sữa</h3>
+            </div>
         </div>
     </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+
+        <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-[#e2e3e1]/60 lg:col-span-2">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-bold text-[#1a1c1b] text-base md:text-lg">Tổng quan doanh thu tuần</h3>
+                <button class="text-[#553722] text-xs md:text-sm font-semibold hover:underline">Xem báo cáo</button>
+            </div>
+            <div class="w-full h-56 md:h-64 bg-gray-50/50 rounded-xl border border-dashed border-gray-300 flex items-center justify-center flex-col text-gray-400">
+                <i data-lucide="bar-chart-2" class="w-8 h-8 md:w-10 md:h-10 mb-2 opacity-50"></i>
+                <p class="text-xs md:text-sm italic">Khu vực biểu đồ (Dữ liệu đang cập nhật...)</p>
+            </div>
+        </div>
+
+        <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-[#e2e3e1]/60">
+            <h3 class="font-bold text-[#1a1c1b] text-base md:text-lg mb-5 md:mb-6">Hoạt động gần đây</h3>
+            <div class="space-y-4 md:space-y-5">
+                <div class="flex gap-3 relative">
+                    <div class="w-2 h-2 mt-1.5 rounded-full bg-emerald-500 shrink-0 z-10"></div>
+                    <div class="absolute left-1 top-3.5 bottom-[-16px] w-[1px] bg-gray-200"></div>
+                    <div>
+                        <p class="text-sm font-semibold text-[#1a1c1b]">Thanh toán bàn số 5</p>
+                        <p class="text-[11px] md:text-xs text-gray-500 mt-0.5">Vừa xong • 125,000 đ</p>
+                    </div>
+                </div>
+                <div class="flex gap-3 relative">
+                    <div class="w-2 h-2 mt-1.5 rounded-full bg-blue-500 shrink-0 z-10"></div>
+                    <div class="absolute left-1 top-3.5 bottom-[-16px] w-[1px] bg-gray-200"></div>
+                    <div>
+                        <p class="text-sm font-semibold text-[#1a1c1b]">Khách đặt bàn số 12</p>
+                        <p class="text-[11px] md:text-xs text-gray-500 mt-0.5">5 phút trước • Nhóm 4 người</p>
+                    </div>
+                </div>
+                <div class="flex gap-3 relative">
+                    <div class="w-2 h-2 mt-1.5 rounded-full bg-amber-500 shrink-0 z-10"></div>
+                    <div>
+                        <p class="text-sm font-semibold text-[#1a1c1b]">Nhập kho cà phê hạt</p>
+                        <p class="text-[11px] md:text-xs text-gray-500 mt-0.5">1 tiếng trước • 20 kg</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
 </section>
 </body>
 </html>
