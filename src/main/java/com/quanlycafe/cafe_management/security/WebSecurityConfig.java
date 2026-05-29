@@ -22,20 +22,27 @@ public class WebSecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/css/**", "/js/**", "/images/**").permitAll() // Cho phép tải tài nguyên tĩnh
-                        .anyRequest().authenticated() // Mọi trang khác đều phải đăng nhập
+
+                        // CÁC TRANG DÀNH RIÊNG CHO QUẢN LÝ (ROLE_ADMIN)
+                        .requestMatchers("/employee/**", "/equipment/**", "/inventory/**",
+                                "/menu/**", "/marketing/**", "/budget/**",
+                                "/data/**", "/report/**", "/settings/**").hasRole("ADMIN")
+
+                        // CÁC TRANG CÒN LẠI - THÌ ADMIN VÀ USER ĐỀU VÀO ĐƯỢC
+                        .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .loginPage("/login") // Mở trang giao diện của mình
-                        .loginProcessingUrl("/login") // Nơi Spring xử lý form Submit
-                        .defaultSuccessUrl("/home", true) // Chuyển đến home khi thành công
-                        .failureUrl("/login?error=true") // Trả về lỗi nếu sai mật khẩu
+                        .loginPage("/login")
+                        .loginProcessingUrl("/login")
+                        .defaultSuccessUrl("/home", true)
+                        .failureUrl("/login?error=true")
                         .permitAll()
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/logout") // Khớp với th:action="@{/logout}" trong thẻ form HTML
-                        .logoutSuccessUrl("/login?logout") // Trả về trang đăng nhập kèm thông báo sau khi đăng xuất thành công
-                        .invalidateHttpSession(true) // Hủy toàn bộ phiên làm việc (Session) của người dùng hiện tại
-                        .deleteCookies("JSESSIONID") // Xóa Cookie chứa thông tin định danh trên trình duyệt
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
                         .permitAll()
                 );
 
