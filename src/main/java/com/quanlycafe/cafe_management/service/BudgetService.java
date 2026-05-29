@@ -15,6 +15,15 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 
+/**
+ * BudgetService
+ * Version 1.0
+ * Date: 29-05-2026
+ * Modification Logs:
+ * DATE       AUTHOR       DESCRIPTION
+ * -----------------------------------------------------------------------
+ * 29-05-2026 lthoai       Create
+ */
 @Service
 @RequiredArgsConstructor
 public class BudgetService {
@@ -22,7 +31,13 @@ public class BudgetService {
     private final HoaDonRepository hoaDonRepository;
     private final ChiTieuRepository chiTieuRepository;
 
-    // 1. Lấy báo cáo Thu - Chi
+    /**
+     * Lấy báo cáo Thu - Chi
+     *
+     * @param startDate LocalDate
+     * @param endDate   LocalDate
+     * @return List<ThuChiDTO>
+     */
     public List<ThuChiDTO> getThuChiReport(LocalDate startDate, LocalDate endDate) {
         LocalDateTime start = startDate.atStartOfDay();
         LocalDateTime end = endDate.atTime(LocalTime.MAX);
@@ -63,7 +78,13 @@ public class BudgetService {
         return new ArrayList<>(reportMap.values());
     }
 
-    // 3. Thêm khoản chi
+    /**
+     * Thêm khoản chi
+     *
+     * @param tenKhoanChi String
+     * @param soTien      Double
+     * @param ngayChi     LocalDate
+     */
     @Transactional
     public void addExpense(String tenKhoanChi, Double soTien, LocalDate ngayChi) {
         ChiTieu ct = new ChiTieu();

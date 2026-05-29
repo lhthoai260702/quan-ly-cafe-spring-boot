@@ -1,5 +1,6 @@
 package com.quanlycafe.cafe_management.controller;
 
+import com.quanlycafe.cafe_management.dto.ThongTinBanGoiMonDTO;
 import com.quanlycafe.cafe_management.dto.UserProfileDTO;
 import com.quanlycafe.cafe_management.entity.Ban;
 import com.quanlycafe.cafe_management.entity.ThucDon;
@@ -10,7 +11,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import com.quanlycafe.cafe_management.dto.ThongTinBanGoiMonDTO;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
@@ -19,6 +19,15 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * TablesController
+ * Version 1.0
+ * Date: 29-05-2026
+ * Modification Logs:
+ * DATE       AUTHOR       DESCRIPTION
+ * -----------------------------------------------------------------------
+ * 29-05-2026 lthoai       Create
+ */
 @Controller
 public class TablesController {
 
@@ -28,7 +37,14 @@ public class TablesController {
     @Autowired
     private ThucDonRepository thucDonRepository;
 
-    // Hiển thị danh sách bàn
+    /**
+     * Hiển thị danh sách bàn
+     *
+     * @param status String
+     * @param search String
+     * @param model  Model
+     * @return String
+     */
     @GetMapping("/tables")
     public String showTableMap(
             @RequestParam(name = "status", required = false) String status,
@@ -70,10 +86,17 @@ public class TablesController {
         model.addAttribute("danhSachBanTrong", tatCaBan.stream().filter(b -> "Trống".equalsIgnoreCase(b.getTinhTrang())).toList());
         model.addAttribute("danhSachBanCoKhach", tatCaBan.stream().filter(b -> "Đang sử dụng".equalsIgnoreCase(b.getTinhTrang())).toList());
         model.addAttribute("danhSachThucDon", danhSachThucDon);
+
         return "tables";
     }
 
-    // Hiển thị danh sách món
+    /**
+     * Hiển thị chi tiết order của bàn (danh sách món)
+     *
+     * @param maBan Integer
+     * @param model Model
+     * @return String
+     */
     @GetMapping("/tables/{maBan}/order-details")
     public String getOrderDetailsFragment(@PathVariable("maBan") Integer maBan, Model model) {
         ThongTinBanGoiMonDTO thongTinGoiMon = tablesService.getChiTietGoiMonTheoBan(maBan);
@@ -82,7 +105,13 @@ public class TablesController {
         return "fragments/hoadon :: nội_dung_hóa_đơn";
     }
 
-    // Chuyển bàn
+    /**
+     * Chuyển bàn
+     *
+     * @param tuMaBan  Integer
+     * @param denMaBan Integer
+     * @return String
+     */
     @PostMapping("/tables/transfer")
     public String transferTable(@RequestParam("tuMaBan") Integer tuMaBan,
                                 @RequestParam("denMaBan") Integer denMaBan) {
@@ -90,11 +119,18 @@ public class TablesController {
         return "redirect:/tables";
     }
 
-    // Gộp bàn
+    /**
+     * Gộp bàn
+     *
+     * @param tuMaBanList        List<Integer>
+     * @param denMaBan           Integer
+     * @param redirectAttributes RedirectAttributes
+     * @return String
+     */
     @PostMapping("/tables/merge")
     public String mergeTables(@RequestParam(value = "tuMaBanList", required = false) List<Integer> tuMaBanList,
                               @RequestParam(value = "denMaBan", required = true) Integer denMaBan,
-                              org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+                              RedirectAttributes redirectAttributes) {
 
         if (tuMaBanList == null || tuMaBanList.isEmpty()) {
             redirectAttributes.addFlashAttribute("errorMsg", "Vui lòng chọn ít nhất 1 bàn để gộp!");
@@ -110,38 +146,68 @@ public class TablesController {
         }
 
         boolean success = tablesService.gopBan(tuMaBanList, denMaBan);
+
         if (success) {
             redirectAttributes.addFlashAttribute("successMsg", "Gộp bàn thành công!");
         } else {
             redirectAttributes.addFlashAttribute("errorMsg", "Có lỗi xảy ra khi gộp bàn!");
         }
+
         return "redirect:/tables";
     }
 
-    // Tách bàn
+    /**
+     * Lấy danh sách món của bàn (định dạng JSON dùng cho tách bàn)
+     *
+     * @param maBan Integer
+     * @return List<Map<String, Object>>
+     */
     @GetMapping("/tables/{maBan}/items")
     @ResponseBody
     public List<Map<String, Object>> getTableItemsJson(@PathVariable("maBan") Integer maBan) {
         return tablesService.getDanhSachMonJsonTheoBan(maBan);
     }
 
+    /**
+     * Tách bàn (tách hóa đơn)
+     *
+     * @param tuMaBan            Integer
+     * @param denMaBan           Integer
+     * @param mathucdonList      List<Integer>
+     * @param soluongTachList    List<Integer>
+     * @param redirectAttributes RedirectAttributes
+     * @return String
+     */
     @PostMapping("/tables/split")
     public String splitTable(@RequestParam("tuMaBan") Integer tuMaBan,
                              @RequestParam("denMaBan") Integer denMaBan,
                              @RequestParam("mathucdonList") List<Integer> mathucdonList,
                              @RequestParam("soluongTachList") List<Integer> soluongTachList,
-                             org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+                             RedirectAttributes redirectAttributes) {
 
         boolean success = tablesService.tachBan(tuMaBan, denMaBan, mathucdonList, soluongTachList);
+
         if (success) {
             redirectAttributes.addFlashAttribute("successMsg", "Tách hóa đơn thành công!");
         } else {
             redirectAttributes.addFlashAttribute("errorMsg", "Tách hóa đơn thất bại hoặc số lượng không hợp lệ!");
         }
+
         return "redirect:/tables";
     }
 
-    // Đặt bàn
+    /**
+     * Đặt bàn trước
+     *
+     * @param currentUser        UserProfileDTO
+     * @param maBan              Integer
+     * @param tenKhachHang       String
+     * @param sdtKhachHang       String
+     * @param ngayDat            LocalDate
+     * @param gioDat             LocalTime
+     * @param redirectAttributes RedirectAttributes
+     * @return String
+     */
     @PostMapping("/tables/booking")
     public String handleBookingTable(
             @ModelAttribute("currentUser") UserProfileDTO currentUser,
@@ -167,7 +233,7 @@ public class TablesController {
                 return "redirect:/tables";
             }
 
-            // TRUYỀN MÃ NHÂN VIÊN THỰC TẾ VÀO SERVICE
+            // Truyền mã nhân viên thực tế vào service
             tablesService.datBanTruoc(maBan, currentUser.getMaNhanVien(), tenKhachHang, sdtKhachHang, ngayGioDat);
 
             redirectAttributes.addFlashAttribute("successMessage", "Đã đặt bàn thành công!");
@@ -178,7 +244,16 @@ public class TablesController {
         return "redirect:/tables";
     }
 
-    // Chọn món
+    /**
+     * Xử lý gọi món
+     *
+     * @param currentUser        UserProfileDTO
+     * @param maBan              Integer
+     * @param danhSachMaMon      List<Integer>
+     * @param danhSachSoLuong    List<Integer>
+     * @param redirectAttributes RedirectAttributes
+     * @return String
+     */
     @PostMapping("/tables/order")
     public String xuLyGoiMon(
             @ModelAttribute("currentUser") UserProfileDTO currentUser,
@@ -186,6 +261,7 @@ public class TablesController {
             @RequestParam(value = "maThucDon", required = false) List<Integer> danhSachMaMon,
             @RequestParam(value = "soLuong", required = false) List<Integer> danhSachSoLuong,
             RedirectAttributes redirectAttributes) {
+
         try {
             Integer maNhanVien = currentUser.getMaNhanVien();
 
@@ -196,10 +272,17 @@ public class TablesController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Lỗi gọi món: " + e.getMessage());
         }
+
         return "redirect:/tables";
     }
 
-    // Thanh toán
+    /**
+     * Xử lý thanh toán hóa đơn
+     *
+     * @param maBan              Integer
+     * @param redirectAttributes RedirectAttributes
+     * @return String
+     */
     @PostMapping("/tables/checkout")
     public String xuLyThanhToan(@RequestParam("maBan") Integer maBan, RedirectAttributes redirectAttributes) {
         try {
@@ -208,6 +291,7 @@ public class TablesController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Lỗi thanh toán: " + e.getMessage());
         }
+
         return "redirect:/tables";
     }
 }

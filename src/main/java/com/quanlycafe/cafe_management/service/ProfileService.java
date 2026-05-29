@@ -12,6 +12,15 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+/**
+ * ProfileService
+ * Version 1.0
+ * Date: 29-05-2026
+ * Modification Logs:
+ * DATE       AUTHOR       DESCRIPTION
+ * -----------------------------------------------------------------------
+ * 29-05-2026 lthoai       Create
+ */
 @Service
 public class ProfileService {
 
@@ -21,10 +30,15 @@ public class ProfileService {
     @Autowired
     private TaiKhoanRepository taiKhoanRepository;
 
-    // Hàm lấy thông tin user đang đăng nhập
+    /**
+     * Lấy thông tin user đang đăng nhập
+     *
+     * @return UserProfileDTO
+     */
     public UserProfileDTO getCurrentUserProfile() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String username;
+
         if (principal instanceof UserDetails) {
             username = ((UserDetails) principal).getUsername();
         } else {

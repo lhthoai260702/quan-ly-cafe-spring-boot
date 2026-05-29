@@ -12,13 +12,28 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * EquipmentController
+ * Version 1.0
+ * Date: 29-05-2026
+ * Modification Logs:
+ * DATE       AUTHOR       DESCRIPTION
+ * -----------------------------------------------------------------------
+ * 29-05-2026 lthoai        Create
+ */
 @Controller
 @RequiredArgsConstructor
 public class EquipmentController {
 
     private final EquipmentService equipmentService;
 
-    // Hiển thị trang quản lý thiết bị
+    /**
+     * Hiển thị trang quản lý thiết bị
+     *
+     * @param keyword
+     * @param model
+     * @return String
+     */
     @GetMapping("/equipment")
     public String showEquipmentManager(
             @RequestParam(required = false) String keyword,
@@ -38,7 +53,16 @@ public class EquipmentController {
         return "equipment";
     }
 
-    // Thêm thiết bị
+    /**
+     * Thêm thiết bị
+     *
+     * @param tenThietBi
+     * @param soLuong
+     * @param ghiChu
+     * @param ngayMua
+     * @param donGiaMua
+     * @return String
+     */
     @PostMapping("/equipment/add")
     public String addEquipment(
             @RequestParam String tenThietBi,
@@ -56,7 +80,17 @@ public class EquipmentController {
         }
     }
 
-    // Sửa thiết bị
+    /**
+     * Sửa thiết bị
+     *
+     * @param maThietBi
+     * @param tenThietBi
+     * @param soLuong
+     * @param ghiChu
+     * @param ngayMua
+     * @param donGiaMua
+     * @return String
+     */
     @PostMapping("/equipment/edit")
     public String editEquipment(
             @RequestParam Integer maThietBi,
@@ -75,7 +109,12 @@ public class EquipmentController {
         }
     }
 
-    // Xóa thiết bị
+    /**
+     * Xóa thiết bị
+     *
+     * @param maThietBi
+     * @return String
+     */
     @PostMapping("/equipment/delete")
     public String deleteEquipment(@RequestParam Integer maThietBi) {
         try {

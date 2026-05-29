@@ -11,13 +11,29 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
+/**
+ * MenuController
+ * Version 1.0
+ * Date: 29-05-2026
+ * Modification Logs:
+ * DATE       AUTHOR       DESCRIPTION
+ * -----------------------------------------------------------------------
+ * 29-05-2026 lthoai       Create
+ */
 @Controller
 @RequiredArgsConstructor
 public class MenuController {
 
     private final MenuService menuService;
 
-    // Hiển thị trang menu
+    /**
+     * Hiển thị trang menu
+     *
+     * @param category String
+     * @param keyword  String
+     * @param model    Model
+     * @return String
+     */
     @GetMapping("/menu")
     public String showMenuManager(
             @RequestParam(required = false, defaultValue = "all") String category,
@@ -44,7 +60,14 @@ public class MenuController {
         return "menu";
     }
 
-    // Thêm món
+    /**
+     * Thêm món
+     *
+     * @param tenMon         String
+     * @param giaTienHienTai Double
+     * @param loaiMon        String
+     * @return String
+     */
     @PostMapping("/menu/add")
     public String addMenuItem(
             @RequestParam String tenMon,
@@ -59,7 +82,15 @@ public class MenuController {
         }
     }
 
-    // Sửa món
+    /**
+     * Sửa món
+     *
+     * @param maThucDon      Integer
+     * @param tenMon         String
+     * @param giaTienHienTai Double
+     * @param loaiMon        String
+     * @return String
+     */
     @PostMapping("/menu/edit")
     public String editMenuItem(
             @RequestParam Integer maThucDon,
@@ -75,7 +106,12 @@ public class MenuController {
         }
     }
 
-    // Xóa món
+    /**
+     * Xóa món
+     *
+     * @param maThucDon Integer
+     * @return String
+     */
     @PostMapping("/menu/delete")
     public String deleteMenuItem(@RequestParam Integer maThucDon) {
         try {

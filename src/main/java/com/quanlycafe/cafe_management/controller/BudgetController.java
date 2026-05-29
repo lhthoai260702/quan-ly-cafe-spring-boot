@@ -13,13 +13,29 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * BudgetController
+ * Version 1.0
+ * Date: 29-05-2026
+ * Modification Logs:
+ * DATE       AUTHOR       DESCRIPTION
+ * -----------------------------------------------------------------------
+ * 29-05-2026 lthoai        Create
+ */
 @Controller
 @RequiredArgsConstructor
 public class BudgetController {
 
     private final BudgetService budgetService;
 
-    // Hiển thị trang báo cáo Thu - Chi
+    /**
+     * Hiển thị trang báo cáo Thu - Chi
+     *
+     * @param fromDate
+     * @param toDate
+     * @param model
+     * @return String
+     */
     @GetMapping("/budget")
     public String showBudget(
             @RequestParam(required = false) String fromDate,
@@ -44,7 +60,7 @@ public class BudgetController {
         model.addAttribute("reportList", reportList);
         model.addAttribute("totalThu", totalThu);
         model.addAttribute("totalChi", totalChi);
-        model.addAttribute("totalNet", totalThu.subtract(totalChi)); // Lợi nhuận
+        model.addAttribute("totalNet", totalThu.subtract(totalChi));
         model.addAttribute("fromDate", start);
         model.addAttribute("toDate", end);
         model.addAttribute("activeTab", "budget");
@@ -52,7 +68,14 @@ public class BudgetController {
         return "budget";
     }
 
-    // Thêm khoản chi
+    /**
+     * Thêm khoản chi
+     *
+     * @param tenKhoanChi
+     * @param soTien
+     * @param ngayChi
+     * @return String
+     */
     @PostMapping("/budget/add-expense")
     public String addExpense(
             @RequestParam String tenKhoanChi,

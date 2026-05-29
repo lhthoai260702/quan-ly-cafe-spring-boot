@@ -8,13 +8,27 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.Map;
 
+/**
+ * ReportController
+ * Version 1.0
+ * Date: 29-05-2026
+ * Modification Logs:
+ * DATE       AUTHOR       DESCRIPTION
+ * -----------------------------------------------------------------------
+ * 29-05-2026 lthoai       Create
+ */
 @Controller
 @RequiredArgsConstructor
 public class ReportController {
 
     private final ReportService reportService;
 
-    // Hiển thị trang báo cáo
+    /**
+     * Hiển thị trang báo cáo
+     *
+     * @param model Model
+     * @return String
+     */
     @GetMapping("/report")
     public String showReport(Model model) {
 
@@ -37,6 +51,7 @@ public class ReportController {
         model.addAttribute("financeValues", financeData.get("data"));
 
         model.addAttribute("activeTab", "report");
+
         return "report";
     }
 }

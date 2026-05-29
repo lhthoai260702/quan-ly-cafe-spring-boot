@@ -11,15 +11,36 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 
+/**
+ * CustomUserDetailsService
+ * Version 1.0
+ * Date: 29-05-2026
+ * Modification Logs:
+ * DATE       AUTHOR       DESCRIPTION
+ * -----------------------------------------------------------------------
+ * 29-05-2026 lthoai       Create
+ */
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final TaiKhoanRepository taiKhoanRepository;
 
+    /**
+     * Khởi tạo CustomUserDetailsService
+     *
+     * @param taiKhoanRepository TaiKhoanRepository
+     */
     public CustomUserDetailsService(TaiKhoanRepository taiKhoanRepository) {
         this.taiKhoanRepository = taiKhoanRepository;
     }
 
+    /**
+     * Tải thông tin người dùng theo tên đăng nhập
+     *
+     * @param username String
+     * @return UserDetails
+     * @throws UsernameNotFoundException
+     */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         TaiKhoan taiKhoan = taiKhoanRepository.findByTenDangNhap(username)

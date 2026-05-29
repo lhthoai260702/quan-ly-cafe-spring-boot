@@ -11,23 +11,47 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * MarketingService
+ * Version 1.0
+ * Date: 29-05-2026
+ * Modification Logs:
+ * DATE       AUTHOR       DESCRIPTION
+ * -----------------------------------------------------------------------
+ * 29-05-2026 lthoai       Create
+ */
 @Service
 @RequiredArgsConstructor
 public class MarketingService {
 
     private final KhuyenMaiRepository khuyenMaiRepository;
 
-    // 1. Lấy tất cả các khuyến mãi
+    /**
+     * Lấy tất cả các khuyến mãi
+     *
+     * @return List<KhuyenMai>
+     */
     public List<KhuyenMai> getAllPromotions() {
         return khuyenMaiRepository.findAll(Sort.by(Sort.Direction.DESC, "maKhuyenMai"));
     }
 
-    // 2. Tìm kiếm
+    /**
+     * Tìm kiếm khuyến mãi
+     *
+     * @param keyword String
+     * @return List<KhuyenMai>
+     */
     public List<KhuyenMai> searchPromotions(String keyword) {
         return khuyenMaiRepository.findByTenKhuyenMaiContainingIgnoreCaseOrderByMaKhuyenMaiDesc(keyword);
     }
 
-    // Hàm tiện ích: Tự động tính trạng thái dựa vào ngày hiện tại
+    /**
+     * Tự động tính trạng thái dựa vào ngày hiện tại
+     *
+     * @param startDate LocalDate
+     * @param endDate   LocalDate
+     * @return String
+     */
     private String determineStatus(LocalDate startDate, LocalDate endDate) {
         LocalDate today = LocalDate.now();
         if (today.isBefore(startDate)) {
@@ -39,7 +63,16 @@ public class MarketingService {
         }
     }
 
-    // 3. Tạo khuyến mãi
+    /**
+     * Tạo khuyến mãi
+     *
+     * @param tenKhuyenMai  String
+     * @param ngayBatDau    LocalDate
+     * @param ngayKetThuc   LocalDate
+     * @param loaiKhuyenMai String
+     * @param giaTriGiam    Double
+     * @param moTa          String
+     */
     @Transactional
     public void createPromotion(String tenKhuyenMai, LocalDate ngayBatDau, LocalDate ngayKetThuc,
                                 String loaiKhuyenMai, Double giaTriGiam, String moTa) {
@@ -55,7 +88,17 @@ public class MarketingService {
         khuyenMaiRepository.save(km);
     }
 
-    // 4. Sửa khuyến mãi
+    /**
+     * Sửa khuyến mãi
+     *
+     * @param maKhuyenMai   Integer
+     * @param tenKhuyenMai  String
+     * @param ngayBatDau    LocalDate
+     * @param ngayKetThuc   LocalDate
+     * @param loaiKhuyenMai String
+     * @param giaTriGiam    Double
+     * @param moTa          String
+     */
     @Transactional
     public void updatePromotion(Integer maKhuyenMai, String tenKhuyenMai, LocalDate ngayBatDau,
                                 LocalDate ngayKetThuc, String loaiKhuyenMai, Double giaTriGiam, String moTa) {
@@ -73,7 +116,11 @@ public class MarketingService {
         khuyenMaiRepository.save(km);
     }
 
-    // 5. Xóa khuyến mãi
+    /**
+     * Xóa khuyến mãi
+     *
+     * @param maKhuyenMai Integer
+     */
     @Transactional
     public void deletePromotion(Integer maKhuyenMai) {
         khuyenMaiRepository.deleteById(maKhuyenMai);

@@ -13,6 +13,15 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+/**
+ * ReportService
+ * Version 1.0
+ * Date: 29-05-2026
+ * Modification Logs:
+ * DATE       AUTHOR       DESCRIPTION
+ * -----------------------------------------------------------------------
+ * 29-05-2026 lthoai       Create
+ */
 @Service
 @RequiredArgsConstructor
 public class ReportService {
@@ -20,7 +29,11 @@ public class ReportService {
     private final HoaDonRepository hoaDonRepository;
     private final ChiTieuRepository chiTieuRepository;
 
-    // 1. Biểu đồ Doanh thu (7 ngày)
+    /**
+     * Biểu đồ Doanh thu (7 ngày)
+     *
+     * @return Map<String, Object>
+     */
     public Map<String, Object> getRevenueLast7Days() {
         List<String> labels = new ArrayList<>();
         List<Double> data = new ArrayList<>();
@@ -41,10 +54,15 @@ public class ReportService {
                     .reduce(0.0, Double::sum);
             data.add(dailyTotal);
         }
+
         return Map.of("labels", labels, "data", data);
     }
 
-    // 2. Biểu đồ Số lượng đơn hàng (7 ngày)
+    /**
+     * Biểu đồ Số lượng đơn hàng (7 ngày)
+     *
+     * @return Map<String, Object>
+     */
     public Map<String, Object> getOrderCountLast7Days() {
         List<String> labels = new ArrayList<>();
         List<Integer> data = new ArrayList<>();
@@ -62,10 +80,15 @@ public class ReportService {
             // Đếm số lượng hóa đơn thay vì cộng tiền
             data.add(invoices.size());
         }
+
         return Map.of("labels", labels, "data", data);
     }
 
-    // 3. Biểu đồ Món ăn bán chạy
+    /**
+     * Biểu đồ Món ăn bán chạy
+     *
+     * @return Map<String, Object>
+     */
     public Map<String, Object> getTopDishes() {
         List<String> labels = new ArrayList<>();
         List<Long> data = new ArrayList<>();
@@ -75,10 +98,15 @@ public class ReportService {
             labels.add((String) row[0]);
             data.add(((Number) row[1]).longValue());
         }
+
         return Map.of("labels", labels, "data", data);
     }
 
-    // 4. Biểu đồ Tỉ lệ Thu - Chi
+    /**
+     * Biểu đồ Tỉ lệ Thu - Chi
+     *
+     * @return Map<String, Object>
+     */
     public Map<String, Object> getIncomeExpenseCurrentMonth() {
         LocalDate startOfMonth = LocalDate.now().withDayOfMonth(1); // Ngày đầu tháng
         LocalDateTime start = startOfMonth.atStartOfDay();
@@ -97,7 +125,7 @@ public class ReportService {
                 .map(ct -> ct.getSoTien() != null ? ct.getSoTien().doubleValue() : 0.0)
                 .reduce(0.0, Double::sum);
 
-        //[Tổng Thu, Tổng Chi]
+        // [Tổng Thu, Tổng Chi]
         return Map.of("labels", Arrays.asList("Tổng Thu", "Tổng Chi"), "data", Arrays.asList(totalThu, totalChi));
     }
 }

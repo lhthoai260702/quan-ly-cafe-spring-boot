@@ -9,16 +9,31 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-
 import java.util.List;
 
+/**
+ * EmployeeController
+ * * Version 1.0
+ * Date: 29-05-2026
+ * Modification Logs:
+ * DATE       AUTHOR       DESCRIPTION
+ * -----------------------------------------------------------------------
+ * 29-05-2026 lthoai       Create
+ */
 @Controller
 @RequiredArgsConstructor
 public class EmployeeController {
 
     private final EmployeeService employeeService;
 
-    // Hiển thị trang quản lý nhân viên
+    /**
+     * Hiển thị trang quản lý nhân viên
+     *
+     * @param role    String
+     * @param keyword String
+     * @param model   Model
+     * @return String
+     */
     @GetMapping("/employees")
     public String showEmployeeManager(
             @RequestParam(required = false) String role,
@@ -27,16 +42,14 @@ public class EmployeeController {
 
         List<UserProfileDTO> employees;
 
-        // 1. Nếu người dùng có nhập từ khóa tìm kiếm
         if (keyword != null && !keyword.trim().isEmpty()) {
+            // 1. Nếu người dùng có nhập từ khóa tìm kiếm
             employees = employeeService.searchEmployees(keyword.trim());
-        }
-        // 2. Nếu người dùng bấm vào các nút bộ lọc chức vụ
-        else if (role != null && !role.trim().isEmpty()) {
+        } else if (role != null && !role.trim().isEmpty()) {
+            // 2. Nếu người dùng bấm vào các nút bộ lọc chức vụ
             employees = employeeService.getEmployeesByRoleType(role);
-        }
-        // 3. Mặc định hiển thị tất cả
-        else {
+        } else {
+            // 3. Mặc định hiển thị tất cả
             employees = employeeService.getAllEmployees();
         }
 
@@ -49,7 +62,17 @@ public class EmployeeController {
         return "employees";
     }
 
-    // Thêm nhân viên
+    /**
+     * Thêm nhân viên
+     *
+     * @param hoTen       String
+     * @param soDienThoai String
+     * @param diaChi      String
+     * @param maChucVu    Integer
+     * @param tenDangNhap String
+     * @param matKhau     String
+     * @return String
+     */
     @PostMapping("/employees/add")
     public String addEmployee(
             @RequestParam String hoTen,
@@ -67,7 +90,16 @@ public class EmployeeController {
         }
     }
 
-    // Sửa nhân viên
+    /**
+     * Sửa nhân viên
+     *
+     * @param maNhanVien  Integer
+     * @param hoTen       String
+     * @param soDienThoai String
+     * @param diaChi      String
+     * @param maChucVu    Integer
+     * @return String
+     */
     @PostMapping("/employees/edit")
     public String editEmployee(
             @RequestParam Integer maNhanVien,
@@ -84,7 +116,12 @@ public class EmployeeController {
         }
     }
 
-    // Xóa nhân viên
+    /**
+     * Xóa nhân viên
+     *
+     * @param maNhanVien Integer
+     * @return String
+     */
     @PostMapping("/employees/delete")
     public String deleteEmployee(@RequestParam Integer maNhanVien) {
         try {

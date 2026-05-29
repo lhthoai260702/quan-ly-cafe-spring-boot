@@ -1,20 +1,29 @@
 package com.quanlycafe.cafe_management.service;
 
 import com.quanlycafe.cafe_management.dto.UserProfileDTO;
+import com.quanlycafe.cafe_management.entity.ChucVu;
 import com.quanlycafe.cafe_management.entity.NhanVien;
+import com.quanlycafe.cafe_management.entity.TaiKhoan;
+import com.quanlycafe.cafe_management.repository.ChucVuRepository;
 import com.quanlycafe.cafe_management.repository.NhanVienRepository;
 import com.quanlycafe.cafe_management.repository.TaiKhoanRepository;
-import com.quanlycafe.cafe_management.repository.ChucVuRepository;
-import com.quanlycafe.cafe_management.entity.TaiKhoan;
-import com.quanlycafe.cafe_management.entity.ChucVu;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * EmployeeService
+ * Version 1.0
+ * Date: 29-05-2026
+ * Modification Logs:
+ * DATE       AUTHOR       DESCRIPTION
+ * -----------------------------------------------------------------------
+ * 29-05-2026 lthoai       Create
+ */
 @Service
 @RequiredArgsConstructor
 public class EmployeeService {
@@ -24,13 +33,22 @@ public class EmployeeService {
     private final ChucVuRepository chucVuRepository;
     private final PasswordEncoder passwordEncoder;
 
-    // Hiển thị tất cả nhân viên
+    /**
+     * Hiển thị tất cả nhân viên
+     *
+     * @return List<UserProfileDTO>
+     */
     public List<UserProfileDTO> getAllEmployees() {
         List<NhanVien> danhSachNhanVien = nhanVienRepository.findAll();
         return danhSachNhanVien.stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 
-    // Tiếp nhận bộ lọc 3 phần từ Controller gửi xuống
+    /**
+     * Tiếp nhận bộ lọc 3 phần từ Controller gửi xuống
+     *
+     * @param roleType String
+     * @return List<UserProfileDTO>
+     */
     public List<UserProfileDTO> getEmployeesByRoleType(String roleType) {
         String keyword = "";
 
@@ -54,7 +72,12 @@ public class EmployeeService {
                 .collect(Collectors.toList());
     }
 
-    // Lấy thông tin nhân viên
+    /**
+     * Lấy thông tin nhân viên
+     *
+     * @param nv NhanVien
+     * @return UserProfileDTO
+     */
     private UserProfileDTO mapToDTO(NhanVien nv) {
         UserProfileDTO dto = new UserProfileDTO();
         dto.setMaNhanVien(nv.getMaNhanVien());
@@ -77,7 +100,12 @@ public class EmployeeService {
         return dto;
     }
 
-    // Search thông tin
+    /**
+     * Search thông tin
+     *
+     * @param keyword String
+     * @return List<UserProfileDTO>
+     */
     public List<UserProfileDTO> searchEmployees(String keyword) {
         return nhanVienRepository.findByHoTenContainingIgnoreCaseOrTaiKhoan_TenDangNhapContainingIgnoreCase(keyword, keyword)
                 .stream()
@@ -85,7 +113,16 @@ public class EmployeeService {
                 .collect(Collectors.toList());
     }
 
-    // Thêm nhân viên
+    /**
+     * Thêm nhân viên
+     *
+     * @param hoTen       String
+     * @param soDienThoai String
+     * @param diaChi      String
+     * @param maChucVu    Integer
+     * @param tenDangNhap String
+     * @param matKhau     String
+     */
     @Transactional
     public void createEmployee(String hoTen, String soDienThoai, String diaChi, Integer maChucVu, String tenDangNhap, String matKhau) {
         // 1. Tạo tài khoản trước
@@ -113,7 +150,15 @@ public class EmployeeService {
         nhanVienRepository.save(nv);
     }
 
-    // Cập nhật thông tin nhân viên
+    /**
+     * Cập nhật thông tin nhân viên
+     *
+     * @param maNhanVien  Integer
+     * @param hoTen       String
+     * @param soDienThoai String
+     * @param diaChi      String
+     * @param maChucVu    Integer
+     */
     @Transactional
     public void updateEmployee(Integer maNhanVien, String hoTen, String soDienThoai, String diaChi, Integer maChucVu) {
         // 1. Tìm nhân viên hiện tại
@@ -142,7 +187,11 @@ public class EmployeeService {
         nhanVienRepository.save(nv);
     }
 
-    // Xoá nhân viên
+    /**
+     * Xoá nhân viên
+     *
+     * @param maNhanVien Integer
+     */
     @Transactional
     public void deleteEmployee(Integer maNhanVien) {
         // 1. Kiểm tra nhân viên có tồn tại hay không

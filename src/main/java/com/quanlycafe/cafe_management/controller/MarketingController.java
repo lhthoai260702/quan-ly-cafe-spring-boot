@@ -12,19 +12,35 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * MarketingController
+ * Version 1.0
+ * Date: 29-05-2026
+ * Modification Logs:
+ * DATE       AUTHOR       DESCRIPTION
+ * -----------------------------------------------------------------------
+ * 29-05-2026 lthoai       Create
+ */
 @Controller
 @RequiredArgsConstructor
 public class MarketingController {
 
     private final MarketingService marketingService;
 
-    // Hiển thị trang marketing
+    /**
+     * Hiển thị trang marketing
+     *
+     * @param keyword String
+     * @param model   Model
+     * @return String
+     */
     @GetMapping("/marketing")
     public String showMarketing(
             @RequestParam(required = false) String keyword,
             Model model) {
 
         List<KhuyenMai> promotions;
+
         if (keyword != null && !keyword.trim().isEmpty()) {
             promotions = marketingService.searchPromotions(keyword.trim());
         } else {
@@ -38,7 +54,17 @@ public class MarketingController {
         return "marketing";
     }
 
-    // Thêm chương trình khuyến mãi
+    /**
+     * Thêm chương trình khuyến mãi
+     *
+     * @param tenKhuyenMai  String
+     * @param ngayBatDau    String
+     * @param ngayKetThuc   String
+     * @param loaiKhuyenMai String
+     * @param giaTriGiam    Double
+     * @param moTa          String
+     * @return String
+     */
     @PostMapping("/marketing/add")
     public String addPromotion(
             @RequestParam String tenKhuyenMai,
@@ -57,7 +83,18 @@ public class MarketingController {
         }
     }
 
-    // Sửa chương trình khuyến mãi
+    /**
+     * Sửa chương trình khuyến mãi
+     *
+     * @param maKhuyenMai   Integer
+     * @param tenKhuyenMai  String
+     * @param ngayBatDau    String
+     * @param ngayKetThuc   String
+     * @param loaiKhuyenMai String
+     * @param giaTriGiam    Double
+     * @param moTa          String
+     * @return String
+     */
     @PostMapping("/marketing/edit")
     public String editPromotion(
             @RequestParam Integer maKhuyenMai,
@@ -77,7 +114,12 @@ public class MarketingController {
         }
     }
 
-    // Xóa chương trình khuyến mãi
+    /**
+     * Xóa chương trình khuyến mãi
+     *
+     * @param maKhuyenMai Integer
+     * @return String
+     */
     @PostMapping("/marketing/delete")
     public String deletePromotion(@RequestParam Integer maKhuyenMai) {
         try {
