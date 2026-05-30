@@ -5,6 +5,9 @@ import com.quanlycafe.cafe_management.entity.ThucDon;
 import com.quanlycafe.cafe_management.service.MenuService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,14 +21,15 @@ import java.util.List;
 
 /**
  * MenuController
- * * Version 1.1
- * * Date: 29-05-2026
+ * * Version 1.2
+ * * Date: 30-05-2026
  * * Copyright
  * * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026 lthoai       Create
- * 30-05-2026 Quản Lý      Add PRG Validation & format convention
+ * 30-05-2026 lthoai      Add PRG Validation & format convention
+ * 30-05-2026 lthoai      Add Pagination with page/size logic
  */
 @Controller
 @RequiredArgsConstructor
@@ -38,6 +42,8 @@ public class MenuController {
      *
      * @param category String
      * @param keyword  String
+     * @param page     int
+     * @param size     int
      * @param model    Model
      * @return String
      */
@@ -45,20 +51,26 @@ public class MenuController {
     public String showMenuManager(
             @RequestParam(required = false, defaultValue = "all") String category,
             @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "16") int size,
             Model model) {
 
-        List<ThucDon> menuItems;
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<ThucDon> menuPage;
 
         // Ưu tiên tìm kiếm bằng từ khóa nếu có
         if (keyword != null && !keyword.trim().isEmpty()) {
-            menuItems = menuService.searchMenuItems(keyword.trim());
+            menuPage = menuService.searchMenuItems(keyword.trim(), pageable);
         } else {
-            menuItems = menuService.getMenuItemsByCategory(category);
+            menuPage = menuService.getMenuItemsByCategory(category, pageable);
         }
 
         List<String> categories = menuService.getAllCategories();
 
-        model.addAttribute("menuItems", menuItems);
+        model.addAttribute("menuItems", menuPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", menuPage.getTotalPages());
+
         model.addAttribute("categories", categories);
         model.addAttribute("currentCategory", category);
         model.addAttribute("keyword", keyword);

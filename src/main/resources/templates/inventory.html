@@ -113,6 +113,34 @@
         </div>
     </div>
 
+    <div th:if="${totalPages > 1}"
+         th:with="
+            startPage=${totalPages <= 5 ? 1 : (currentPage <= 3 ? 1 : (currentPage >= totalPages - 2 ? totalPages - 4 : currentPage - 2))},
+            endPage=${totalPages <= 5 ? totalPages : (currentPage <= 3 ? 5 : (currentPage >= totalPages - 2 ? totalPages : currentPage + 2))}"
+         class="flex justify-center items-center mt-8 gap-1.5 md:gap-2">
+
+        <a th:if="${startPage > 1}"
+           th:href="@{/inventory(page=1, keyword=${param.keyword})}"
+           class="w-8 h-8 flex items-center justify-center rounded-lg border border-[#e2e3e1] bg-white text-[#50453e] hover:bg-[#f4f4f2] text-sm transition-colors shadow-sm">
+            <i data-lucide="chevrons-left" class="w-4 h-4"></i>
+        </a>
+
+        <th:block th:each="i : ${#numbers.sequence(startPage, endPage)}">
+            <a th:href="@{/inventory(page=${i}, keyword=${param.keyword})}"
+               th:text="${i}"
+               th:classappend="${currentPage == i} ? 'bg-[#553722] text-white border-[#553722] shadow-md pointer-events-none' : 'bg-white text-[#50453e] border-[#e2e3e1] hover:bg-[#f4f4f2] shadow-sm'"
+               class="w-8 h-8 flex items-center justify-center rounded-lg border text-xs font-bold transition-colors">
+            </a>
+        </th:block>
+
+        <a th:if="${endPage < totalPages}"
+           th:href="@{/inventory(page=${totalPages}, keyword=${param.keyword})}"
+           class="w-8 h-8 flex items-center justify-center rounded-lg border border-[#e2e3e1] bg-white text-[#50453e] hover:bg-[#f4f4f2] text-sm transition-colors shadow-sm">
+            <i data-lucide="chevrons-right" class="w-4 h-4"></i>
+        </a>
+
+    </div>
+
     <div id="addModal"
          class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm p-4">
         <div class="bg-white rounded-2xl w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">

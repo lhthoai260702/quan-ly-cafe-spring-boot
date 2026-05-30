@@ -10,6 +10,8 @@ import com.quanlycafe.cafe_management.repository.ChiTietDatBanRepository;
 import com.quanlycafe.cafe_management.repository.HoaDonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -64,6 +66,66 @@ public class TablesService {
      */
     public List<Ban> getAllTables() {
         return banRepository.findAll(Sort.by(Sort.Direction.ASC, "tenBan"));
+    }
+
+    /**
+     * Lấy danh sách bàn có phân trang và lọc
+     *
+     * @param status   String
+     * @param search   String
+     * @param pageable Pageable
+     * @return Page<Ban>
+     */
+    public Page<Ban> getTablesWithPagination(String status, String search, Pageable pageable) {
+        String keyword = (search == null) ? "" : search.trim();
+
+        if (status == null || status.isEmpty() || status.equals("Tất cả")) {
+            return banRepository.findByTenBanContainingIgnoreCase(keyword, pageable);
+        }
+
+        String tinhTrangDb = "";
+        switch (status) {
+            case "Có khách":
+                tinhTrangDb = "Đang sử dụng";
+                break;
+            case "Đã đặt":
+                tinhTrangDb = "Đã đặt trước";
+                break;
+            case "Trống":
+                tinhTrangDb = "Trống";
+                break;
+        }
+
+        return banRepository.findByTinhTrangAndTenBanContainingIgnoreCase(tinhTrangDb, keyword, pageable);
+    }
+
+    /**
+     * Đếm tổng số bàn
+     *
+     * @return long
+     */
+    public long countTongSoBan() {
+        return banRepository.count();
+    }
+
+    /**
+     * Đếm số lượng bàn theo tình trạng
+     *
+     * @param tinhTrang String
+     * @return long
+     */
+    public long countBanByTinhTrang(String tinhTrang) {
+        return banRepository.countByTinhTrang(tinhTrang);
+    }
+
+    /**
+     * Lấy danh sách bàn theo tình trạng (Không phân trang)
+     *
+     * @param tinhTrang String
+     * @return List<Ban>
+     */
+    public List<Ban> getBanByTinhTrang(String tinhTrang) {
+        return banRepository.findByTinhTrang(tinhTrang);
     }
 
     /**

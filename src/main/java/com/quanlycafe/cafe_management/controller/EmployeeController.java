@@ -5,6 +5,9 @@ import com.quanlycafe.cafe_management.dto.UserProfileDTO;
 import com.quanlycafe.cafe_management.service.EmployeeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -15,18 +18,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.List;
-
 /**
  * EmployeeController
- * * Version 1.1
- * * Date: 29-05-2026
+ * * Version 1.2
+ * * Date: 30-05-2026
  * * Copyright
  * * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026 lthoai       Create
- * 30-05-2026 Quản Lý      Format convention, add DTO Validation (PRG Pattern)
+ * 30-05-2026 lthoai      Add Pagination
  */
 @Controller
 @RequiredArgsConstructor
@@ -35,10 +36,12 @@ public class EmployeeController {
     private final EmployeeService employeeService;
 
     /**
-     * Hiển thị trang quản lý nhân viên
+     * Hiển thị trang quản lý nhân viên (có phân trang)
      *
      * @param role    String
      * @param keyword String
+     * @param page    int
+     * @param size    int
      * @param model   Model
      * @return String
      */
@@ -46,23 +49,30 @@ public class EmployeeController {
     public String showEmployeeManager(
             @RequestParam(required = false) String role,
             @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "6") int size,
             Model model) {
 
-        List<UserProfileDTO> employees;
+        // Spring Pageable đếm từ 0, trong khi UI hiển thị cho người dùng đếm từ 1
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<UserProfileDTO> employeePage;
 
         if (keyword != null && !keyword.trim().isEmpty()) {
-            employees = employeeService.searchEmployees(keyword.trim());
+            employeePage = employeeService.searchEmployees(keyword.trim(), pageable);
         } else if (role != null && !role.trim().isEmpty()) {
-            employees = employeeService.getEmployeesByRoleType(role);
+            employeePage = employeeService.getEmployeesByRoleType(role, pageable);
         } else {
-            employees = employeeService.getAllEmployees();
+            employeePage = employeeService.getAllEmployees(pageable);
         }
 
-        model.addAttribute("employees", employees);
+        model.addAttribute("employees", employeePage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", employeePage.getTotalPages());
+
         model.addAttribute("activeTab", "employee");
         model.addAttribute("keyword", keyword);
 
-        // Khởi tạo DTO rỗng nếu model chưa có (tránh lỗi khi load trang lần đầu)
+        // Khởi tạo DTO rỗng nếu model chưa có
         if (!model.containsAttribute("addForm")) {
             model.addAttribute("addForm", new EmployeeFormDTO());
         }

@@ -27,6 +27,7 @@ import java.util.Map;
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026 lthoai       Create
+ * 30-05-2026 lthoai      Add Pagination
  */
 @Controller
 public class TablesController {
@@ -38,10 +39,12 @@ public class TablesController {
     private ThucDonRepository thucDonRepository;
 
     /**
-     * Hiển thị danh sách bàn
+     * Hiển thị danh sách bàn (Có phân trang)
      *
      * @param status String
      * @param search String
+     * @param page   int
+     * @param size   int
      * @param model  Model
      * @return String
      */
@@ -49,42 +52,34 @@ public class TablesController {
     public String showTableMap(
             @RequestParam(name = "status", required = false) String status,
             @RequestParam(name = "search", required = false) String search,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "16") int size,
             Model model) {
 
-        List<Ban> tatCaBan = tablesService.getAllTables();
+        // 1. Xử lý phân trang (Sắp xếp theo tên bàn mặc định)
+        org.springframework.data.domain.Pageable pageable =
+                org.springframework.data.domain.PageRequest.of(page - 1, size, org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.ASC, "tenBan"));
+
+        org.springframework.data.domain.Page<Ban> banPage = tablesService.getTablesWithPagination(status, search, pageable);
         List<ThucDon> danhSachThucDon = thucDonRepository.findAll();
 
-        // 1. Đếm số lượng tổng
-        long tongSoBan = tatCaBan.size();
-        long soBanTrong = tatCaBan.stream().filter(b -> "Trống".equalsIgnoreCase(b.getTinhTrang())).count();
-        long soBanCoKhach = tatCaBan.stream().filter(b -> "Đang sử dụng".equalsIgnoreCase(b.getTinhTrang())).count();
-        long soBanDaDat = tatCaBan.stream().filter(b -> "Đã đặt trước".equalsIgnoreCase(b.getTinhTrang())).count();
+        // 2. Lấy số lượng thống kê (Tối ưu hóa: Dùng Count SQL thay vì tải toàn bộ DB lên RAM)
+        model.addAttribute("tongSoBan", tablesService.countTongSoBan());
+        model.addAttribute("soBanTrong", tablesService.countBanByTinhTrang("Trống"));
+        model.addAttribute("soBanCoKhach", tablesService.countBanByTinhTrang("Đang sử dụng"));
+        model.addAttribute("soBanDaDat", tablesService.countBanByTinhTrang("Đã đặt trước"));
 
-        // 2. Tìm kiếm và lọc
-        List<Ban> danhSachHienThi = tatCaBan.stream().filter(b -> {
-            // Lọc theo trạng thái
-            boolean matchesStatus = (status == null || status.isEmpty() || status.equals("Tất cả"))
-                    || (status.equals("Có khách") && "Đang sử dụng".equalsIgnoreCase(b.getTinhTrang()))
-                    || (status.equals("Đã đặt") && "Đã đặt trước".equalsIgnoreCase(b.getTinhTrang()))
-                    || (status.equals("Trống") && "Trống".equalsIgnoreCase(b.getTinhTrang()));
+        // 3. Trả dữ liệu hiển thị (Current Page)
+        model.addAttribute("danhSachBan", banPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", banPage.getTotalPages());
 
-            // Lọc theo từ khóa tìm kiếm
-            boolean matchesSearch = (search == null || search.trim().isEmpty())
-                    || b.getTenBan().toLowerCase().contains(search.trim().toLowerCase());
-
-            return matchesStatus && matchesSearch;
-        }).toList();
-
-        // 3. Trả dữ liệu
-        model.addAttribute("danhSachBan", danhSachHienThi);
-        model.addAttribute("tongSoBan", tongSoBan);
-        model.addAttribute("soBanTrong", soBanTrong);
-        model.addAttribute("soBanCoKhach", soBanCoKhach);
-        model.addAttribute("soBanDaDat", soBanDaDat);
         model.addAttribute("currentStatus", status != null ? status : "Tất cả");
         model.addAttribute("currentSearch", search != null ? search : "");
-        model.addAttribute("danhSachBanTrong", tatCaBan.stream().filter(b -> "Trống".equalsIgnoreCase(b.getTinhTrang())).toList());
-        model.addAttribute("danhSachBanCoKhach", tatCaBan.stream().filter(b -> "Đang sử dụng".equalsIgnoreCase(b.getTinhTrang())).toList());
+
+        // 4. Lấy Toàn bộ dữ liệu bàn để phục vụ Modal Gộp/Chuyển/Tách (Bắt buộc không phân trang)
+        model.addAttribute("danhSachBanTrong", tablesService.getBanByTinhTrang("Trống"));
+        model.addAttribute("danhSachBanCoKhach", tablesService.getBanByTinhTrang("Đang sử dụng"));
         model.addAttribute("danhSachThucDon", danhSachThucDon);
 
         return "tables";

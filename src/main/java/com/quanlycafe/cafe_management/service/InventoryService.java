@@ -7,7 +7,8 @@ import com.quanlycafe.cafe_management.entity.HangHoa;
 import com.quanlycafe.cafe_management.repository.DonViTinhRepository;
 import com.quanlycafe.cafe_management.repository.HangHoaRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,14 +17,15 @@ import java.util.List;
 
 /**
  * InventoryService
- * * Version 1.1
- * * Date: 29-05-2026
+ * * Version 1.2
+ * * Date: 30-05-2026
  * * Copyright
  * * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026 lthoai       Create
  * 30-05-2026 Quản Lý      Apply DTOs & format convention
+ * 30-05-2026 Quản Lý      Apply Pagination
  */
 @Service
 @RequiredArgsConstructor
@@ -33,22 +35,24 @@ public class InventoryService {
     private final DonViTinhRepository donViTinhRepository;
 
     /**
-     * Lấy tất cả các mặt hàng
+     * Lấy tất cả các mặt hàng (Có phân trang)
      *
-     * @return List<HangHoa>
+     * @param pageable Pageable
+     * @return Page<HangHoa>
      */
-    public List<HangHoa> getAllItems() {
-        return hangHoaRepository.findAll(Sort.by(Sort.Direction.ASC, "maHangHoa"));
+    public Page<HangHoa> getAllItems(Pageable pageable) {
+        return hangHoaRepository.findAll(pageable);
     }
 
     /**
-     * Tìm kiếm mặt hàng theo tên
+     * Tìm kiếm mặt hàng theo tên (Có phân trang)
      *
-     * @param keyword String
-     * @return List<HangHoa>
+     * @param keyword  String
+     * @param pageable Pageable
+     * @return Page<HangHoa>
      */
-    public List<HangHoa> searchItems(String keyword) {
-        return hangHoaRepository.findByTenHangHoaContainingIgnoreCaseOrderByMaHangHoaAsc(keyword);
+    public Page<HangHoa> searchItems(String keyword, Pageable pageable) {
+        return hangHoaRepository.findByTenHangHoaContainingIgnoreCaseOrderByMaHangHoaAsc(keyword, pageable);
     }
 
     /**

@@ -4,6 +4,8 @@ import com.quanlycafe.cafe_management.dto.MenuFormDTO;
 import com.quanlycafe.cafe_management.entity.ThucDon;
 import com.quanlycafe.cafe_management.repository.ThucDonRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,14 +14,15 @@ import java.util.List;
 
 /**
  * MenuService
- * * Version 1.1
- * * Date: 29-05-2026
+ * * Version 1.2
+ * * Date: 30-05-2026
  * * Copyright
  * * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026 lthoai       Create
  * 30-05-2026 Quản Lý      Apply MenuFormDTO & format convention
+ * 30-05-2026 Quản Lý      Apply Pagination
  */
 @Service
 @RequiredArgsConstructor
@@ -28,35 +31,38 @@ public class MenuService {
     private final ThucDonRepository thucDonRepository;
 
     /**
-     * Lấy tất cả các món
+     * Lấy tất cả các món (Có phân trang)
      *
-     * @return List<ThucDon>
+     * @param pageable Pageable
+     * @return Page<ThucDon>
      */
-    public List<ThucDon> getAllMenuItems() {
-        return thucDonRepository.findAll();
+    public Page<ThucDon> getAllMenuItems(Pageable pageable) {
+        return thucDonRepository.findAll(pageable);
     }
 
     /**
-     * Lấy các món theo loại
+     * Lấy các món theo loại (Có phân trang)
      *
      * @param category String
-     * @return List<ThucDon>
+     * @param pageable Pageable
+     * @return Page<ThucDon>
      */
-    public List<ThucDon> getMenuItemsByCategory(String category) {
+    public Page<ThucDon> getMenuItemsByCategory(String category, Pageable pageable) {
         if (category == null || category.trim().isEmpty() || category.equalsIgnoreCase("all")) {
-            return getAllMenuItems();
+            return getAllMenuItems(pageable);
         }
-        return thucDonRepository.findByLoaiMon(category);
+        return thucDonRepository.findByLoaiMon(category, pageable);
     }
 
     /**
-     * Tìm kiếm món
+     * Tìm kiếm món (Có phân trang)
      *
-     * @param keyword String
-     * @return List<ThucDon>
+     * @param keyword  String
+     * @param pageable Pageable
+     * @return Page<ThucDon>
      */
-    public List<ThucDon> searchMenuItems(String keyword) {
-        return thucDonRepository.findByTenMonContainingIgnoreCase(keyword);
+    public Page<ThucDon> searchMenuItems(String keyword, Pageable pageable) {
+        return thucDonRepository.findByTenMonContainingIgnoreCase(keyword, pageable);
     }
 
     /**

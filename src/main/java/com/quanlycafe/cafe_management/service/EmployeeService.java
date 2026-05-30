@@ -9,12 +9,11 @@ import com.quanlycafe.cafe_management.repository.ChucVuRepository;
 import com.quanlycafe.cafe_management.repository.NhanVienRepository;
 import com.quanlycafe.cafe_management.repository.TaiKhoanRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * EmployeeService
@@ -25,7 +24,8 @@ import java.util.stream.Collectors;
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026 lthoai       Create
- * 30-05-2026 Quản Lý      Format convention, apply EmployeeFormDTO
+ * 30-05-2026 lthoai      Format convention, apply EmployeeFormDTO
+ * 30-05-2026 lthoai      apply pagination (Pageable)
  */
 @Service
 @RequiredArgsConstructor
@@ -37,22 +37,24 @@ public class EmployeeService {
     private final PasswordEncoder passwordEncoder;
 
     /**
-     * Hiển thị tất cả nhân viên
+     * Hiển thị tất cả nhân viên (có phân trang)
      *
-     * @return List<UserProfileDTO>
+     * @param pageable Pageable
+     * @return Page<UserProfileDTO>
      */
-    public List<UserProfileDTO> getAllEmployees() {
-        List<NhanVien> danhSachNhanVien = nhanVienRepository.findAll();
-        return danhSachNhanVien.stream().map(this::mapToDTO).collect(Collectors.toList());
+    public Page<UserProfileDTO> getAllEmployees(Pageable pageable) {
+        Page<NhanVien> pageNhanVien = nhanVienRepository.findAll(pageable);
+        return pageNhanVien.map(this::mapToDTO);
     }
 
     /**
-     * Tiếp nhận bộ lọc chức vụ
+     * Lọc nhân viên theo chức vụ (có phân trang)
      *
      * @param roleType String
-     * @return List<UserProfileDTO>
+     * @param pageable Pageable
+     * @return Page<UserProfileDTO>
      */
-    public List<UserProfileDTO> getEmployeesByRoleType(String roleType) {
+    public Page<UserProfileDTO> getEmployeesByRoleType(String roleType, Pageable pageable) {
         String keyword = "";
 
         switch (roleType) {
@@ -66,26 +68,24 @@ public class EmployeeService {
                 keyword = "Pha Chế";
                 break;
             default:
-                return getAllEmployees();
+                return getAllEmployees(pageable);
         }
 
-        return nhanVienRepository.findByChucVu_TenChucVuContainingIgnoreCase(keyword)
-                .stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
+        Page<NhanVien> pageNhanVien = nhanVienRepository.findByChucVu_TenChucVuContainingIgnoreCase(keyword, pageable);
+        return pageNhanVien.map(this::mapToDTO);
     }
 
     /**
-     * Search thông tin
+     * Tìm kiếm nhân viên (có phân trang)
      *
-     * @param keyword String
-     * @return List<UserProfileDTO>
+     * @param keyword  String
+     * @param pageable Pageable
+     * @return Page<UserProfileDTO>
      */
-    public List<UserProfileDTO> searchEmployees(String keyword) {
-        return nhanVienRepository.findByHoTenContainingIgnoreCaseOrTaiKhoan_TenDangNhapContainingIgnoreCase(keyword, keyword)
-                .stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
+    public Page<UserProfileDTO> searchEmployees(String keyword, Pageable pageable) {
+        Page<NhanVien> pageNhanVien = nhanVienRepository
+                .findByHoTenContainingIgnoreCaseOrTaiKhoan_TenDangNhapContainingIgnoreCase(keyword, keyword, pageable);
+        return pageNhanVien.map(this::mapToDTO);
     }
 
     /**

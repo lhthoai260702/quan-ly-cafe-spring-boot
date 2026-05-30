@@ -6,6 +6,10 @@ import com.quanlycafe.cafe_management.entity.HangHoa;
 import com.quanlycafe.cafe_management.service.InventoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -15,18 +19,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.List;
-
 /**
  * InventoryController
- * * Version 1.1
- * * Date: 29-05-2026
+ * * Version 1.2
+ * * Date: 30-05-2026
  * * Copyright
  * * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026 lthoai       Create
- * 30-05-2026 Quản Lý      Add PRG Validation & format convention
+ * 30-05-2026 lthoai      Add PRG Validation & format convention
+ * 30-05-2026 lthoai      Add Pagination
  */
 @Controller
 @RequiredArgsConstructor
@@ -38,22 +41,32 @@ public class InventoryController {
      * Hiển thị trang quản lý hàng hóa
      *
      * @param keyword Từ khóa tìm kiếm
+     * @param page    int
+     * @param size    int
      * @param model   Model
      * @return String
      */
     @GetMapping("/inventory")
     public String showInventory(
             @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "15") int size,
             Model model) {
 
-        List<HangHoa> items;
+        // Tạo cấu hình phân trang, sắp xếp theo mã hàng hóa tăng dần
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.ASC, "maHangHoa"));
+        Page<HangHoa> itemPage;
+
         if (keyword != null && !keyword.trim().isEmpty()) {
-            items = inventoryService.searchItems(keyword.trim());
+            itemPage = inventoryService.searchItems(keyword.trim(), pageable);
         } else {
-            items = inventoryService.getAllItems();
+            itemPage = inventoryService.getAllItems(pageable);
         }
 
-        model.addAttribute("items", items);
+        model.addAttribute("items", itemPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", itemPage.getTotalPages());
+
         model.addAttribute("units", inventoryService.getAllUnits());
         model.addAttribute("keyword", keyword);
         model.addAttribute("activeTab", "inventory");

@@ -4,24 +4,25 @@ import com.quanlycafe.cafe_management.dto.PromotionFormDTO;
 import com.quanlycafe.cafe_management.entity.KhuyenMai;
 import com.quanlycafe.cafe_management.repository.KhuyenMaiRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 
 /**
  * MarketingService
- * * Version 1.1
- * * Date: 29-05-2026
+ * * Version 1.2
+ * * Date: 30-05-2026
  * * Copyright
  * * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026 lthoai       Create
- * 30-05-2026 Quản Lý      Apply PromotionFormDTO & format convention
+ * 30-05-2026 lthoai      Apply PromotionFormDTO & format convention
+ * 30-05-2026 lthoai      Apply Pagination
  */
 @Service
 @RequiredArgsConstructor
@@ -30,22 +31,24 @@ public class MarketingService {
     private final KhuyenMaiRepository khuyenMaiRepository;
 
     /**
-     * Lấy tất cả các khuyến mãi
+     * Lấy tất cả các khuyến mãi (Có phân trang)
      *
-     * @return List<KhuyenMai>
+     * @param pageable Pageable
+     * @return Page<KhuyenMai>
      */
-    public List<KhuyenMai> getAllPromotions() {
-        return khuyenMaiRepository.findAll(Sort.by(Sort.Direction.DESC, "maKhuyenMai"));
+    public Page<KhuyenMai> getAllPromotions(Pageable pageable) {
+        return khuyenMaiRepository.findAll(pageable);
     }
 
     /**
-     * Tìm kiếm khuyến mãi
+     * Tìm kiếm khuyến mãi (Có phân trang)
      *
-     * @param keyword String
-     * @return List<KhuyenMai>
+     * @param keyword  String
+     * @param pageable Pageable
+     * @return Page<KhuyenMai>
      */
-    public List<KhuyenMai> searchPromotions(String keyword) {
-        return khuyenMaiRepository.findByTenKhuyenMaiContainingIgnoreCaseOrderByMaKhuyenMaiDesc(keyword);
+    public Page<KhuyenMai> searchPromotions(String keyword, Pageable pageable) {
+        return khuyenMaiRepository.findByTenKhuyenMaiContainingIgnoreCaseOrderByMaKhuyenMaiDesc(keyword, pageable);
     }
 
     /**

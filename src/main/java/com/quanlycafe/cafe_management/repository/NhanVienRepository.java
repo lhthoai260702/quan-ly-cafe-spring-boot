@@ -1,20 +1,22 @@
 package com.quanlycafe.cafe_management.repository;
 
 import com.quanlycafe.cafe_management.entity.NhanVien;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
  * NhanVienRepository
- * Version 1.0
- * Date: 29-05-2026
+ * Version 1.2
+ * Date: 30-05-2026
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026 lthoai       Create
+ * 30-05-2026 Quản Lý      Apply Pagination (Pageable)
  */
 @Repository
 public interface NhanVienRepository extends JpaRepository<NhanVien, Integer> {
@@ -28,19 +30,21 @@ public interface NhanVienRepository extends JpaRepository<NhanVien, Integer> {
     Optional<NhanVien> findByTaiKhoan_TenDangNhap(String tenDangNhap);
 
     /**
-     * Tìm danh sách nhân viên theo tên chức vụ
+     * Tìm danh sách nhân viên theo tên chức vụ (Có phân trang)
      *
      * @param tenChucVu String
-     * @return List<NhanVien>
+     * @param pageable  Pageable
+     * @return Page<NhanVien>
      */
-    List<NhanVien> findByChucVu_TenChucVuContainingIgnoreCase(String tenChucVu);
+    Page<NhanVien> findByChucVu_TenChucVuContainingIgnoreCase(String tenChucVu, Pageable pageable);
 
     /**
-     * Tìm nhân viên theo họ tên hoặc tên đăng nhập
+     * Tìm nhân viên theo họ tên hoặc tên đăng nhập (Có phân trang)
      *
      * @param hoTen       String
      * @param tenDangNhap String
-     * @return List<NhanVien>
+     * @param pageable    Pageable
+     * @return Page<NhanVien>
      */
-    List<NhanVien> findByHoTenContainingIgnoreCaseOrTaiKhoan_TenDangNhapContainingIgnoreCase(String hoTen, String tenDangNhap);
+    Page<NhanVien> findByHoTenContainingIgnoreCaseOrTaiKhoan_TenDangNhapContainingIgnoreCase(String hoTen, String tenDangNhap, Pageable pageable);
 }
