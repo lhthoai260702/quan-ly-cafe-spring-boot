@@ -9,11 +9,15 @@
     <div class="max-w-4xl mx-auto mb-6 md:mb-8">
         <h2 class="text-xl md:text-2xl font-bold text-[#1a1c1b]">Thông tin tài khoản</h2>
         <p class="text-xs md:text-sm text-[#50453e]/70 mt-1">Quản lý thông tin cá nhân và cài đặt bảo mật của bạn.</p>
+
+        <div th:if="${successMsg}" class="mt-4 p-3 bg-green-100 text-green-700 rounded-lg text-sm"
+             th:text="${successMsg}"></div>
+        <div th:if="${errorMsg}" class="mt-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm"
+             th:text="${errorMsg}"></div>
     </div>
 
     <div class="max-w-4xl mx-auto bg-white rounded-3xl border border-[#e2e3e1]/50 shadow-sm overflow-hidden">
         <div class="grid grid-cols-1 md:grid-cols-12 gap-0">
-
             <div class="md:col-span-4 bg-[#f4f4f2]/30 p-6 md:p-8 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-[#e2e3e1]/50">
                 <div class="w-24 h-24 md:w-32 md:h-32 rounded-full ring-4 ring-white shadow-lg overflow-hidden mb-4 md:mb-6">
                     <img th:src="@{'/images/' + ${currentUser.anh}}" alt="Avatar" class="w-full h-full object-cover"
@@ -29,29 +33,35 @@
             </div>
 
             <div class="md:col-span-8 p-6 md:p-8">
-
                 <form id="logoutForm" th:action="@{/logout}" method="post"></form>
 
-                <form id="updateForm" th:action="@{/profile/update}" method="post" class="space-y-4 md:space-y-6">
-
+                <form id="updateForm" th:action="@{/profile/update}" th:object="${currentUser}" method="post"
+                      class="space-y-4 md:space-y-6">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                         <div class="space-y-1.5">
-                            <label class="text-[10px] font-bold text-[#50453e] uppercase tracking-wider">Họ và
-                                tên</label>
-                            <input type="text" name="hoTen" th:value="${currentUser.hoTen}"
-                                   class="w-full text-xs md:text-sm px-4 py-2.5 md:py-3 bg-[#f4f4f2] rounded-xl outline-none focus:ring-2 focus:ring-[#553722]/20 transition-all"/>
+                            <label class="text-[10px] font-bold text-[#50453e] uppercase tracking-wider">Họ và tên <span
+                                    class="text-red-500">*</span></label>
+                            <input type="text" th:field="*{hoTen}" required minlength="2"
+                                   th:classappend="${#fields.hasErrors('hoTen')} ? 'border-red-500 focus:ring-red-500/20' : 'focus:ring-[#553722]/20'"
+                                   class="w-full text-xs md:text-sm px-4 py-2.5 md:py-3 bg-[#f4f4f2] rounded-xl outline-none focus:ring-2 border border-transparent transition-all"/>
+                            <span th:if="${#fields.hasErrors('hoTen')}" th:errors="*{hoTen}"
+                                  class="text-red-500 text-[10px] italic"></span>
                         </div>
                         <div class="space-y-1.5">
-                            <label class="text-[10px] font-bold text-[#50453e] uppercase tracking-wider">Số điện
-                                thoại</label>
-                            <input type="text" name="soDienThoai" th:value="${currentUser.soDienThoai}"
-                                   class="w-full text-xs md:text-sm px-4 py-2.5 md:py-3 bg-[#f4f4f2] rounded-xl outline-none focus:ring-2 focus:ring-[#553722]/20 transition-all"/>
+                            <label class="text-[10px] font-bold text-[#50453e] uppercase tracking-wider">Số điện thoại
+                                <span class="text-red-500">*</span></label>
+                            <input type="text" th:field="*{soDienThoai}" required pattern="^0[35789]\d{8}$"
+                                   title="Số điện thoại phải bắt đầu bằng 0 và có 10 chữ số"
+                                   th:classappend="${#fields.hasErrors('soDienThoai')} ? 'border-red-500 focus:ring-red-500/20' : 'focus:ring-[#553722]/20'"
+                                   class="w-full text-xs md:text-sm px-4 py-2.5 md:py-3 bg-[#f4f4f2] rounded-xl outline-none focus:ring-2 border border-transparent transition-all"/>
+                            <span th:if="${#fields.hasErrors('soDienThoai')}" th:errors="*{soDienThoai}"
+                                  class="text-red-500 text-[10px] italic"></span>
                         </div>
                         <div class="space-y-1.5">
                             <label class="text-[10px] font-bold text-[#50453e] uppercase tracking-wider">Lương
                                 (VNĐ)</label>
                             <input type="text"
-                                   th:value="${#numbers.formatDecimal(currentUser.luong, 0, 'COMMA', 0, 'POINT')}"
+                                   th:value="${currentUser.luong != null ? #numbers.formatDecimal(currentUser.luong, 0, 'COMMA', 0, 'POINT') : '0'}"
                                    disabled
                                    class="w-full text-xs md:text-sm px-4 py-2.5 md:py-3 bg-[#f4f4f2] rounded-xl text-gray-400 cursor-not-allowed"/>
                         </div>
@@ -75,8 +85,12 @@
                             <div class="space-y-1.5">
                                 <label class="text-[10px] font-bold text-[#50453e] uppercase tracking-wider">Mật khẩu
                                     mới</label>
-                                <input type="password" name="matKhauMoi" placeholder="********"
-                                       class="w-full text-xs md:text-sm px-4 py-2.5 md:py-3 bg-[#f4f4f2] rounded-xl outline-none focus:ring-2 focus:ring-[#553722]/20 transition-all"/>
+                                <input type="password" th:field="*{matKhauMoi}" placeholder="Để trống nếu không đổi"
+                                       minlength="6"
+                                       th:classappend="${#fields.hasErrors('matKhauMoi')} ? 'border-red-500 focus:ring-red-500/20' : 'focus:ring-[#553722]/20'"
+                                       class="w-full text-xs md:text-sm px-4 py-2.5 md:py-3 bg-[#f4f4f2] rounded-xl outline-none focus:ring-2 border border-transparent transition-all"/>
+                                <span th:if="${#fields.hasErrors('matKhauMoi')}" th:errors="*{matKhauMoi}"
+                                      class="text-red-500 text-[10px] italic"></span>
                             </div>
                         </div>
                     </div>

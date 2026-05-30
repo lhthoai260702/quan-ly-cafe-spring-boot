@@ -1,25 +1,31 @@
 package com.quanlycafe.cafe_management.controller;
 
+import com.quanlycafe.cafe_management.dto.PromotionFormDTO;
 import com.quanlycafe.cafe_management.entity.KhuyenMai;
 import com.quanlycafe.cafe_management.service.MarketingService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.LocalDate;
 import java.util.List;
 
 /**
  * MarketingController
- * Version 1.0
- * Date: 29-05-2026
- * Modification Logs:
+ * * Version 1.1
+ * * Date: 29-05-2026
+ * * Copyright
+ * * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026 lthoai       Create
+ * 30-05-2026 Quản Lý      Add PRG Validation & format convention
  */
 @Controller
 @RequiredArgsConstructor
@@ -30,7 +36,7 @@ public class MarketingController {
     /**
      * Hiển thị trang marketing
      *
-     * @param keyword String
+     * @param keyword Từ khóa tìm kiếm
      * @param model   Model
      * @return String
      */
@@ -51,82 +57,102 @@ public class MarketingController {
         model.addAttribute("keyword", keyword);
         model.addAttribute("activeTab", "marketing");
 
+        // Khởi tạo DTO rỗng để binding vào View
+        if (!model.containsAttribute("addForm")) {
+            model.addAttribute("addForm", new PromotionFormDTO());
+        }
+        if (!model.containsAttribute("editForm")) {
+            model.addAttribute("editForm", new PromotionFormDTO());
+        }
+
         return "marketing";
     }
 
     /**
      * Thêm chương trình khuyến mãi
      *
-     * @param tenKhuyenMai  String
-     * @param ngayBatDau    String
-     * @param ngayKetThuc   String
-     * @param loaiKhuyenMai String
-     * @param giaTriGiam    Double
-     * @param moTa          String
+     * @param form               PromotionFormDTO
+     * @param bindingResult      BindingResult
+     * @param redirectAttributes RedirectAttributes
      * @return String
      */
     @PostMapping("/marketing/add")
-    public String addPromotion(
-            @RequestParam String tenKhuyenMai,
-            @RequestParam String ngayBatDau,
-            @RequestParam String ngayKetThuc,
-            @RequestParam String loaiKhuyenMai,
-            @RequestParam Double giaTriGiam,
-            @RequestParam(required = false) String moTa) {
-        try {
-            LocalDate start = LocalDate.parse(ngayBatDau);
-            LocalDate end = LocalDate.parse(ngayKetThuc);
-            marketingService.createPromotion(tenKhuyenMai, start, end, loaiKhuyenMai, giaTriGiam, moTa);
-            return "redirect:/marketing?success=add";
-        } catch (Exception e) {
-            return "redirect:/marketing?error=add";
+    public String addPromotion(@Valid @ModelAttribute("addForm") PromotionFormDTO form,
+                               BindingResult bindingResult,
+                               RedirectAttributes redirectAttributes) {
+
+        // Kiểm tra logic ngày tháng hợp lệ
+        if (form.getNgayBatDau() != null && form.getNgayKetThuc() != null
+                && form.getNgayBatDau().isAfter(form.getNgayKetThuc())) {
+            bindingResult.rejectValue("ngayKetThuc", "error.ngayKetThuc", "Ngày kết thúc phải bằng hoặc sau ngày bắt đầu");
         }
+
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.addForm", bindingResult);
+            redirectAttributes.addFlashAttribute("addForm", form);
+            redirectAttributes.addFlashAttribute("hasAddError", true);
+            return "redirect:/marketing";
+        }
+
+        try {
+            marketingService.createPromotion(form);
+            redirectAttributes.addFlashAttribute("successMsg", "Tạo chương trình khuyến mãi thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMsg", "Lỗi: " + e.getMessage());
+        }
+        return "redirect:/marketing";
     }
 
     /**
      * Sửa chương trình khuyến mãi
      *
-     * @param maKhuyenMai   Integer
-     * @param tenKhuyenMai  String
-     * @param ngayBatDau    String
-     * @param ngayKetThuc   String
-     * @param loaiKhuyenMai String
-     * @param giaTriGiam    Double
-     * @param moTa          String
+     * @param form               PromotionFormDTO
+     * @param bindingResult      BindingResult
+     * @param redirectAttributes RedirectAttributes
      * @return String
      */
     @PostMapping("/marketing/edit")
-    public String editPromotion(
-            @RequestParam Integer maKhuyenMai,
-            @RequestParam String tenKhuyenMai,
-            @RequestParam String ngayBatDau,
-            @RequestParam String ngayKetThuc,
-            @RequestParam String loaiKhuyenMai,
-            @RequestParam Double giaTriGiam,
-            @RequestParam(required = false) String moTa) {
-        try {
-            LocalDate start = LocalDate.parse(ngayBatDau);
-            LocalDate end = LocalDate.parse(ngayKetThuc);
-            marketingService.updatePromotion(maKhuyenMai, tenKhuyenMai, start, end, loaiKhuyenMai, giaTriGiam, moTa);
-            return "redirect:/marketing?success=edit";
-        } catch (Exception e) {
-            return "redirect:/marketing?error=edit";
+    public String editPromotion(@Valid @ModelAttribute("editForm") PromotionFormDTO form,
+                                BindingResult bindingResult,
+                                RedirectAttributes redirectAttributes) {
+
+        // Kiểm tra logic ngày tháng hợp lệ
+        if (form.getNgayBatDau() != null && form.getNgayKetThuc() != null
+                && form.getNgayBatDau().isAfter(form.getNgayKetThuc())) {
+            bindingResult.rejectValue("ngayKetThuc", "error.ngayKetThuc", "Ngày kết thúc phải bằng hoặc sau ngày bắt đầu");
         }
+
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.editForm", bindingResult);
+            redirectAttributes.addFlashAttribute("editForm", form);
+            redirectAttributes.addFlashAttribute("hasEditError", true);
+            return "redirect:/marketing";
+        }
+
+        try {
+            marketingService.updatePromotion(form);
+            redirectAttributes.addFlashAttribute("successMsg", "Cập nhật khuyến mãi thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMsg", "Lỗi: " + e.getMessage());
+        }
+        return "redirect:/marketing";
     }
 
     /**
      * Xóa chương trình khuyến mãi
      *
-     * @param maKhuyenMai Integer
+     * @param maKhuyenMai        Integer
+     * @param redirectAttributes RedirectAttributes
      * @return String
      */
     @PostMapping("/marketing/delete")
-    public String deletePromotion(@RequestParam Integer maKhuyenMai) {
+    public String deletePromotion(@RequestParam Integer maKhuyenMai, RedirectAttributes redirectAttributes) {
         try {
             marketingService.deletePromotion(maKhuyenMai);
-            return "redirect:/marketing?success=delete";
+            redirectAttributes.addFlashAttribute("successMsg", "Đã xóa chương trình khuyến mãi!");
         } catch (Exception e) {
-            return "redirect:/marketing?error=delete";
+            redirectAttributes.addFlashAttribute("errorMsg", "Lỗi: " + e.getMessage());
         }
+        return "redirect:/marketing";
     }
 }

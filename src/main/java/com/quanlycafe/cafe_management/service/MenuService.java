@@ -1,5 +1,6 @@
 package com.quanlycafe.cafe_management.service;
 
+import com.quanlycafe.cafe_management.dto.MenuFormDTO;
 import com.quanlycafe.cafe_management.entity.ThucDon;
 import com.quanlycafe.cafe_management.repository.ThucDonRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,12 +12,14 @@ import java.util.List;
 
 /**
  * MenuService
- * Version 1.0
- * Date: 29-05-2026
- * Modification Logs:
+ * * Version 1.1
+ * * Date: 29-05-2026
+ * * Copyright
+ * * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026 lthoai       Create
+ * 30-05-2026 Quản Lý      Apply MenuFormDTO & format convention
  */
 @Service
 @RequiredArgsConstructor
@@ -68,16 +71,14 @@ public class MenuService {
     /**
      * Tạo món mới
      *
-     * @param tenMon         String
-     * @param giaTienHienTai Double
-     * @param loaiMon        String
+     * @param form MenuFormDTO
      */
     @Transactional
-    public void createMenuItem(String tenMon, Double giaTienHienTai, String loaiMon) {
+    public void createMenuItem(MenuFormDTO form) {
         ThucDon mon = new ThucDon();
-        mon.setTenMon(tenMon);
-        mon.setGiaTienHienTai(BigDecimal.valueOf(giaTienHienTai));
-        mon.setLoaiMon(loaiMon);
+        mon.setTenMon(form.getTenMon());
+        mon.setGiaTienHienTai(BigDecimal.valueOf(form.getGiaTienHienTai()));
+        mon.setLoaiMon(form.getLoaiMon());
 
         thucDonRepository.save(mon);
     }
@@ -85,19 +86,16 @@ public class MenuService {
     /**
      * Sửa món
      *
-     * @param maThucDon      Integer
-     * @param tenMon         String
-     * @param giaTienHienTai Double
-     * @param loaiMon        String
+     * @param form MenuFormDTO
      */
     @Transactional
-    public void updateMenuItem(Integer maThucDon, String tenMon, Double giaTienHienTai, String loaiMon) {
-        ThucDon mon = thucDonRepository.findById(maThucDon)
+    public void updateMenuItem(MenuFormDTO form) {
+        ThucDon mon = thucDonRepository.findById(form.getMaThucDon())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy món trong thực đơn"));
 
-        mon.setTenMon(tenMon);
-        mon.setGiaTienHienTai(BigDecimal.valueOf(giaTienHienTai));
-        mon.setLoaiMon(loaiMon);
+        mon.setTenMon(form.getTenMon());
+        mon.setGiaTienHienTai(BigDecimal.valueOf(form.getGiaTienHienTai()));
+        mon.setLoaiMon(form.getLoaiMon());
 
         thucDonRepository.save(mon);
     }

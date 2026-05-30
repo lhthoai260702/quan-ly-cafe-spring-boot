@@ -6,6 +6,11 @@
 </head>
 <body>
 <main class="flex-1 p-4 md:p-8 overflow-y-auto bg-[#f9f9f7]">
+
+    <div th:if="${successMsg}" class="mb-4 p-3 bg-green-100 text-green-700 rounded-lg text-sm"
+         th:text="${successMsg}"></div>
+    <div th:if="${errorMsg}" class="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm" th:text="${errorMsg}"></div>
+
     <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 md:mb-8 gap-4">
         <div>
             <h2 class="text-2xl font-bold text-[#1a1c1b] font-sans">Quản lý nhân viên</h2>
@@ -23,24 +28,17 @@
         <div class="flex gap-1.5 overflow-x-auto pb-2 lg:pb-0 w-full lg:w-auto scrollbar-hide shrink-0">
             <a th:href="@{/employees}"
                th:classappend="${param.role == null or param.role[0] == ''} ? 'bg-[#553722] text-white' : 'bg-[#f4f4f2] text-[#50453e] hover:bg-[#e8e8e6]'"
-               class="px-4 py-2 rounded-full text-xs font-bold shrink-0 transition-all block text-center">
-                Tất cả vị trí
-            </a>
+               class="px-4 py-2 rounded-full text-xs font-bold shrink-0 transition-all block text-center">Tất cả vị
+                trí</a>
             <a th:href="@{/employees(role='quanly')}"
                th:classappend="${param.role != null and param.role[0] == 'quanly'} ? 'bg-[#553722] text-white' : 'bg-[#f4f4f2] text-[#50453e] hover:bg-[#e8e8e6]'"
-               class="px-4 py-2 rounded-full text-xs font-bold shrink-0 transition-all block text-center">
-                Quản Lý
-            </a>
+               class="px-4 py-2 rounded-full text-xs font-bold shrink-0 transition-all block text-center">Quản Lý</a>
             <a th:href="@{/employees(role='phucvu')}"
                th:classappend="${param.role != null and param.role[0] == 'phucvu'} ? 'bg-[#553722] text-white' : 'bg-[#f4f4f2] text-[#50453e] hover:bg-[#e8e8e6]'"
-               class="px-4 py-2 rounded-full text-xs font-bold shrink-0 transition-all block text-center">
-                Phục Vụ
-            </a>
+               class="px-4 py-2 rounded-full text-xs font-bold shrink-0 transition-all block text-center">Phục Vụ</a>
             <a th:href="@{/employees(role='phache')}"
                th:classappend="${param.role != null and param.role[0] == 'phache'} ? 'bg-[#553722] text-white' : 'bg-[#f4f4f2] text-[#50453e] hover:bg-[#e8e8e6]'"
-               class="px-4 py-2 rounded-full text-xs font-bold shrink-0 transition-all block text-center">
-                Pha Chế
-            </a>
+               class="px-4 py-2 rounded-full text-xs font-bold shrink-0 transition-all block text-center">Pha Chế</a>
         </div>
 
         <form th:action="@{/employees}" method="GET"
@@ -60,12 +58,12 @@
                     <img th:src="@{'/images/' + ${emp.anh}}" alt="Avatar" class="w-full h-full object-cover"
                          onerror="this.src='/images/user.png'"/>
                 </div>
-
                 <div class="min-w-0 flex-1">
                     <h4 class="text-sm font-bold text-[#1a1c1b] truncate" th:text="${emp.hoTen}">Tên nhân viên</h4>
                     <div class="flex items-center gap-1.5 text-xs text-[#50453e] opacity-80 mt-0.5">
                         <i data-lucide="shield" class="w-3 h-3 text-[#553722] shrink-0"></i>
-                        <span class="truncate" th:text="${emp.tenChucVu} + ' (u: ' + ${emp.tenDangNhap} + ')'">Chức vụ (u: user)</span>
+                        <span class="truncate"
+                              th:text="${emp.tenChucVu} + ' (u: ' + ${emp.tenDangNhap} + ')'">Chức vụ</span>
                     </div>
                     <div class="flex items-center gap-1.5 text-[11px] text-gray-500 mt-0.5">
                         <i data-lucide="wallet" class="w-3 h-3 shrink-0"></i>
@@ -86,24 +84,16 @@
             </div>
 
             <div class="flex items-center justify-end gap-1.5 pt-2 border-t border-[#e2e3e1]/30">
-                <button type="button"
-                        th:data-id="${emp.maNhanVien}"
-                        th:data-name="${emp.hoTen}"
-                        th:data-phone="${emp.soDienThoai}"
-                        th:data-address="${emp.diaChi}"
+                <button type="button" th:data-id="${emp.maNhanVien}" th:data-name="${emp.hoTen}"
+                        th:data-phone="${emp.soDienThoai}" th:data-address="${emp.diaChi}"
                         th:data-role="${emp.maChucVu}"
                         onclick="openEditModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-phone'), this.getAttribute('data-address'), this.getAttribute('data-role'))"
                         class="flex items-center justify-center flex-1 md:flex-none gap-1 px-3 py-2 md:py-1.5 text-[10px] md:text-xs uppercase font-bold tracking-wider text-[#553722] bg-[#ffdcc6]/20 hover:bg-[#ffdcc6]/40 border border-[#ffdcc6]/30 rounded-lg duration-150 transition-all">
-                    <i data-lucide="pen-line" class="w-3 h-3"></i>
-                    Sửa hồ sơ
+                    <i data-lucide="pen-line" class="w-3 h-3"></i> Sửa hồ sơ
                 </button>
-
-                <button type="button"
-                        th:data-id="${emp.maNhanVien}"
-                        th:data-name="${emp.hoTen}"
+                <button type="button" th:data-id="${emp.maNhanVien}" th:data-name="${emp.hoTen}"
                         onclick="openDeleteModal(this.getAttribute('data-id'), this.getAttribute('data-name'))"
-                        class="p-2 md:p-1.5 text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg duration-150 transition-all block"
-                        title="Xóa hồ sơ nhân sự">
+                        class="p-2 md:p-1.5 text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg duration-150 transition-all block">
                     <i data-lucide="trash-2" class="w-4 h-4 md:w-3.5 md:h-3.5"></i>
                 </button>
             </div>
@@ -121,30 +111,42 @@
                 </button>
             </div>
 
-            <form th:action="@{/employees/add}" method="POST" class="p-5 overflow-y-auto">
+            <form th:action="@{/employees/add}" th:object="${addForm}" method="POST" class="p-5 overflow-y-auto">
                 <div class="space-y-4">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Họ và
-                                tên</label>
-                            <input type="text" name="hoTen" required
-                                   class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] focus:ring-1 focus:ring-[#553722] transition-all"
-                                   placeholder="Nguyễn Văn A">
+                                tên *</label>
+                            <input type="text" th:field="*{hoTen}" required minlength="2"
+                                   oninvalid="this.setCustomValidity('Vui lòng nhập họ và tên (từ 2 ký tự trở lên)')"
+                                   oninput="this.setCustomValidity('')"
+                                   th:classappend="${#fields.hasErrors('hoTen')} ? 'border-red-500' : 'border-[#e2e3e1]'"
+                                   class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722]">
+                            <span th:if="${#fields.hasErrors('hoTen')}" th:errors="*{hoTen}"
+                                  class="text-red-500 text-[10px] italic"></span>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Số
-                                điện thoại</label>
-                            <input type="text" name="soDienThoai" required
-                                   class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] focus:ring-1 focus:ring-[#553722] transition-all"
-                                   placeholder="0901234567">
+                                điện thoại *</label>
+                            <input type="text" th:field="*{soDienThoai}" required pattern="^0[35789]\d{8}$"
+                                   oninvalid="this.setCustomValidity('Vui lòng nhập số điện thoại hợp lệ (bắt đầu bằng 0, gồm 10 chữ số)')"
+                                   oninput="this.setCustomValidity('')"
+                                   th:classappend="${#fields.hasErrors('soDienThoai')} ? 'border-red-500' : 'border-[#e2e3e1]'"
+                                   class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722]">
+                            <span th:if="${#fields.hasErrors('soDienThoai')}" th:errors="*{soDienThoai}"
+                                  class="text-red-500 text-[10px] italic"></span>
                         </div>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Địa
-                            chỉ</label>
-                        <input type="text" name="diaChi" required
-                               class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] transition-all"
-                               placeholder="Quận/Huyện, Tỉnh/Thành">
+                        <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Địa chỉ
+                            *</label>
+                        <input type="text" th:field="*{diaChi}" required
+                               oninvalid="this.setCustomValidity('Vui lòng không được để trống địa chỉ')"
+                               oninput="this.setCustomValidity('')"
+                               th:classappend="${#fields.hasErrors('diaChi')} ? 'border-red-500' : 'border-[#e2e3e1]'"
+                               class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722]">
+                        <span th:if="${#fields.hasErrors('diaChi')}" th:errors="*{diaChi}"
+                              class="text-red-500 text-[10px] italic"></span>
                     </div>
                     <div class="pt-3 pb-1">
                         <h4 class="text-sm font-semibold text-[#1a1c1b] border-b border-[#e2e3e1]/50 pb-2">Thông tin tài
@@ -153,24 +155,32 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Tên
-                                đăng nhập</label>
-                            <input type="text" name="tenDangNhap" required
-                                   class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] transition-all"
-                                   placeholder="username123">
+                                đăng nhập *</label>
+                            <input type="text" th:field="*{tenDangNhap}" required
+                                   oninvalid="this.setCustomValidity('Vui lòng nhập tên đăng nhập')"
+                                   oninput="this.setCustomValidity('')"
+                                   th:classappend="${#fields.hasErrors('tenDangNhap')} ? 'border-red-500' : 'border-[#e2e3e1]'"
+                                   class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722]">
+                            <span th:if="${#fields.hasErrors('tenDangNhap')}" th:errors="*{tenDangNhap}"
+                                  class="text-red-500 text-[10px] italic"></span>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Mật
-                                khẩu</label>
-                            <input type="password" name="matKhau" required
-                                   class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] transition-all"
-                                   placeholder="••••••••">
+                                khẩu *</label>
+                            <input type="password" th:field="*{matKhau}" required minlength="6"
+                                   oninvalid="this.setCustomValidity('Vui lòng nhập mật khẩu (từ 6 ký tự trở lên)')"
+                                   oninput="this.setCustomValidity('')"
+                                   th:classappend="${#fields.hasErrors('matKhau')} ? 'border-red-500' : 'border-[#e2e3e1]'"
+                                   class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722]">
+                            <span th:if="${#fields.hasErrors('matKhau')}" th:errors="*{matKhau}"
+                                  class="text-red-500 text-[10px] italic"></span>
                         </div>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Chức
                             vụ</label>
-                        <select name="maChucVu" required
-                                class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] transition-all">
+                        <select th:field="*{maChucVu}" required
+                                class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722]">
                             <option value="1">Quản Lý</option>
                             <option value="2">Phục Vụ</option>
                             <option value="3">Pha Chế</option>
@@ -179,13 +189,12 @@
                 </div>
                 <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-[#e2e3e1]/60">
                     <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')"
-                            class="w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm font-bold text-[#50453e] bg-gray-100 hover:bg-gray-200 transition-all text-center">
+                            class="px-5 py-2.5 rounded-xl text-sm font-bold text-[#50453e] bg-gray-100 hover:bg-gray-200">
                         Hủy
                     </button>
                     <button type="submit"
-                            class="w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-[#553722] hover:bg-[#6f4e37] shadow-md transition-all flex justify-center items-center gap-2">
-                        <i data-lucide="save" class="w-4 h-4"></i>
-                        Lưu hồ sơ
+                            class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-[#553722] hover:bg-[#6f4e37] shadow-md flex items-center gap-2">
+                        <i data-lucide="save" class="w-4 h-4"></i> Lưu hồ sơ
                     </button>
                 </div>
             </form>
@@ -203,34 +212,50 @@
                 </button>
             </div>
 
-            <form th:action="@{/employees/edit}" method="POST" class="p-5 overflow-y-auto">
-                <input type="hidden" name="maNhanVien" id="edit_maNhanVien">
+            <form th:action="@{/employees/edit}" th:object="${editForm}" method="POST" class="p-5 overflow-y-auto">
+                <input type="hidden" th:field="*{maNhanVien}" id="edit_maNhanVien">
                 <div class="space-y-4">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Họ và
-                                tên</label>
-                            <input type="text" name="hoTen" id="edit_hoTen" required
-                                   class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] focus:ring-1 focus:ring-[#553722] transition-all">
+                                tên *</label>
+                            <input type="text" th:field="*{hoTen}" id="edit_hoTen" required minlength="2"
+                                   oninvalid="this.setCustomValidity('Vui lòng nhập họ và tên (từ 2 ký tự trở lên)')"
+                                   oninput="this.setCustomValidity('')"
+                                   th:classappend="${#fields.hasErrors('hoTen')} ? 'border-red-500' : 'border-[#e2e3e1]'"
+                                   class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722]">
+                            <span th:if="${#fields.hasErrors('hoTen')}" th:errors="*{hoTen}"
+                                  class="text-red-500 text-[10px] italic"></span>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Số
-                                điện thoại</label>
-                            <input type="text" name="soDienThoai" id="edit_soDienThoai" required
-                                   class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] focus:ring-1 focus:ring-[#553722] transition-all">
+                                điện thoại *</label>
+                            <input type="text" th:field="*{soDienThoai}" id="edit_soDienThoai" required
+                                   pattern="^0[35789]\d{8}$"
+                                   oninvalid="this.setCustomValidity('Vui lòng nhập số điện thoại hợp lệ (bắt đầu bằng 0, gồm 10 chữ số)')"
+                                   oninput="this.setCustomValidity('')"
+                                   th:classappend="${#fields.hasErrors('soDienThoai')} ? 'border-red-500' : 'border-[#e2e3e1]'"
+                                   class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722]">
+                            <span th:if="${#fields.hasErrors('soDienThoai')}" th:errors="*{soDienThoai}"
+                                  class="text-red-500 text-[10px] italic"></span>
                         </div>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Địa
-                            chỉ</label>
-                        <input type="text" name="diaChi" id="edit_diaChi" required
-                               class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] transition-all">
+                        <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Địa chỉ
+                            *</label>
+                        <input type="text" th:field="*{diaChi}" id="edit_diaChi" required
+                               oninvalid="this.setCustomValidity('Vui lòng không được để trống địa chỉ')"
+                               oninput="this.setCustomValidity('')"
+                               th:classappend="${#fields.hasErrors('diaChi')} ? 'border-red-500' : 'border-[#e2e3e1]'"
+                               class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722]">
+                        <span th:if="${#fields.hasErrors('diaChi')}" th:errors="*{diaChi}"
+                              class="text-red-500 text-[10px] italic"></span>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Chức
                             vụ</label>
-                        <select name="maChucVu" id="edit_maChucVu" required
-                                class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] transition-all">
+                        <select th:field="*{maChucVu}" id="edit_maChucVu" required
+                                class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722]">
                             <option value="1">Quản Lý</option>
                             <option value="2">Phục Vụ</option>
                             <option value="3">Pha Chế</option>
@@ -239,13 +264,12 @@
                 </div>
                 <div class="mt-6 flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t border-[#e2e3e1]/60">
                     <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')"
-                            class="w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm font-bold text-[#50453e] bg-gray-100 hover:bg-gray-200 transition-all text-center">
+                            class="px-5 py-2.5 rounded-xl text-sm font-bold text-[#50453e] bg-gray-100 hover:bg-gray-200">
                         Hủy
                     </button>
                     <button type="submit"
-                            class="w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-[#553722] hover:bg-[#6f4e37] shadow-md transition-all flex justify-center items-center gap-2">
-                        <i data-lucide="check" class="w-4 h-4"></i>
-                        Lưu thay đổi
+                            class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-[#553722] hover:bg-[#6f4e37] shadow-md flex items-center gap-2">
+                        <i data-lucide="check" class="w-4 h-4"></i> Lưu thay đổi
                     </button>
                 </div>
             </form>
@@ -259,14 +283,12 @@
                 <div class="w-14 h-14 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-4">
                     <i data-lucide="alert-triangle" class="w-7 h-7"></i>
                 </div>
-
                 <h3 class="text-lg font-bold text-[#1a1c1b] mb-2">Xác nhận xóa hồ sơ</h3>
                 <p class="text-sm text-[#50453e] mb-6 leading-relaxed">
                     Bạn có chắc chắn muốn xóa hồ sơ và tài khoản của nhân viên <strong id="delete_empName"
                                                                                        class="text-rose-600"></strong>
                     không? Thao tác này không thể hoàn tác!
                 </p>
-
                 <form th:action="@{/employees/delete}" method="POST"
                       class="flex flex-col sm:flex-row justify-center gap-3">
                     <input type="hidden" name="maNhanVien" id="delete_maNhanVien">
@@ -283,23 +305,31 @@
         </div>
     </div>
 
-    <script>
-        // Modal Sửa
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        var hasAddError = /*[[${hasAddError != null ? hasAddError : false}]]*/ false;
+        var hasEditError = /*[[${hasEditError != null ? hasEditError : false}]]*/ false;
+
+        if (hasAddError) {
+            document.getElementById('addModal').classList.remove('hidden');
+        }
+        if (hasEditError) {
+            document.getElementById('editModal').classList.remove('hidden');
+        }
+        /*]]>*/
+
         function openEditModal(id, name, phone, address, roleId) {
             document.getElementById('edit_maNhanVien').value = id;
             document.getElementById('edit_hoTen').value = name;
             document.getElementById('edit_soDienThoai').value = phone;
             document.getElementById('edit_diaChi').value = address;
             document.getElementById('edit_maChucVu').value = roleId;
-
             document.getElementById('editModal').classList.remove('hidden');
         }
 
-        // Modal Xóa
         function openDeleteModal(id, name) {
             document.getElementById('delete_maNhanVien').value = id;
             document.getElementById('delete_empName').textContent = name;
-
             document.getElementById('deleteModal').classList.remove('hidden');
         }
     </script>

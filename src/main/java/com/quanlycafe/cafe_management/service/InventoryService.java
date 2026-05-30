@@ -1,5 +1,7 @@
 package com.quanlycafe.cafe_management.service;
 
+import com.quanlycafe.cafe_management.dto.InventoryFormDTO;
+import com.quanlycafe.cafe_management.dto.StockActionDTO;
 import com.quanlycafe.cafe_management.entity.DonViTinh;
 import com.quanlycafe.cafe_management.entity.HangHoa;
 import com.quanlycafe.cafe_management.repository.DonViTinhRepository;
@@ -14,12 +16,14 @@ import java.util.List;
 
 /**
  * InventoryService
- * Version 1.0
- * Date: 29-05-2026
- * Modification Logs:
+ * * Version 1.1
+ * * Date: 29-05-2026
+ * * Copyright
+ * * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026 lthoai       Create
+ * 30-05-2026 Quản Lý      Apply DTOs & format convention
  */
 @Service
 @RequiredArgsConstructor
@@ -59,19 +63,16 @@ public class InventoryService {
     /**
      * Tạo mặt hàng mới
      *
-     * @param tenHangHoa  String
-     * @param soLuong     Double
-     * @param maDonViTinh Integer
-     * @param donGia      Double
+     * @param form InventoryFormDTO
      */
     @Transactional
-    public void createItem(String tenHangHoa, Double soLuong, Integer maDonViTinh, Double donGia) {
-        DonViTinh unit = donViTinhRepository.findById(maDonViTinh).orElse(null);
+    public void createItem(InventoryFormDTO form) {
+        DonViTinh unit = donViTinhRepository.findById(form.getMaDonViTinh()).orElse(null);
         HangHoa item = new HangHoa();
-        item.setTenHangHoa(tenHangHoa);
-        item.setSoLuong(soLuong != null ? BigDecimal.valueOf(soLuong) : BigDecimal.ZERO);
+        item.setTenHangHoa(form.getTenHangHoa());
+        item.setSoLuong(form.getSoLuong() != null ? BigDecimal.valueOf(form.getSoLuong()) : BigDecimal.ZERO);
         item.setDonViTinh(unit);
-        item.setDonGia(BigDecimal.valueOf(donGia));
+        item.setDonGia(BigDecimal.valueOf(form.getDonGia()));
 
         hangHoaRepository.save(item);
     }
@@ -79,18 +80,16 @@ public class InventoryService {
     /**
      * Sửa thông tin mặt hàng
      *
-     * @param maHangHoa   Integer
-     * @param tenHangHoa  String
-     * @param maDonViTinh Integer
-     * @param donGia      Double
+     * @param form InventoryFormDTO
      */
     @Transactional
-    public void updateItem(Integer maHangHoa, String tenHangHoa, Integer maDonViTinh, Double donGia) {
-        HangHoa item = hangHoaRepository.findById(maHangHoa).orElseThrow();
-        DonViTinh unit = donViTinhRepository.findById(maDonViTinh).orElse(null);
-        item.setTenHangHoa(tenHangHoa);
+    public void updateItem(InventoryFormDTO form) {
+        HangHoa item = hangHoaRepository.findById(form.getMaHangHoa()).orElseThrow();
+        DonViTinh unit = donViTinhRepository.findById(form.getMaDonViTinh()).orElse(null);
+
+        item.setTenHangHoa(form.getTenHangHoa());
         item.setDonViTinh(unit);
-        item.setDonGia(BigDecimal.valueOf(donGia));
+        item.setDonGia(BigDecimal.valueOf(form.getDonGia()));
 
         hangHoaRepository.save(item);
     }
@@ -108,14 +107,13 @@ public class InventoryService {
     /**
      * Nghiệp vụ NHẬP KHO (Cộng thêm số lượng)
      *
-     * @param maHangHoa   Integer
-     * @param soLuongNhap Double
+     * @param form StockActionDTO
      */
     @Transactional
-    public void importStock(Integer maHangHoa, Double soLuongNhap) {
-        HangHoa item = hangHoaRepository.findById(maHangHoa).orElseThrow();
+    public void importStock(StockActionDTO form) {
+        HangHoa item = hangHoaRepository.findById(form.getMaHangHoa()).orElseThrow();
         BigDecimal currentQty = item.getSoLuong() != null ? item.getSoLuong() : BigDecimal.ZERO;
-        item.setSoLuong(currentQty.add(BigDecimal.valueOf(soLuongNhap)));
+        item.setSoLuong(currentQty.add(BigDecimal.valueOf(form.getSoLuongThaoTac())));
 
         hangHoaRepository.save(item);
     }
@@ -123,18 +121,17 @@ public class InventoryService {
     /**
      * Nghiệp vụ XUẤT KHO (Trừ đi số lượng)
      *
-     * @param maHangHoa   Integer
-     * @param soLuongXuat Double
-     * @throws RuntimeException
+     * @param form StockActionDTO
+     * @throws RuntimeException Ném lỗi nếu xuất quá tồn kho
      */
     @Transactional
-    public void exportStock(Integer maHangHoa, Double soLuongXuat) {
-        HangHoa item = hangHoaRepository.findById(maHangHoa).orElseThrow();
+    public void exportStock(StockActionDTO form) {
+        HangHoa item = hangHoaRepository.findById(form.getMaHangHoa()).orElseThrow();
         BigDecimal currentQty = item.getSoLuong() != null ? item.getSoLuong() : BigDecimal.ZERO;
-        BigDecimal newQty = currentQty.subtract(BigDecimal.valueOf(soLuongXuat));
+        BigDecimal newQty = currentQty.subtract(BigDecimal.valueOf(form.getSoLuongThaoTac()));
 
         if (newQty.compareTo(BigDecimal.ZERO) < 0) {
-            throw new RuntimeException("Số lượng xuất vượt quá tồn kho!");
+            throw new RuntimeException("Số lượng xuất vượt quá tồn kho hiện tại!");
         }
 
         item.setSoLuong(newQty);

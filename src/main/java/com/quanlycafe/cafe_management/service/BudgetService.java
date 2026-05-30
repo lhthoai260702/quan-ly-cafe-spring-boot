@@ -1,5 +1,6 @@
 package com.quanlycafe.cafe_management.service;
 
+import com.quanlycafe.cafe_management.dto.ExpenseFormDTO;
 import com.quanlycafe.cafe_management.dto.ThuChiDTO;
 import com.quanlycafe.cafe_management.entity.ChiTieu;
 import com.quanlycafe.cafe_management.entity.HoaDon;
@@ -17,12 +18,14 @@ import java.util.*;
 
 /**
  * BudgetService
- * Version 1.0
- * Date: 29-05-2026
- * Modification Logs:
+ * * Version 1.1
+ * * Date: 29-05-2026
+ * * Copyright
+ * * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026 lthoai       Create
+ * 30-05-2026 Quản Lý      Apply ExpenseFormDTO & format convention
  */
 @Service
 @RequiredArgsConstructor
@@ -53,7 +56,6 @@ public class BudgetService {
                 ThuChiDTO dto = reportMap.get(date);
                 BigDecimal currentThu = dto.getThu();
 
-                // Cộng dồn tiền thu và thêm hóa đơn vào danh sách chi tiết
                 dto.setThu(currentThu.add(hd.getTongTien() != null ? BigDecimal.valueOf(hd.getTongTien()) : BigDecimal.ZERO));
                 dto.getDanhSachThu().add(hd);
             }
@@ -69,7 +71,6 @@ public class BudgetService {
                 ThuChiDTO dto = reportMap.get(date);
                 BigDecimal currentChi = dto.getChi();
 
-                // Cộng dồn tiền chi và thêm khoản chi vào danh sách chi tiết
                 dto.setChi(currentChi.add(ct.getSoTien() != null ? ct.getSoTien() : BigDecimal.ZERO));
                 dto.getDanhSachChi().add(ct);
             }
@@ -81,16 +82,15 @@ public class BudgetService {
     /**
      * Thêm khoản chi
      *
-     * @param tenKhoanChi String
-     * @param soTien      Double
-     * @param ngayChi     LocalDate
+     * @param form ExpenseFormDTO
      */
     @Transactional
-    public void addExpense(String tenKhoanChi, Double soTien, LocalDate ngayChi) {
+    public void addExpense(ExpenseFormDTO form) {
         ChiTieu ct = new ChiTieu();
-        ct.setTenKhoanChi(tenKhoanChi);
-        ct.setSoTien(BigDecimal.valueOf(soTien));
-        ct.setNgayChi(ngayChi.atTime(LocalTime.now()));
+        ct.setTenKhoanChi(form.getTenKhoanChi());
+        ct.setSoTien(BigDecimal.valueOf(form.getSoTien()));
+        ct.setNgayChi(form.getNgayChi().atTime(LocalTime.now()));
+
         chiTieuRepository.save(ct);
     }
 }

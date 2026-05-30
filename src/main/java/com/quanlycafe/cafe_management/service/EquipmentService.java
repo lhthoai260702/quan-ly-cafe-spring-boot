@@ -1,5 +1,6 @@
 package com.quanlycafe.cafe_management.service;
 
+import com.quanlycafe.cafe_management.dto.EquipmentFormDTO;
 import com.quanlycafe.cafe_management.entity.ThietBi;
 import com.quanlycafe.cafe_management.repository.ThietBiRepository;
 import lombok.RequiredArgsConstructor;
@@ -7,17 +8,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 
 /**
  * EquipmentService
- * Version 1.0
- * Date: 29-05-2026
- * Modification Logs:
+ * * Version 1.1
+ * * Date: 29-05-2026
+ * * Copyright
+ * * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026 lthoai       Create
+ * 30-05-2026 Quản Lý      Apply EquipmentFormDTO & format convention
  */
 @Service
 @RequiredArgsConstructor
@@ -47,20 +49,16 @@ public class EquipmentService {
     /**
      * Tạo mới thiết bị
      *
-     * @param tenThietBi String
-     * @param soLuong    Integer
-     * @param ghiChu     String
-     * @param ngayMua    LocalDate
-     * @param donGiaMua  Double
+     * @param form EquipmentFormDTO
      */
     @Transactional
-    public void createEquipment(String tenThietBi, Integer soLuong, String ghiChu, LocalDate ngayMua, Double donGiaMua) {
+    public void createEquipment(EquipmentFormDTO form) {
         ThietBi thietBi = new ThietBi();
-        thietBi.setTenThietBi(tenThietBi);
-        thietBi.setSoLuong(soLuong != null ? soLuong : 0);
-        thietBi.setGhiChu(ghiChu);
-        thietBi.setNgayMua(ngayMua);
-        thietBi.setDonGiaMua(donGiaMua != null ? BigDecimal.valueOf(donGiaMua) : null);
+        thietBi.setTenThietBi(form.getTenThietBi());
+        thietBi.setSoLuong(form.getSoLuong() != null ? form.getSoLuong() : 0);
+        thietBi.setGhiChu(form.getGhiChu());
+        thietBi.setNgayMua(form.getNgayMua());
+        thietBi.setDonGiaMua(form.getDonGiaMua() != null ? BigDecimal.valueOf(form.getDonGiaMua()) : null);
 
         thietBiRepository.save(thietBi);
     }
@@ -68,23 +66,18 @@ public class EquipmentService {
     /**
      * Cập nhật thiết bị
      *
-     * @param maThietBi  Integer
-     * @param tenThietBi String
-     * @param soLuong    Integer
-     * @param ghiChu     String
-     * @param ngayMua    LocalDate
-     * @param donGiaMua  Double
+     * @param form EquipmentFormDTO
      */
     @Transactional
-    public void updateEquipment(Integer maThietBi, String tenThietBi, Integer soLuong, String ghiChu, LocalDate ngayMua, Double donGiaMua) {
-        ThietBi thietBi = thietBiRepository.findById(maThietBi)
+    public void updateEquipment(EquipmentFormDTO form) {
+        ThietBi thietBi = thietBiRepository.findById(form.getMaThietBi())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy thiết bị"));
 
-        thietBi.setTenThietBi(tenThietBi);
-        thietBi.setSoLuong(soLuong != null ? soLuong : 0);
-        thietBi.setGhiChu(ghiChu);
-        thietBi.setNgayMua(ngayMua);
-        thietBi.setDonGiaMua(donGiaMua != null ? BigDecimal.valueOf(donGiaMua) : null);
+        thietBi.setTenThietBi(form.getTenThietBi());
+        thietBi.setSoLuong(form.getSoLuong() != null ? form.getSoLuong() : 0);
+        thietBi.setGhiChu(form.getGhiChu());
+        thietBi.setNgayMua(form.getNgayMua());
+        thietBi.setDonGiaMua(form.getDonGiaMua() != null ? BigDecimal.valueOf(form.getDonGiaMua()) : null);
 
         thietBiRepository.save(thietBi);
     }
