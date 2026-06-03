@@ -26,7 +26,6 @@
 
     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 bg-white p-4 rounded-2xl shadow-sm border border-[#e2e3e1]/30">
         <div class="flex gap-1.5 overflow-x-auto pb-2 lg:pb-0 w-full lg:w-auto scrollbar-hide shrink-0">
-            <!-- Đã fix lỗi null pointer cho param.role -->
             <a th:href="@{/employees}"
                th:classappend="${param.role == null || #strings.isEmpty(param.role)} ? 'bg-[#553722] text-white' : 'bg-[#f4f4f2] text-[#50453e] hover:bg-[#e8e8e6]'"
                class="px-4 py-2 rounded-full text-xs font-bold shrink-0 transition-all block text-center">Tất cả vị
@@ -68,7 +67,6 @@
                     </div>
                     <div class="flex items-center gap-1.5 text-[11px] text-gray-500 mt-0.5">
                         <i data-lucide="wallet" class="w-3 h-3 shrink-0"></i>
-                        <!-- Đã fix an toàn khi lương bị null -->
                         <span th:text="'Lương: ' + ${emp.luong != null ? #numbers.formatDecimal(emp.luong, 0, 'COMMA', 0, 'POINT') : '0'} + ' VNĐ'">Lương</span>
                     </div>
                 </div>
@@ -86,7 +84,6 @@
             </div>
 
             <div class="flex items-center justify-end gap-1.5 pt-2 border-t border-[#e2e3e1]/30">
-                <!-- Nút Sửa: Dùng th:data-* chuẩn xác, an toàn -->
                 <button type="button" th:data-id="${emp.maNhanVien}" th:data-name="${emp.hoTen}"
                         th:data-phone="${emp.soDienThoai}" th:data-address="${emp.diaChi}"
                         th:data-role="${emp.maChucVu}"
@@ -95,7 +92,6 @@
                     <i data-lucide="pen-line" class="w-3 h-3"></i> Sửa hồ sơ
                 </button>
 
-                <!-- Nút Xóa: Dùng th:data-* và mở modal an toàn chống XSS -->
                 <button type="button" th:data-id="${emp.maNhanVien}" th:data-name="${emp.hoTen}"
                         onclick="openDeleteModal(this.getAttribute('data-id'), this.getAttribute('data-name'))"
                         class="p-2 md:p-1.5 text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg duration-150 transition-all block">
@@ -132,10 +128,8 @@
         </a>
     </div>
 
-    <!-- Modal Thêm Nhân Sự -->
     <div id="addModal"
          class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm transition-opacity p-4">
-        <!-- Các nội dung form như cũ -->
         <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-[#e2e3e1]">
             <div class="px-5 py-4 border-b border-[#e2e3e1]/60 flex justify-between items-center bg-[#f9f9f7] shrink-0">
                 <h3 class="text-lg font-bold text-[#1a1c1b]">Tuyển nhân sự mới</h3>
@@ -144,27 +138,30 @@
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
-            <form th:action="@{/employees/add}" th:object="${addForm}" method="POST" class="p-5 overflow-y-auto">
+            <form th:action="@{/employees/add}" th:object="${addForm}" method="POST"
+                  class="p-5 overflow-y-auto custom-validate-form" novalidate>
                 <div class="space-y-4">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Họ và
                                 tên *</label>
                             <input type="text" th:field="*{hoTen}" required minlength="2"
-                                   class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722]">
+                                   title="Vui lòng nhập họ và tên (ít nhất 2 ký tự)"
+                                   class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Số
                                 điện thoại *</label>
                             <input type="text" th:field="*{soDienThoai}" required pattern="^0[35789]\d{8}$"
-                                   class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722]">
+                                   title="Vui lòng nhập đúng 10 số (bắt đầu bằng 03, 05, 07, 08, 09)"
+                                   class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
                         </div>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Địa chỉ
                             *</label>
-                        <input type="text" th:field="*{diaChi}" required
-                               class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722]">
+                        <input type="text" th:field="*{diaChi}" required title="Vui lòng nhập địa chỉ liên hệ"
+                               class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
                     </div>
                     <div class="pt-3 pb-1">
                         <h4 class="text-sm font-semibold text-[#1a1c1b] border-b border-[#e2e3e1]/50 pb-2">Thông tin tài
@@ -175,13 +172,17 @@
                             <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Tên
                                 đăng nhập *</label>
                             <input type="text" th:field="*{tenDangNhap}" required
-                                   class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722]">
+                                   pattern="^[a-zA-Z0-9_]+$"
+                                   title="Tên đăng nhập phải viết liền không dấu, không khoảng trắng (chỉ gồm chữ cái, số hoặc dấu gạch dưới)"
+                                   class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Mật
                                 khẩu *</label>
                             <input type="password" th:field="*{matKhau}" required minlength="6"
-                                   class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722]">
+                                   pattern="^[\x20-\x7E]+$"
+                                   title="Mật khẩu phải từ 6 ký tự trở lên và không được chứa ký tự tiếng Việt có dấu"
+                                   class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
                         </div>
                     </div>
                     <div>
@@ -209,7 +210,6 @@
         </div>
     </div>
 
-    <!-- Modal Cập Nhật -->
     <div id="editModal"
          class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm transition-opacity p-4">
         <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-[#e2e3e1]">
@@ -220,7 +220,8 @@
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
-            <form th:action="@{/employees/edit}" th:object="${editForm}" method="POST" class="p-5 overflow-y-auto">
+            <form th:action="@{/employees/edit}" th:object="${editForm}" method="POST"
+                  class="p-5 overflow-y-auto custom-validate-form" novalidate>
                 <input type="hidden" th:field="*{maNhanVien}" id="edit_maNhanVien">
                 <div class="space-y-4">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -228,21 +229,24 @@
                             <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Họ và
                                 tên *</label>
                             <input type="text" th:field="*{hoTen}" id="edit_hoTen" required minlength="2"
-                                   class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722]">
+                                   title="Vui lòng nhập họ và tên (ít nhất 2 ký tự)"
+                                   class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Số
                                 điện thoại *</label>
                             <input type="text" th:field="*{soDienThoai}" id="edit_soDienThoai" required
                                    pattern="^0[35789]\d{8}$"
-                                   class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722]">
+                                   title="Vui lòng nhập đúng 10 số (bắt đầu bằng 03, 05, 07, 08, 09)"
+                                   class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
                         </div>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Địa chỉ
                             *</label>
                         <input type="text" th:field="*{diaChi}" id="edit_diaChi" required
-                               class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722]">
+                               title="Vui lòng nhập địa chỉ liên hệ"
+                               class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Chức
@@ -269,7 +273,6 @@
         </div>
     </div>
 
-    <!-- Modal Xác nhận Xóa -->
     <div id="deleteModal"
          class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm transition-opacity p-4">
         <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden border border-[#e2e3e1]">
@@ -326,6 +329,59 @@
             document.getElementById('delete_empName').textContent = name;
             document.getElementById('deleteModal').classList.remove('hidden');
         }
+
+        // TỰ VẼ LẠI THÔNG BÁO LỖI UI BẰNG JAVASCRIPT & TAILWIND (Thay thế bong bóng trình duyệt)
+        document.addEventListener("DOMContentLoaded", function () {
+            const forms = document.querySelectorAll(".custom-validate-form");
+            forms.forEach(form => {
+                form.addEventListener("submit", function (e) {
+                    let isValid = true;
+                    const inputs = form.querySelectorAll("input, select");
+
+                    inputs.forEach(input => {
+                        // 1. Dọn dẹp lỗi cũ mỗi khi bấm submit lại
+                        let existingError = input.parentElement.querySelector(".error-msg");
+                        if (existingError) existingError.remove();
+                        input.classList.remove("border-rose-500", "bg-rose-50");
+
+                        // 2. Kiểm tra lỗi
+                        if (!input.validity.valid) {
+                            isValid = false;
+
+                            // Đổi màu viền và nền ô nhập liệu thành màu đỏ
+                            input.classList.remove("border-transparent");
+                            input.classList.add("border-rose-500", "bg-rose-50");
+
+                            // Lấy thông báo từ thuộc tính title hoặc báo lỗi mặc định
+                            let errorText = input.getAttribute("title") || "Vui lòng nhập trường này hợp lệ.";
+                            if (input.validity.valueMissing) {
+                                errorText = "Trường này không được để trống.";
+                            }
+
+                            // Chèn câu thông báo lỗi bằng giao diện Tailwind ngay dưới ô input
+                            let errorHtml = `<span class="error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"><i data-lucide="info" class="w-3 h-3"></i> ${errorText}</span>`;
+                            input.insertAdjacentHTML("afterend", errorHtml);
+                        }
+                    });
+
+                    // 3. Nếu form có lỗi thì chặn không cho gửi dữ liệu
+                    if (!isValid) {
+                        e.preventDefault();
+                        if(typeof lucide !== 'undefined') lucide.createIcons(); // Load lại icon cho câu báo lỗi
+                    }
+                });
+
+                // 4. Xóa câu báo lỗi màu đỏ đi ngay khi người dùng bắt đầu gõ lại
+                form.querySelectorAll("input, select").forEach(input => {
+                    input.addEventListener("input", function () {
+                        let existingError = input.parentElement.querySelector(".error-msg");
+                        if (existingError) existingError.remove();
+                        input.classList.remove("border-rose-500", "bg-rose-50");
+                        input.classList.add("border-transparent");
+                    });
+                });
+            });
+        });
     </script>
 </main>
 </body>

@@ -150,31 +150,28 @@
                         class="text-gray-400 hover:text-rose-600"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <form th:action="@{/inventory/add}" th:object="${addForm}" method="POST"
-                  class="p-5 overflow-y-auto space-y-4">
+                  class="p-5 overflow-y-auto space-y-4 custom-validate-form" novalidate>
                 <div>
                     <label class="block text-xs font-bold text-[#50453e] mb-1">Tên mặt hàng *</label>
-                    <input type="text" th:field="*{tenHangHoa}" required
-                           oninvalid="this.setCustomValidity('Vui lòng nhập tên hàng hóa')"
-                           oninput="this.setCustomValidity('')"
-                           th:classappend="${#fields.hasErrors('tenHangHoa')} ? 'border-red-500' : 'border-[#e2e3e1]'"
+                    <input type="text" th:field="*{tenHangHoa}" required title="Vui lòng nhập tên hàng hóa"
+                           th:classappend="${#fields.hasErrors('tenHangHoa')} ? 'border-rose-500 bg-rose-50' : 'border-[#e2e3e1]'"
                            class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
                     <span th:if="${#fields.hasErrors('tenHangHoa')}" th:errors="*{tenHangHoa}"
-                          class="text-red-500 text-[10px] italic"></span>
+                          class="server-error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"></span>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-[#50453e] mb-1">Số lượng ban đầu *</label>
                         <input type="number" step="0.1" min="0" th:field="*{soLuong}" required
-                               oninvalid="this.setCustomValidity('Số lượng không được để âm')"
-                               oninput="this.setCustomValidity('')"
-                               th:classappend="${#fields.hasErrors('soLuong')} ? 'border-red-500' : 'border-[#e2e3e1]'"
+                               title="Số lượng không được để âm"
+                               th:classappend="${#fields.hasErrors('soLuong')} ? 'border-rose-500 bg-rose-50' : 'border-[#e2e3e1]'"
                                class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
                         <span th:if="${#fields.hasErrors('soLuong')}" th:errors="*{soLuong}"
-                              class="text-red-500 text-[10px] italic"></span>
+                              class="server-error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"></span>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-[#50453e] mb-1">Đơn vị tính</label>
-                        <select th:field="*{maDonViTinh}" required
+                        <select th:field="*{maDonViTinh}" required title="Vui lòng chọn đơn vị tính"
                                 class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
                             <option th:each="u : ${units}" th:value="${u.maDonViTinh}" th:text="${u.tenDonVi}"></option>
                         </select>
@@ -183,12 +180,11 @@
                 <div>
                     <label class="block text-xs font-bold text-[#50453e] mb-1">Đơn giá nhập (VNĐ) *</label>
                     <input type="number" th:field="*{donGia}" min="0" step="500" required
-                           oninvalid="this.setCustomValidity('Đơn giá không được để âm')"
-                           oninput="this.setCustomValidity('')"
-                           th:classappend="${#fields.hasErrors('donGia')} ? 'border-red-500' : 'border-[#e2e3e1]'"
+                           title="Đơn giá không được để âm"
+                           th:classappend="${#fields.hasErrors('donGia')} ? 'border-rose-500 bg-rose-50' : 'border-[#e2e3e1]'"
                            class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
                     <span th:if="${#fields.hasErrors('donGia')}" th:errors="*{donGia}"
-                          class="text-red-500 text-[10px] italic"></span>
+                          class="server-error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"></span>
                 </div>
                 <div class="pt-4 flex flex-col-reverse sm:flex-row justify-end gap-3 mt-2">
                     <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')"
@@ -213,7 +209,8 @@
                 <button type="button" onclick="document.getElementById('importModal').classList.add('hidden')"
                         class="text-emerald-400 hover:text-emerald-800"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <form th:action="@{/inventory/import}" th:object="${importForm}" method="POST" class="p-5 overflow-y-auto">
+            <form th:action="@{/inventory/import}" th:object="${importForm}" method="POST"
+                  class="p-5 overflow-y-auto custom-validate-form" novalidate>
                 <input type="hidden" th:field="*{maHangHoa}" id="import_id">
                 <p class="text-sm text-gray-600 mb-4">Cộng thêm số lượng cho mặt hàng: <strong id="import_name"
                                                                                                class="text-emerald-700"></strong>
@@ -222,12 +219,11 @@
                     <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">Số lượng nhập
                         thêm *</label>
                     <input type="number" step="0.1" min="0.1" th:field="*{soLuongThaoTac}" required
-                           oninvalid="this.setCustomValidity('Số lượng nhập phải lớn hơn 0')"
-                           oninput="this.setCustomValidity('')"
-                           th:classappend="${#fields.hasErrors('soLuongThaoTac')} ? 'border-red-500' : 'border-gray-300'"
+                           title="Số lượng nhập phải lớn hơn 0" id="import_input"
+                           th:classappend="${#fields.hasErrors('soLuongThaoTac')} ? 'border-rose-500 bg-rose-50' : 'border-gray-300'"
                            class="w-full bg-white border rounded-xl px-4 py-3 text-lg font-bold text-center focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
                     <span th:if="${#fields.hasErrors('soLuongThaoTac')}" th:errors="*{soLuongThaoTac}"
-                          class="text-red-500 text-[10px] italic"></span>
+                          class="server-error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"></span>
                 </div>
                 <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 border-t border-gray-100 pt-4">
                     <button type="button" onclick="document.getElementById('importModal').classList.add('hidden')"
@@ -252,8 +248,8 @@
                 <button type="button" onclick="document.getElementById('exportModal').classList.add('hidden')"
                         class="text-amber-400 hover:text-amber-800"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <form th:action="@{/inventory/export}" th:object="${exportForm}" method="POST" class="p-5 overflow-y-auto"
-                  onsubmit="return validateExport()">
+            <form th:action="@{/inventory/export}" th:object="${exportForm}" method="POST"
+                  class="p-5 overflow-y-auto custom-validate-form" novalidate>
                 <input type="hidden" th:field="*{maHangHoa}" id="export_id">
                 <input type="hidden" id="export_max_qty" value="0">
                 <p class="text-sm text-gray-600 mb-4">Trừ bớt số lượng cho mặt hàng: <strong id="export_name"
@@ -263,16 +259,11 @@
                     <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">Số lượng xuất
                         (Tồn kho: <span id="export_display_max" class="text-rose-600">0</span>) *</label>
                     <input type="number" step="0.1" min="0.1" th:field="*{soLuongThaoTac}" id="export_input" required
-                           oninvalid="this.setCustomValidity('Số lượng xuất phải lớn hơn 0')"
-                           oninput="this.setCustomValidity(''); document.getElementById('export_error_msg').classList.add('hidden');"
-                           th:classappend="${#fields.hasErrors('soLuongThaoTac')} ? 'border-red-500' : 'border-gray-300'"
+                           title="Số lượng xuất phải hợp lệ"
+                           th:classappend="${#fields.hasErrors('soLuongThaoTac')} ? 'border-rose-500 bg-rose-50' : 'border-gray-300'"
                            class="w-full bg-white border rounded-xl px-4 py-3 text-lg font-bold text-center focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all">
-                    <p id="export_error_msg"
-                       class="text-xs font-bold text-rose-600 mt-2 hidden bg-rose-50 p-2 rounded-lg"><i
-                            data-lucide="alert-circle" class="w-3 h-3 inline-block mr-1"></i> Số lượng xuất vượt quá tồn
-                        kho!</p>
                     <span th:if="${#fields.hasErrors('soLuongThaoTac')}" th:errors="*{soLuongThaoTac}"
-                          class="text-red-500 text-[10px] italic block mt-1"></span>
+                          class="server-error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"></span>
                 </div>
                 <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 border-t border-gray-100 pt-4">
                     <button type="button" onclick="document.getElementById('exportModal').classList.add('hidden')"
@@ -297,23 +288,22 @@
                         class="text-gray-400 hover:text-rose-600"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <form th:action="@{/inventory/edit}" th:object="${editForm}" method="POST"
-                  class="p-5 overflow-y-auto space-y-4">
+                  class="p-5 overflow-y-auto space-y-4 custom-validate-form" novalidate>
                 <input type="hidden" th:field="*{maHangHoa}" id="edit_id">
                 <input type="hidden" th:field="*{soLuong}" id="edit_soLuong">
                 <div>
                     <label class="block text-xs font-bold text-[#50453e] mb-1">Tên mặt hàng *</label>
                     <input type="text" th:field="*{tenHangHoa}" id="edit_name" required
-                           oninvalid="this.setCustomValidity('Vui lòng nhập tên hàng hóa')"
-                           oninput="this.setCustomValidity('')"
-                           th:classappend="${#fields.hasErrors('tenHangHoa')} ? 'border-red-500' : 'border-[#e2e3e1]'"
+                           title="Vui lòng nhập tên hàng hóa"
+                           th:classappend="${#fields.hasErrors('tenHangHoa')} ? 'border-rose-500 bg-rose-50' : 'border-[#e2e3e1]'"
                            class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
                     <span th:if="${#fields.hasErrors('tenHangHoa')}" th:errors="*{tenHangHoa}"
-                          class="text-red-500 text-[10px] italic"></span>
+                          class="server-error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"></span>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-[#50453e] mb-1">Đơn vị tính</label>
-                        <select th:field="*{maDonViTinh}" id="edit_unit" required
+                        <select th:field="*{maDonViTinh}" id="edit_unit" required title="Vui lòng chọn đơn vị tính"
                                 class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
                             <option th:each="u : ${units}" th:value="${u.maDonViTinh}" th:text="${u.tenDonVi}"></option>
                         </select>
@@ -321,12 +311,11 @@
                     <div>
                         <label class="block text-xs font-bold text-[#50453e] mb-1">Đơn giá (VNĐ) *</label>
                         <input type="number" th:field="*{donGia}" id="edit_price" min="0" required
-                               oninvalid="this.setCustomValidity('Đơn giá không được để âm')"
-                               oninput="this.setCustomValidity('')"
-                               th:classappend="${#fields.hasErrors('donGia')} ? 'border-red-500' : 'border-[#e2e3e1]'"
+                               title="Đơn giá không được để âm"
+                               th:classappend="${#fields.hasErrors('donGia')} ? 'border-rose-500 bg-rose-50' : 'border-[#e2e3e1]'"
                                class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
                         <span th:if="${#fields.hasErrors('donGia')}" th:errors="*{donGia}"
-                              class="text-red-500 text-[10px] italic"></span>
+                              class="server-error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"></span>
                     </div>
                 </div>
                 <div class="pt-4 flex flex-col-reverse sm:flex-row justify-end gap-3 mt-2 border-t border-[#e2e3e1]/60">
@@ -382,6 +371,12 @@
         function openImportModal(id, name) {
             document.getElementById('import_id').value = id;
             document.getElementById('import_name').textContent = name;
+            let input = document.getElementById('import_input');
+            input.value = '';
+            let existingError = input.parentElement.querySelector(".error-msg, .server-error-msg");
+            if (existingError) existingError.remove();
+            input.classList.remove("border-rose-500", "bg-rose-50");
+            input.classList.add("border-gray-300");
             document.getElementById('importModal').classList.remove('hidden');
         }
 
@@ -390,20 +385,14 @@
             document.getElementById('export_name').textContent = name;
             document.getElementById('export_max_qty').value = maxQty;
             document.getElementById('export_display_max').textContent = maxQty;
-            document.getElementById('export_input').value = '';
-            document.getElementById('export_error_msg').classList.add('hidden');
+            let input = document.getElementById('export_input');
+            input.value = '';
+            input.setAttribute('max', maxQty);
+            let existingError = input.parentElement.querySelector(".error-msg, .server-error-msg");
+            if (existingError) existingError.remove();
+            input.classList.remove("border-rose-500", "bg-rose-50");
+            input.classList.add("border-gray-300");
             document.getElementById('exportModal').classList.remove('hidden');
-        }
-
-        function validateExport() {
-            let inputQty = parseFloat(document.getElementById('export_input').value);
-            let maxQty = parseFloat(document.getElementById('export_max_qty').value);
-            if (inputQty > maxQty) {
-                document.getElementById('export_error_msg').classList.remove('hidden');
-                if (typeof lucide !== 'undefined') lucide.createIcons();
-                return false;
-            }
-            return true;
         }
 
         function openEditModal(id, name, unitId, price) {
@@ -411,7 +400,6 @@
             document.getElementById('edit_name').value = name;
             document.getElementById('edit_unit').value = unitId;
             document.getElementById('edit_price').value = price;
-            // Bổ sung: Lấy giá trị tồn kho hiện tại (nếu cần)
             let row = event.target.closest('tr');
             let currentQtyStr = row.querySelector('td:nth-child(3) span').innerText;
             document.getElementById('edit_soLuong').value = parseFloat(currentQtyStr);
@@ -423,6 +411,64 @@
             document.getElementById('delete_name').textContent = name;
             document.getElementById('deleteModal').classList.remove('hidden');
         }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const forms = document.querySelectorAll(".custom-validate-form");
+            forms.forEach(form => {
+                form.addEventListener("submit", function (e) {
+                    let isValid = true;
+                    const inputs = form.querySelectorAll("input, select, textarea");
+
+                    inputs.forEach(input => {
+                        let existingError = input.parentElement.querySelector(".error-msg, .server-error-msg");
+                        if (existingError) existingError.remove();
+                        input.classList.remove("border-rose-500", "bg-rose-50");
+
+                        if (!input.validity.valid) {
+                            isValid = false;
+
+                            if (input.classList.contains('bg-white')) {
+                                input.classList.remove("border-gray-300");
+                            } else {
+                                input.classList.remove("border-[#e2e3e1]");
+                            }
+                            input.classList.add("border-rose-500", "bg-rose-50");
+
+                            let errorText = input.getAttribute("title") || "Vui lòng kiểm tra lại thông tin.";
+                            if (input.validity.valueMissing) {
+                                errorText = "Trường này không được để trống.";
+                            } else if (input.validity.rangeUnderflow) {
+                                errorText = input.getAttribute("title") || "Giá trị không hợp lệ.";
+                            } else if (input.validity.rangeOverflow) {
+                                errorText = "Số lượng xuất vượt quá tồn kho hiện tại.";
+                            }
+
+                            let errorHtml = `<span class="error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"><i data-lucide="info" class="w-3 h-3"></i> ${errorText}</span>`;
+                            input.insertAdjacentHTML("afterend", errorHtml);
+                        }
+                    });
+
+                    if (!isValid) {
+                        e.preventDefault();
+                        if(typeof lucide !== 'undefined') lucide.createIcons();
+                    }
+                });
+
+                form.querySelectorAll("input, select, textarea").forEach(input => {
+                    input.addEventListener("input", function () {
+                        let existingError = input.parentElement.querySelector(".error-msg, .server-error-msg");
+                        if (existingError) existingError.remove();
+
+                        input.classList.remove("border-rose-500", "bg-rose-50");
+                        if (input.classList.contains('bg-white')) {
+                            input.classList.add("border-gray-300");
+                        } else {
+                            input.classList.add("border-[#e2e3e1]");
+                        }
+                    });
+                });
+            });
+        });
     </script>
 </main>
 </body>
