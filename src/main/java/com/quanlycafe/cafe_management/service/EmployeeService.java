@@ -97,7 +97,8 @@ public class EmployeeService {
     public void createEmployee(EmployeeFormDTO form) {
         // 1. Tạo tài khoản trước
         TaiKhoan tk = new TaiKhoan();
-        tk.setTenDangNhap(form.getTenDangNhap());
+        // Đưa tên đăng nhập về chữ thường để tránh lỗi phân biệt hoa/thường khi đăng nhập
+        tk.setTenDangNhap(form.getTenDangNhap().toLowerCase());
         tk.setMatKhau(passwordEncoder.encode(form.getMatKhau()));
         tk.setAnh("user.png");
 
