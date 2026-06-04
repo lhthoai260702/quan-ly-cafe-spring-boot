@@ -57,13 +57,14 @@
         <p class="text-xs sm:text-sm text-[#50453e] mt-2 opacity-80">Đăng nhập để quản lý hệ thống</p>
     </div>
 
-    <div th:if="${param.error}"
-         class="mb-4 sm:mb-5 p-3 sm:p-4 bg-rose-50 border border-rose-100 rounded-xl flex items-start gap-3 animate-pulse">
+    <div th:if="${param.error}" id="error-alert"
+         class="mb-4 sm:mb-5 p-3 sm:p-4 bg-rose-50 border border-rose-100 rounded-xl flex items-start gap-3 animate-pulse transition-opacity duration-300">
         <i data-lucide="alert-circle" class="w-4 h-4 sm:w-5 sm:h-5 text-rose-500 shrink-0 mt-0.5"></i>
         <p class="text-xs sm:text-sm text-rose-700 font-medium">Tên đăng nhập hoặc mật khẩu không chính xác!</p>
     </div>
-    <div th:if="${param.logout}"
-         class="mb-4 sm:mb-5 p-3 sm:p-4 bg-emerald-50 border border-emerald-100 rounded-xl flex items-start gap-3">
+
+    <div th:if="${param.logout}" id="logout-alert"
+         class="mb-4 sm:mb-5 p-3 sm:p-4 bg-emerald-50 border border-emerald-100 rounded-xl flex items-start gap-3 transition-opacity duration-300">
         <i data-lucide="check-circle-2" class="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500 shrink-0 mt-0.5"></i>
         <p class="text-xs sm:text-sm text-emerald-700 font-medium">Bạn đã đăng xuất thành công.</p>
     </div>
@@ -78,7 +79,7 @@
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <i data-lucide="user" class="w-4 h-4 text-gray-400"></i>
                 </div>
-                <input type="text" id="username" name="username" required autofocus
+                <input type="text" id="username" name="username" required autofocus placeholder="Nhập tài khoản..."
                        title="Vui lòng nhập tên đăng nhập"
                        class="w-full bg-white/80 border border-gray-200 rounded-xl pl-11 pr-4 py-2.5 sm:py-3 text-base sm:text-sm text-[#1a1c1b] focus:bg-white focus:outline-none focus:border-[#553722] focus:ring-1 focus:ring-[#553722] transition-all placeholder:text-gray-400">
             </div>
@@ -92,7 +93,7 @@
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <i data-lucide="lock" class="w-4 h-4 text-gray-400"></i>
                 </div>
-                <input type="password" id="password" name="password" required
+                <input type="password" id="password" name="password" required placeholder="••••••••"
                        title="Vui lòng nhập mật khẩu"
                        class="w-full bg-white/80 border border-gray-200 rounded-xl pl-11 pr-4 py-2.5 sm:py-3 text-base sm:text-sm text-[#1a1c1b] focus:bg-white focus:outline-none focus:border-[#553722] focus:ring-1 focus:ring-[#553722] transition-all placeholder:text-gray-400">
             </div>
@@ -116,7 +117,6 @@
 <script>
     lucide.createIcons();
 
-    // Script vẽ Validation giống hệt các file khác (tinh chỉnh cho input có bọc ngoài div.relative)
     document.addEventListener("DOMContentLoaded", function () {
         const forms = document.querySelectorAll(".custom-validate-form");
         forms.forEach(form => {
@@ -125,7 +125,6 @@
                 const inputs = form.querySelectorAll("input, select, textarea");
 
                 inputs.forEach(input => {
-                    // Tìm thẻ báo lỗi đang nằm ngay dưới div.relative
                     let existingError = input.parentElement.nextElementSibling;
                     if (existingError && existingError.classList.contains("error-msg")) {
                         existingError.remove();
@@ -145,7 +144,6 @@
                         }
 
                         let errorHtml = `<span class="error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"><i data-lucide="info" class="w-3 h-3"></i> ${errorText}</span>`;
-                        // Thêm thông báo ngay SAU thẻ div.relative chứa input và icon
                         input.parentElement.insertAdjacentHTML("afterend", errorHtml);
                     }
                 });
@@ -153,6 +151,13 @@
                 if (!isValid) {
                     e.preventDefault();
                     if(typeof lucide !== 'undefined') lucide.createIcons();
+
+                    // Logic mới: Ẩn thông báo server khi bấm submit mà form trống
+                    const errorAlert = document.getElementById('error-alert');
+                    if (errorAlert) errorAlert.classList.add('hidden');
+
+                    const logoutAlert = document.getElementById('logout-alert');
+                    if (logoutAlert) logoutAlert.classList.add('hidden');
                 }
             });
 
