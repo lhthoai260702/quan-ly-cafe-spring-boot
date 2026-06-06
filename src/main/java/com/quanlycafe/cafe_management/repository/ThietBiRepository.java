@@ -1,28 +1,30 @@
 package com.quanlycafe.cafe_management.repository;
 
 import com.quanlycafe.cafe_management.entity.ThietBi;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 /**
  * ThietBiRepository
- * Version 1.0
+ * Version 1.2
  * Date: 29-05-2026
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026 lthoai       Create
+ * 06-06-2026 Quản Lý      Add Pagination
  */
 @Repository
 public interface ThietBiRepository extends JpaRepository<ThietBi, Integer> {
 
     /**
-     * Tìm kiếm thiết bị theo tên
+     * Tìm kiếm thiết bị theo tên có phân trang
      *
-     * @param keyword String
-     * @return List<ThietBi>
+     * @param keyword  String
+     * @param pageable Pageable
+     * @return Page<ThietBi>
      */
-    List<ThietBi> findByTenThietBiContainingIgnoreCase(String keyword);
+    Page<ThietBi> findByTenThietBiContainingIgnoreCase(String keyword, Pageable pageable);
 }

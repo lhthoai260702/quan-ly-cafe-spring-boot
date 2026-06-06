@@ -7,15 +7,22 @@
 <body>
 <main class="flex-1 p-4 md:p-8 overflow-y-auto bg-[#f9f9f7]">
 
-    <div th:if="${successMsg}" class="mb-4 p-3 bg-green-100 text-green-700 rounded-lg text-sm"
+    <div th:if="${successMsg}"
+         class="mb-4 p-3 bg-green-100 text-green-700 rounded-lg text-sm font-medium flex items-center gap-2"
          th:text="${successMsg}"></div>
-    <div th:if="${errorMsg}" class="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm" th:text="${errorMsg}"></div>
+    <div th:if="${errorMsg}"
+         class="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm font-medium flex items-center gap-2"
+         th:text="${errorMsg}"></div>
 
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 md:mb-8 gap-4">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4">
         <div>
-            <h2 class="text-xl md:text-2xl font-bold text-[#1a1c1b] font-sans">Quản lý thiết bị & Tài sản</h2>
-            <p class="text-xs md:text-sm text-[#50453e] opacity-80 mt-1">Quản lý số lượng, tình trạng và giá trị thiết
-                bị của quán.</p>
+            <div class="flex items-center gap-3">
+                <h2 class="text-2xl font-bold text-[#1a1c1b] font-sans">Quản lý thiết bị & Tài sản</h2>
+                <span class="bg-[#ffdcc6] text-[#553722] text-xs font-bold px-2.5 py-1 rounded-full shadow-sm"
+                      th:text="${totalItems != null ? totalItems : 0} + ' thiết bị'">0 thiết bị</span>
+            </div>
+            <p class="text-sm text-[#50453e] opacity-80 mt-1">Quản lý số lượng, tình trạng và giá trị thiết bị của
+                quán.</p>
         </div>
         <button onclick="document.getElementById('addModal').classList.remove('hidden')"
                 class="w-full md:w-auto justify-center flex items-center gap-2 bg-[#553722] hover:bg-[#6f4e37] text-white px-5 py-2.5 rounded-xl text-sm font-semibold uppercase tracking-wider transition-all duration-200 shadow-md">
@@ -23,75 +30,128 @@
         </button>
     </div>
 
-    <div class="flex flex-col md:flex-row md:items-center justify-end gap-4 mb-6 bg-white p-4 rounded-2xl shadow-sm border border-[#e2e3e1]/30">
+    <div class="flex flex-col md:flex-row md:items-center justify-end gap-4 mb-6 bg-white p-4 rounded-2xl shadow-sm border border-[#e2e3e1]/40">
         <form th:action="@{/equipment}" method="GET"
-              class="flex items-center bg-[#f4f4f2] rounded-full px-4 py-2.5 border border-[#e2e3e1]/20 w-full md:max-w-md">
+              class="flex items-center bg-[#f4f4f2] rounded-full px-4 py-2 border border-[#e2e3e1]/20 w-full md:max-w-md focus-within:ring-2 focus-within:ring-[#553722]/20 transition-all shrink-0">
             <i data-lucide="search" class="w-4 h-4 text-[#50453e] opacity-70 mr-2 shrink-0"></i>
             <input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm kiếm tên thiết bị..."
-                   class="bg-transparent border-none outline-none text-xs text-[#1a1c1b] w-full placeholder:text-[#50453e]/70 focus:ring-0 p-0"/>
+                   class="bg-transparent border-none outline-none text-sm text-[#1a1c1b] w-full placeholder:text-[#50453e]/60 focus:ring-0 p-0"/>
             <button type="submit" class="hidden"></button>
         </form>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-        <div th:each="tb : ${equipments}"
-             class="bg-white rounded-2xl p-4 md:p-5 shadow-sm border border-[#e2e3e1]/40 flex flex-col justify-between space-y-4 hover:shadow-md transition-shadow relative">
-            <div class="flex items-start gap-4">
-                <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl overflow-hidden shrink-0 bg-[#ffdcc6]/30 text-[#553722] flex items-center justify-center border border-[#ffdcc6]/50">
-                    <i data-lucide="monitor" class="w-5 h-5 md:w-6 md:h-6"></i>
-                </div>
-                <div class="min-w-0 flex-1">
-                    <h4 class="text-sm font-bold text-[#1a1c1b] truncate" th:text="${tb.tenThietBi}">Tên thiết bị</h4>
-                    <div class="flex items-center gap-1.5 text-xs text-[#50453e] opacity-80 mt-1">
-                        <i data-lucide="layers" class="w-3 h-3 text-[#553722] shrink-0"></i>
-                        <span class="truncate" th:text="'Số lượng: ' + ${tb.soLuong}">Số lượng</span>
-                    </div>
-                    <div class="flex items-center gap-1.5 text-[11px] text-gray-500 mt-1">
-                        <i data-lucide="banknote" class="w-3 h-3 shrink-0"></i>
-                        <span class="truncate"
-                              th:text="'Đơn giá: ' + (${tb.donGiaMua != null ? #numbers.formatDecimal(tb.donGiaMua, 0, 'COMMA', 0, 'POINT') + ' VNĐ' : 'Chưa cập nhật'})">Đơn giá</span>
-                    </div>
-                </div>
-            </div>
+    <div class="bg-white rounded-2xl shadow-sm border border-[#e2e3e1]/40 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse table-fixed min-w-[1024px]">
+                <thead>
+                <tr class="bg-[#f4f4f2] text-[#50453e] text-[10px] uppercase tracking-wider font-bold border-b border-[#e2e3e1]/60">
+                    <th class="px-4 py-4 text-center w-12 whitespace-nowrap">#</th>
+                    <th class="px-4 py-4 w-72">Tên thiết bị</th>
+                    <th class="px-4 py-4 text-center w-32 whitespace-nowrap">Số lượng</th>
+                    <th class="px-4 py-4 text-right w-40 whitespace-nowrap">Đơn giá (VNĐ)</th>
+                    <th class="px-4 py-4 text-center w-36 whitespace-nowrap">Ngày mua</th>
+                    <th class="px-4 py-4 w-56">Ghi chú</th>
+                    <th class="px-4 py-4 text-center w-32 whitespace-nowrap">Thao tác</th>
+                </tr>
+                </thead>
+                <tbody class="text-sm text-[#1a1c1b] divide-y divide-[#e2e3e1]/40">
+                <tr th:if="${#lists.isEmpty(equipments)}">
+                    <td colspan="7" class="px-4 py-10 text-center text-[#50453e] opacity-70">
+                        <i data-lucide="inbox" class="w-10 h-10 mx-auto mb-3 opacity-50"></i>
+                        <p>Không tìm thấy thiết bị nào phù hợp.</p>
+                    </td>
+                </tr>
 
-            <div class="space-y-1.5 border-t border-[#e2e3e1]/30 pt-3 text-[11px] text-[#50453e]">
-                <div class="flex items-center gap-2">
-                    <i data-lucide="calendar" class="w-3 h-3 text-gray-400 shrink-0"></i>
-                    <span th:text="${tb.ngayMua != null ? 'Ngày mua: ' + #temporals.format(tb.ngayMua, 'dd/MM/yyyy') : 'Ngày mua: Chưa có'}">Ngày mua</span>
-                </div>
-                <div class="flex items-start gap-2">
-                    <i data-lucide="sticky-note" class="w-3 h-3 text-gray-400 shrink-0 mt-0.5"></i>
-                    <span class="line-clamp-2"
-                          th:text="${tb.ghiChu != null and tb.ghiChu != '' ? tb.ghiChu : 'Không có ghi chú'}">Ghi chú</span>
-                </div>
-            </div>
+                <tr th:each="tb, iterStat : ${equipments}"
+                    class="hover:bg-[#f9f9f7]/50 transition-colors group align-top">
+                    <td class="px-4 py-4 text-center text-xs text-gray-400 font-medium whitespace-nowrap"
+                        th:text="${(currentPage - 1) * 10 + iterStat.count}">1
+                    </td>
 
-            <div class="flex items-center justify-end gap-1.5 pt-2 border-t border-[#e2e3e1]/30">
-                <button type="button"
-                        th:data-id="${tb.maThietBi}" th:data-name="${tb.tenThietBi}" th:data-qty="${tb.soLuong}"
-                        th:data-price="${tb.donGiaMua}" th:data-date="${tb.ngayMua}" th:data-note="${tb.ghiChu}"
-                        onclick="openEditModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-qty'), this.getAttribute('data-price'), this.getAttribute('data-date'), this.getAttribute('data-note'))"
-                        class="flex items-center justify-center flex-1 md:flex-none gap-1 px-3 py-2 md:py-1.5 text-[10px] md:text-xs uppercase font-bold tracking-wider text-[#553722] bg-[#ffdcc6]/20 hover:bg-[#ffdcc6]/40 border border-[#ffdcc6]/30 rounded-lg duration-150 transition-all">
-                    <i data-lucide="pen-line" class="w-3 h-3"></i> Sửa
-                </button>
-                <button type="button" th:data-id="${tb.maThietBi}" th:data-name="${tb.tenThietBi}"
-                        onclick="openDeleteModal(this.getAttribute('data-id'), this.getAttribute('data-name'))"
-                        class="p-2 md:p-1.5 text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg duration-150 transition-all block">
-                    <i data-lucide="trash-2" class="w-4 h-4 md:w-3.5 md:h-3.5"></i>
-                </button>
-            </div>
+                    <td class="px-4 py-4">
+                        <div class="flex items-center gap-3 max-w-full">
+                            <div class="w-10 h-10 rounded-xl bg-[#ffdcc6]/30 text-[#553722] flex items-center justify-center shrink-0 border border-[#ffdcc6]/50">
+                                <i data-lucide="monitor" class="w-5 h-5"></i>
+                            </div>
+                            <div class="font-bold text-[#1a1c1b] whitespace-normal break-words leading-tight"
+                                 th:text="${tb.tenThietBi}">Tên thiết bị
+                            </div>
+                        </div>
+                    </td>
+
+                    <td class="px-4 py-4 text-center font-bold text-[#553722]" th:text="${tb.soLuong}">0</td>
+
+                    <td class="px-4 py-4 text-right font-bold text-amber-600 whitespace-nowrap"
+                        th:text="${tb.donGiaMua != null ? #numbers.formatDecimal(tb.donGiaMua, 0, 'COMMA', 0, 'POINT') : '---'}">
+                        0 VNĐ
+                    </td>
+
+                    <td class="px-4 py-4 text-center text-xs text-gray-600 whitespace-nowrap"
+                        th:text="${tb.ngayMua != null ? #temporals.format(tb.ngayMua, 'dd/MM/yyyy') : '---'}">---
+                    </td>
+
+                    <td class="px-4 py-4 text-xs text-gray-600">
+                        <span class="line-clamp-2"
+                              th:text="${tb.ghiChu != null and tb.ghiChu != '' ? tb.ghiChu : '---'}">---</span>
+                    </td>
+
+                    <td class="px-4 py-4 whitespace-nowrap">
+                        <div class="flex items-start justify-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                            <button type="button"
+                                    th:data-id="${tb.maThietBi}" th:data-name="${tb.tenThietBi}"
+                                    th:data-qty="${tb.soLuong}"
+                                    th:data-price="${tb.donGiaMua != null ? #numbers.formatInteger(tb.donGiaMua, 0) : ''}"
+                                    th:data-date="${tb.ngayMua}" th:data-note="${tb.ghiChu}"
+                                    onclick="openEditModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-qty'), this.getAttribute('data-price'), this.getAttribute('data-date'), this.getAttribute('data-note'))"
+                                    class="p-1.5 text-[#553722] hover:bg-[#ffdcc6]/50 rounded-lg transition-colors"
+                                    title="Sửa thiết bị">
+                                <i data-lucide="pen-line" class="w-4 h-4"></i>
+                            </button>
+                            <button type="button" th:data-id="${tb.maThietBi}" th:data-name="${tb.tenThietBi}"
+                                    onclick="openDeleteModal(this.getAttribute('data-id'), this.getAttribute('data-name'))"
+                                    class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-100 rounded-lg transition-colors"
+                                    title="Xóa thiết bị">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
-        <div th:if="${#lists.isEmpty(equipments)}" class="col-span-full py-10 text-center text-gray-500">
-            <i data-lucide="monitor-off" class="w-10 h-10 md:w-12 md:h-12 mx-auto mb-3 opacity-40"></i>
-            <p class="text-xs md:text-sm">Không tìm thấy thiết bị nào.</p>
-        </div>
+    </div>
+
+    <div th:if="${totalPages > 1}"
+         th:with="startPage=${totalPages <= 5 ? 1 : (currentPage <= 3 ? 1 : (currentPage >= totalPages - 2 ? totalPages - 4 : currentPage - 2))},
+                  endPage=${totalPages <= 5 ? totalPages : (currentPage <= 3 ? 5 : (currentPage >= totalPages - 2 ? totalPages : currentPage + 2))}"
+         class="flex justify-center items-center mt-6 gap-1.5 md:gap-2">
+
+        <a th:if="${startPage > 1}"
+           th:href="@{/equipment(page=1, keyword=${param.keyword})}"
+           class="w-8 h-8 flex items-center justify-center rounded-lg border border-[#e2e3e1] bg-white text-[#50453e] hover:bg-[#f4f4f2] text-sm transition-colors shadow-sm">
+            <i data-lucide="chevrons-left" class="w-4 h-4"></i>
+        </a>
+
+        <th:block th:each="i : ${#numbers.sequence(startPage, endPage)}">
+            <a th:href="@{/equipment(page=${i}, keyword=${param.keyword})}"
+               th:text="${i}"
+               th:classappend="${currentPage == i} ? 'bg-[#553722] text-white border-[#553722] shadow-md pointer-events-none' : 'bg-white text-[#50453e] border-[#e2e3e1] hover:bg-[#f4f4f2] shadow-sm'"
+               class="w-8 h-8 flex items-center justify-center rounded-lg border text-xs font-bold transition-colors">
+            </a>
+        </th:block>
+
+        <a th:if="${endPage < totalPages}"
+           th:href="@{/equipment(page=${totalPages}, keyword=${param.keyword})}"
+           class="w-8 h-8 flex items-center justify-center rounded-lg border border-[#e2e3e1] bg-white text-[#50453e] hover:bg-[#f4f4f2] text-sm transition-colors shadow-sm">
+            <i data-lucide="chevrons-right" class="w-4 h-4"></i>
+        </a>
     </div>
 
     <div id="addModal"
          class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm transition-opacity p-4">
         <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-[#e2e3e1]">
             <div class="px-5 py-4 border-b border-[#e2e3e1]/60 flex justify-between items-center bg-[#f9f9f7] shrink-0">
-                <h3 class="text-lg font-bold text-[#1a1c1b]">Thêm thiết bị mới</h3>
+                <h3 class="text-base md:text-lg font-bold text-[#1a1c1b]">Thêm thiết bị mới</h3>
                 <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')"
                         class="text-[#50453e] hover:text-rose-600 transition-colors">
                     <i data-lucide="x" class="w-5 h-5"></i>
@@ -156,14 +216,14 @@
                               class="server-error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"></span>
                     </div>
                 </div>
-                <div class="mt-6 flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t border-[#e2e3e1]/60">
+                <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-[#e2e3e1]/60">
                     <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')"
-                            class="w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm font-bold text-[#50453e] bg-gray-100 hover:bg-gray-200 text-center">
+                            class="px-5 py-2.5 rounded-xl text-sm font-bold text-[#50453e] bg-gray-100 hover:bg-gray-200">
                         Hủy
                     </button>
                     <button type="submit"
-                            class="w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-[#553722] hover:bg-[#6f4e37] shadow-md flex items-center justify-center gap-2">
-                        <i data-lucide="save" class="w-4 h-4"></i> Lưu thiết bị
+                            class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-[#553722] hover:bg-[#6f4e37] shadow-md flex items-center gap-2">
+                        <i data-lucide="save" class="w-4 h-4"></i> Lưu
                     </button>
                 </div>
             </form>
@@ -174,7 +234,7 @@
          class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm transition-opacity p-4">
         <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-[#e2e3e1]">
             <div class="px-5 py-4 border-b border-[#e2e3e1]/60 flex justify-between items-center bg-[#f9f9f7] shrink-0">
-                <h3 class="text-lg font-bold text-[#1a1c1b]">Cập nhật thiết bị</h3>
+                <h3 class="text-base md:text-lg font-bold text-[#1a1c1b]">Cập nhật thiết bị</h3>
                 <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')"
                         class="text-[#50453e] hover:text-rose-600 transition-colors">
                     <i data-lucide="x" class="w-5 h-5"></i>
@@ -237,14 +297,14 @@
                     </div>
                 </div>
 
-                <div class="mt-6 flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t border-[#e2e3e1]/60">
+                <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-[#e2e3e1]/60">
                     <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')"
-                            class="w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm font-bold text-[#50453e] bg-gray-100 hover:bg-gray-200 text-center">
+                            class="px-5 py-2.5 rounded-xl text-sm font-bold text-[#50453e] bg-gray-100 hover:bg-gray-200">
                         Hủy
                     </button>
                     <button type="submit"
-                            class="w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-[#553722] hover:bg-[#6f4e37] shadow-md flex items-center justify-center gap-2">
-                        <i data-lucide="check" class="w-4 h-4"></i> Lưu thay đổi
+                            class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-[#553722] hover:bg-[#6f4e37] shadow-md flex items-center gap-2">
+                        <i data-lucide="check" class="w-4 h-4"></i> Lưu
                     </button>
                 </div>
             </form>
@@ -258,20 +318,18 @@
                 <div class="w-14 h-14 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-4">
                     <i data-lucide="alert-triangle" class="w-7 h-7"></i>
                 </div>
-                <h3 class="text-lg font-bold text-[#1a1c1b] mb-2">Xác nhận xóa thiết bị</h3>
-                <p class="text-sm text-[#50453e] mb-6 leading-relaxed">
-                    Bạn có chắc chắn muốn xóa <strong id="delete_tbName" class="text-rose-600"></strong> khỏi hệ thống?
-                    Thao tác này không thể hoàn tác!
+                <h3 class="text-base md:text-lg font-bold text-[#1a1c1b] mb-2">Xác nhận xóa</h3>
+                <p class="text-xs md:text-sm text-[#50453e] mb-6 leading-relaxed">
+                    Bạn có chắc chắn muốn xóa <strong id="delete_tbName" class="text-rose-600"></strong>?
                 </p>
-                <form th:action="@{/equipment/delete}" method="POST"
-                      class="flex flex-col sm:flex-row justify-center gap-3">
+                <form th:action="@{/equipment/delete}" method="POST" class="flex justify-center gap-3">
                     <input type="hidden" name="maThietBi" id="delete_maThietBi">
                     <button type="button" onclick="document.getElementById('deleteModal').classList.add('hidden')"
-                            class="px-5 py-2.5 rounded-xl text-sm font-bold text-[#50453e] bg-gray-100 hover:bg-gray-200 transition-all flex-1 order-2 sm:order-1">
+                            class="px-5 py-2.5 rounded-xl text-sm font-bold text-[#50453e] bg-gray-100 hover:bg-gray-200 flex-1">
                         Hủy bỏ
                     </button>
                     <button type="submit"
-                            class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 shadow-md transition-all flex-1 order-1 sm:order-2">
+                            class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 shadow-md flex-1">
                         Đồng ý xóa
                     </button>
                 </form>

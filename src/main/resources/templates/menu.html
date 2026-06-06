@@ -74,7 +74,7 @@
                 <tr th:each="mon, iterStat : ${menuItems}"
                     class="hover:bg-[#f9f9f7]/50 transition-colors group align-top">
                     <td class="px-4 py-4 text-center text-xs text-gray-400 font-medium whitespace-nowrap"
-                        th:text="${(currentPage - 1) * 16 + iterStat.count}">1
+                        th:text="${(currentPage - 1) * 10 + iterStat.count}">1
                     </td>
 
                     <td class="px-4 py-4">

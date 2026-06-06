@@ -56,7 +56,7 @@ public class MenuController {
             @RequestParam(required = false, defaultValue = "all") String category,
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "16") int size,
+            @RequestParam(defaultValue = "10") int size,
             Model model) {
 
         // Bổ sung sắp xếp theo tên món không phân biệt in hoa/thường

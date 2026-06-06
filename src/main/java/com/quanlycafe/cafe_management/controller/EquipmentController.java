@@ -5,6 +5,10 @@ import com.quanlycafe.cafe_management.entity.ThietBi;
 import com.quanlycafe.cafe_management.service.EquipmentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -14,18 +18,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.List;
-
 /**
  * EquipmentController
- * * Version 1.1
- * * Date: 29-05-2026
- * * Copyright
- * * Modification Logs:
+ * Version 1.2
+ * Date: 29-05-2026
+ * Copyright
+ * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026 lthoai       Create
  * 30-05-2026 Quản Lý      Add PRG Validation & format convention
+ * 06-06-2026 Quản Lý      Add Pagination & Sorting list
  */
 @Controller
 @RequiredArgsConstructor
@@ -37,24 +40,32 @@ public class EquipmentController {
      * Hiển thị trang quản lý thiết bị
      *
      * @param keyword Từ khóa tìm kiếm
+     * @param page    Trang hiện tại (mặc định 1)
      * @param model   Model
      * @return String
      */
     @GetMapping("/equipment")
     public String showEquipmentManager(
-            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false, defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "1") int page,
             Model model) {
 
-        List<ThietBi> equipments;
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            equipments = equipmentService.searchEquipment(keyword.trim());
+        // Giới hạn 10 record/trang, sắp xếp theo tên tăng dần (không phân biệt hoa/thường)
+        Pageable pageable = PageRequest.of(page - 1, 10, Sort.by(Sort.Order.asc("tenThietBi").ignoreCase()));
+        Page<ThietBi> equipmentPage;
+
+        if (!keyword.trim().isEmpty()) {
+            equipmentPage = equipmentService.searchEquipment(keyword.trim(), pageable);
         } else {
-            equipments = equipmentService.getAllEquipments();
+            equipmentPage = equipmentService.getAllEquipments(pageable);
         }
 
-        model.addAttribute("equipments", equipments);
-        model.addAttribute("activeTab", "equipment");
+        model.addAttribute("equipments", equipmentPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", equipmentPage.getTotalPages());
+        model.addAttribute("totalItems", equipmentPage.getTotalElements());
         model.addAttribute("keyword", keyword);
+        model.addAttribute("activeTab", "equipment");
 
         // Khởi tạo DTO rỗng nếu model chưa có (tránh lỗi khi load trang)
         if (!model.containsAttribute("addForm")) {

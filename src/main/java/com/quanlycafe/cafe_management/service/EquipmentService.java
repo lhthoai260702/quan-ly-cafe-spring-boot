@@ -4,22 +4,24 @@ import com.quanlycafe.cafe_management.dto.EquipmentFormDTO;
 import com.quanlycafe.cafe_management.entity.ThietBi;
 import com.quanlycafe.cafe_management.repository.ThietBiRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 /**
  * EquipmentService
- * * Version 1.1
- * * Date: 29-05-2026
- * * Copyright
- * * Modification Logs:
+ * Version 1.2
+ * Date: 29-05-2026
+ * Copyright
+ * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026 lthoai       Create
  * 30-05-2026 Quản Lý      Apply EquipmentFormDTO & format convention
+ * 06-06-2026 Quản Lý      Apply Pagination and Sorting
  */
 @Service
 @RequiredArgsConstructor
@@ -28,22 +30,24 @@ public class EquipmentService {
     private final ThietBiRepository thietBiRepository;
 
     /**
-     * Lấy tất cả thiết bị
+     * Lấy tất cả thiết bị có phân trang
      *
-     * @return List<ThietBi>
+     * @param pageable Pageable
+     * @return Page<ThietBi>
      */
-    public List<ThietBi> getAllEquipments() {
-        return thietBiRepository.findAll();
+    public Page<ThietBi> getAllEquipments(Pageable pageable) {
+        return thietBiRepository.findAll(pageable);
     }
 
     /**
-     * Tìm kiếm thiết bị theo tên
+     * Tìm kiếm thiết bị theo tên có phân trang
      *
-     * @param keyword String
-     * @return List<ThietBi>
+     * @param keyword  String
+     * @param pageable Pageable
+     * @return Page<ThietBi>
      */
-    public List<ThietBi> searchEquipment(String keyword) {
-        return thietBiRepository.findByTenThietBiContainingIgnoreCase(keyword);
+    public Page<ThietBi> searchEquipment(String keyword, Pageable pageable) {
+        return thietBiRepository.findByTenThietBiContainingIgnoreCase(keyword, pageable);
     }
 
     /**
