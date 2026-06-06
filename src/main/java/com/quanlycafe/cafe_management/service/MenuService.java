@@ -14,15 +14,18 @@ import java.util.List;
 
 /**
  * MenuService
- * * Version 1.2
- * * Date: 30-05-2026
- * * Copyright
- * * Modification Logs:
+ * <p>
+ * Version 1.2
+ * <p>
+ * Date: 30-05-2026
+ * <p>
+ * Copyright
+ * <p>
+ * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lthoai       Create
+ * 29-05-2026 lhthoai      Create
  * 30-05-2026 Quản Lý      Apply MenuFormDTO & format convention
- * 30-05-2026 Quản Lý      Apply Pagination
  */
 @Service
 @RequiredArgsConstructor
@@ -32,8 +35,8 @@ public class MenuService {
 
     /**
      * Lấy tất cả các món (Có phân trang)
+     * * @param pageable
      *
-     * @param pageable Pageable
      * @return Page<ThucDon>
      */
     public Page<ThucDon> getAllMenuItems(Pageable pageable) {
@@ -42,9 +45,9 @@ public class MenuService {
 
     /**
      * Lấy các món theo loại (Có phân trang)
+     * * @param category
      *
-     * @param category String
-     * @param pageable Pageable
+     * @param pageable
      * @return Page<ThucDon>
      */
     public Page<ThucDon> getMenuItemsByCategory(String category, Pageable pageable) {
@@ -55,10 +58,10 @@ public class MenuService {
     }
 
     /**
-     * Tìm kiếm món (Có phân trang)
+     * Tìm kiếm món theo tên (Có phân trang)
+     * * @param keyword
      *
-     * @param keyword  String
-     * @param pageable Pageable
+     * @param pageable
      * @return Page<ThucDon>
      */
     public Page<ThucDon> searchMenuItems(String keyword, Pageable pageable) {
@@ -66,9 +69,8 @@ public class MenuService {
     }
 
     /**
-     * Lấy danh sách loại món
-     *
-     * @return List<String>
+     * Lấy danh sách loại món duy nhất
+     * * @return List<String>
      */
     public List<String> getAllCategories() {
         return thucDonRepository.findDistinctLoaiMon();
@@ -76,8 +78,7 @@ public class MenuService {
 
     /**
      * Tạo món mới
-     *
-     * @param form MenuFormDTO
+     * * @param form
      */
     @Transactional
     public void createMenuItem(MenuFormDTO form) {
@@ -90,9 +91,8 @@ public class MenuService {
     }
 
     /**
-     * Sửa món
-     *
-     * @param form MenuFormDTO
+     * Cập nhật thông tin món
+     * * @param form
      */
     @Transactional
     public void updateMenuItem(MenuFormDTO form) {
@@ -107,9 +107,8 @@ public class MenuService {
     }
 
     /**
-     * Xóa món
-     *
-     * @param maThucDon Integer
+     * Xóa món khỏi CSDL
+     * * @param maThucDon
      */
     @Transactional
     public void deleteMenuItem(Integer maThucDon) {

@@ -11,13 +11,18 @@ import java.util.List;
 
 /**
  * ThucDonRepository
+ * <p>
  * Version 1.1
+ * <p>
  * Date: 30-05-2026
+ * <p>
+ * Copyright
+ * <p>
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lthoai       Create
- * 30-05-2026 Quản Lý      Apply pagination (Pageable)
+ * 29-05-2026 lhthoai      Create
+ * 30-05-2026 lhthoai      Apply pagination (Pageable) and Convention
  */
 @Repository
 public interface ThucDonRepository extends JpaRepository<ThucDon, Integer> {
@@ -25,8 +30,8 @@ public interface ThucDonRepository extends JpaRepository<ThucDon, Integer> {
     /**
      * Lấy danh sách món theo loại (Có phân trang)
      *
-     * @param loaiMon  String
-     * @param pageable Pageable
+     * @param loaiMon
+     * @param pageable
      * @return Page<ThucDon>
      */
     Page<ThucDon> findByLoaiMon(String loaiMon, Pageable pageable);
@@ -34,8 +39,8 @@ public interface ThucDonRepository extends JpaRepository<ThucDon, Integer> {
     /**
      * Tìm món theo tên (Có phân trang)
      *
-     * @param keyword  String
-     * @param pageable Pageable
+     * @param keyword
+     * @param pageable
      * @return Page<ThucDon>
      */
     Page<ThucDon> findByTenMonContainingIgnoreCase(String keyword, Pageable pageable);

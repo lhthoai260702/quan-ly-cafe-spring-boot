@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -21,15 +22,18 @@ import java.util.List;
 
 /**
  * MenuController
- * * Version 1.2
- * * Date: 30-05-2026
- * * Copyright
- * * Modification Logs:
+ * <p>
+ * Version 1.3
+ * <p>
+ * Date: 30-05-2026
+ * <p>
+ * Copyright
+ * <p>
+ * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lthoai       Create
- * 30-05-2026 lthoai      Add PRG Validation & format convention
- * 30-05-2026 lthoai      Add Pagination with page/size logic
+ * 29-05-2026 lhthoai      Create
+ * 30-05-2026 lhthoai      Add Pagination, Sort by name ignore case, Java Convention
  */
 @Controller
 @RequiredArgsConstructor
@@ -38,13 +42,13 @@ public class MenuController {
     private final MenuService menuService;
 
     /**
-     * Hiển thị trang menu
+     * Hiển thị trang quản lý thực đơn (có phân trang, sắp xếp theo tên, hiển thị tổng số lượng)
+     * * @param category
      *
-     * @param category String
-     * @param keyword  String
-     * @param page     int
-     * @param size     int
-     * @param model    Model
+     * @param keyword
+     * @param page
+     * @param size
+     * @param model
      * @return String
      */
     @GetMapping("/menu")
@@ -55,10 +59,10 @@ public class MenuController {
             @RequestParam(defaultValue = "16") int size,
             Model model) {
 
-        Pageable pageable = PageRequest.of(page - 1, size);
+        // Bổ sung sắp xếp theo tên món không phân biệt in hoa/thường
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Order.asc("tenMon").ignoreCase()));
         Page<ThucDon> menuPage;
 
-        // Ưu tiên tìm kiếm bằng từ khóa nếu có
         if (keyword != null && !keyword.trim().isEmpty()) {
             menuPage = menuService.searchMenuItems(keyword.trim(), pageable);
         } else {
@@ -70,13 +74,14 @@ public class MenuController {
         model.addAttribute("menuItems", menuPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", menuPage.getTotalPages());
+        // Bổ sung tổng số lượng record
+        model.addAttribute("totalItems", menuPage.getTotalElements());
 
         model.addAttribute("categories", categories);
         model.addAttribute("currentCategory", category);
         model.addAttribute("keyword", keyword);
         model.addAttribute("activeTab", "menu");
 
-        // Khởi tạo form rỗng nếu chưa có (tránh lỗi khi load trang lần đầu)
         if (!model.containsAttribute("addForm")) {
             model.addAttribute("addForm", new MenuFormDTO());
         }
@@ -88,11 +93,11 @@ public class MenuController {
     }
 
     /**
-     * Thêm món
+     * Thêm món mới vào thực đơn
+     * * @param form
      *
-     * @param form               MenuFormDTO
-     * @param bindingResult      BindingResult
-     * @param redirectAttributes RedirectAttributes
+     * @param bindingResult
+     * @param redirectAttributes
      * @return String
      */
     @PostMapping("/menu/add")
@@ -113,15 +118,16 @@ public class MenuController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMsg", "Lỗi: " + e.getMessage());
         }
+
         return "redirect:/menu";
     }
 
     /**
-     * Sửa món
+     * Cập nhật thông tin món trong thực đơn
+     * * @param form
      *
-     * @param form               MenuFormDTO
-     * @param bindingResult      BindingResult
-     * @param redirectAttributes RedirectAttributes
+     * @param bindingResult
+     * @param redirectAttributes
      * @return String
      */
     @PostMapping("/menu/edit")
@@ -142,24 +148,27 @@ public class MenuController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMsg", "Lỗi: " + e.getMessage());
         }
+
         return "redirect:/menu";
     }
 
     /**
-     * Xóa món
+     * Xóa món khỏi thực đơn
+     * * @param maThucDon
      *
-     * @param maThucDon          Integer
-     * @param redirectAttributes RedirectAttributes
+     * @param redirectAttributes
      * @return String
      */
     @PostMapping("/menu/delete")
-    public String deleteMenuItem(@RequestParam Integer maThucDon, RedirectAttributes redirectAttributes) {
+    public String deleteMenuItem(@RequestParam Integer maThucDon,
+                                 RedirectAttributes redirectAttributes) {
         try {
             menuService.deleteMenuItem(maThucDon);
             redirectAttributes.addFlashAttribute("successMsg", "Đã xóa món khỏi thực đơn!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMsg", "Lỗi: " + e.getMessage());
         }
+
         return "redirect:/menu";
     }
 }
