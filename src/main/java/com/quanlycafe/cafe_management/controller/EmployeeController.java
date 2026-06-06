@@ -3,11 +3,13 @@ package com.quanlycafe.cafe_management.controller;
 import com.quanlycafe.cafe_management.dto.EmployeeFormDTO;
 import com.quanlycafe.cafe_management.dto.UserProfileDTO;
 import com.quanlycafe.cafe_management.service.EmployeeService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -20,14 +22,17 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
  * EmployeeController
- * * Version 1.2
- * * Date: 30-05-2026
+ * * Version 1.4
+ * * Date: 04-06-2026
  * * Copyright
  * * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026 lthoai       Create
- * 30-05-2026 lthoai      Add Pagination
+ * 04-06-2026 Quản Lý      List UI, Sort by name, Total employees
+ * 04-06-2026 Quản Lý      Fix Silent Validation in Edit Form
+ * 04-06-2026 Quản Lý      Standardize Java Convention
+ * 04-06-2026 Quản Lý      Keep filter URL state after Add/Edit/Delete (Referer)
  */
 @Controller
 @RequiredArgsConstructor
@@ -36,7 +41,7 @@ public class EmployeeController {
     private final EmployeeService employeeService;
 
     /**
-     * Hiển thị trang quản lý nhân viên (có phân trang)
+     * Hiển thị trang quản lý nhân viên (có phân trang, sắp xếp theo tên)
      *
      * @param role    String
      * @param keyword String
@@ -50,11 +55,10 @@ public class EmployeeController {
             @RequestParam(required = false) String role,
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "6") int size,
+            @RequestParam(defaultValue = "10") int size,
             Model model) {
 
-        // Spring Pageable đếm từ 0, trong khi UI hiển thị cho người dùng đếm từ 1
-        Pageable pageable = PageRequest.of(page - 1, size);
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Order.asc("hoTen").ignoreCase()));
         Page<UserProfileDTO> employeePage;
 
         if (keyword != null && !keyword.trim().isEmpty()) {
@@ -68,14 +72,14 @@ public class EmployeeController {
         model.addAttribute("employees", employeePage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", employeePage.getTotalPages());
-
+        model.addAttribute("totalEmployees", employeePage.getTotalElements());
         model.addAttribute("activeTab", "employee");
         model.addAttribute("keyword", keyword);
 
-        // Khởi tạo DTO rỗng nếu model chưa có
         if (!model.containsAttribute("addForm")) {
             model.addAttribute("addForm", new EmployeeFormDTO());
         }
+
         if (!model.containsAttribute("editForm")) {
             model.addAttribute("editForm", new EmployeeFormDTO());
         }
@@ -89,27 +93,33 @@ public class EmployeeController {
      * @param form               EmployeeFormDTO
      * @param bindingResult      BindingResult
      * @param redirectAttributes RedirectAttributes
+     * @param request            HttpServletRequest (Để lấy URL gốc)
      * @return String
      */
     @PostMapping("/employees/add")
     public String addEmployee(@Valid @ModelAttribute("addForm") EmployeeFormDTO form,
                               BindingResult bindingResult,
-                              RedirectAttributes redirectAttributes) {
+                              RedirectAttributes redirectAttributes,
+                              HttpServletRequest request) {
 
-        // Kiểm tra thủ công tên đăng nhập và mật khẩu (vì chỉ bắt buộc khi thêm)
+        // Lấy URL hiện tại trước khi submit form (VD: /employees?role=phache)
+        String referer = request.getHeader("Referer");
+        String redirectUrl = referer != null ? referer : "/employees";
+
         if (form.getTenDangNhap() == null || form.getTenDangNhap().trim().isEmpty()) {
             bindingResult.addError(new FieldError("addForm", "tenDangNhap", "Tên đăng nhập không được để trống"));
         }
+
         if (form.getMatKhau() == null || form.getMatKhau().length() < 6) {
             bindingResult.addError(new FieldError("addForm", "matKhau", "Mật khẩu phải từ 6 ký tự trở lên"));
         }
 
         if (bindingResult.hasErrors()) {
-            // Giữ lại form có lỗi và bật cờ để HTML tự động mở lại Modal Thêm
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.addForm", bindingResult);
             redirectAttributes.addFlashAttribute("addForm", form);
             redirectAttributes.addFlashAttribute("hasAddError", true);
-            return "redirect:/employees";
+
+            return "redirect:" + redirectUrl;
         }
 
         try {
@@ -118,7 +128,8 @@ public class EmployeeController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMsg", "Lỗi: " + e.getMessage());
         }
-        return "redirect:/employees";
+
+        return "redirect:" + redirectUrl;
     }
 
     /**
@@ -127,19 +138,34 @@ public class EmployeeController {
      * @param form               EmployeeFormDTO
      * @param bindingResult      BindingResult
      * @param redirectAttributes RedirectAttributes
+     * @param request            HttpServletRequest
      * @return String
      */
     @PostMapping("/employees/edit")
     public String editEmployee(@Valid @ModelAttribute("editForm") EmployeeFormDTO form,
                                BindingResult bindingResult,
-                               RedirectAttributes redirectAttributes) {
+                               RedirectAttributes redirectAttributes,
+                               HttpServletRequest request) {
 
+        String referer = request.getHeader("Referer");
+        String redirectUrl = referer != null ? referer : "/employees";
+
+        boolean hasRealErrors = false;
         if (bindingResult.hasErrors()) {
-            // Giữ lại form có lỗi và bật cờ để HTML tự động mở lại Modal Sửa
+            for (FieldError error : bindingResult.getFieldErrors()) {
+                if (!error.getField().equals("tenDangNhap") && !error.getField().equals("matKhau")) {
+                    hasRealErrors = true;
+                    break;
+                }
+            }
+        }
+
+        if (hasRealErrors) {
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.editForm", bindingResult);
             redirectAttributes.addFlashAttribute("editForm", form);
             redirectAttributes.addFlashAttribute("hasEditError", true);
-            return "redirect:/employees";
+
+            return "redirect:" + redirectUrl;
         }
 
         try {
@@ -148,23 +174,33 @@ public class EmployeeController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMsg", "Lỗi: " + e.getMessage());
         }
-        return "redirect:/employees";
+
+        return "redirect:" + redirectUrl;
     }
 
     /**
      * Xóa nhân viên
      *
-     * @param maNhanVien Integer
+     * @param maNhanVien         Integer
+     * @param redirectAttributes RedirectAttributes
+     * @param request            HttpServletRequest
      * @return String
      */
     @PostMapping("/employees/delete")
-    public String deleteEmployee(@RequestParam Integer maNhanVien, RedirectAttributes redirectAttributes) {
+    public String deleteEmployee(@RequestParam Integer maNhanVien,
+                                 RedirectAttributes redirectAttributes,
+                                 HttpServletRequest request) {
+
+        String referer = request.getHeader("Referer");
+        String redirectUrl = referer != null ? referer : "/employees";
+
         try {
             employeeService.deleteEmployee(maNhanVien);
             redirectAttributes.addFlashAttribute("successMsg", "Đã xóa nhân viên thành công!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMsg", "Lỗi: " + e.getMessage());
         }
-        return "redirect:/employees";
+
+        return "redirect:" + redirectUrl;
     }
 }

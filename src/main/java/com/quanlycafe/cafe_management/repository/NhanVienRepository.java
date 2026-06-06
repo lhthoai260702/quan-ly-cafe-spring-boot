@@ -10,13 +10,15 @@ import java.util.Optional;
 
 /**
  * NhanVienRepository
- * Version 1.2
- * Date: 30-05-2026
- * Modification Logs:
+ * * Version 1.2
+ * * Date: 04-06-2026
+ * * Copyright
+ * * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026 lthoai       Create
  * 30-05-2026 Quản Lý      Apply Pagination (Pageable)
+ * 04-06-2026 Quản Lý      Standardize Java Convention
  */
 @Repository
 public interface NhanVienRepository extends JpaRepository<NhanVien, Integer> {

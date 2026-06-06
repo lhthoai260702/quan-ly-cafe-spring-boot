@@ -17,15 +17,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * EmployeeService
- * * Version 1.1
- * * Date: 29-05-2026
+ * * Version 1.2
+ * * Date: 04-06-2026
  * * Copyright
  * * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026 lthoai       Create
- * 30-05-2026 lthoai      Format convention, apply EmployeeFormDTO
- * 30-05-2026 lthoai      apply pagination (Pageable)
+ * 30-05-2026 lthoai       Format convention, apply EmployeeFormDTO
+ * 30-05-2026 lthoai       Apply pagination (Pageable)
+ * 04-06-2026 Quản Lý      Standardize Java Convention
  */
 @Service
 @RequiredArgsConstructor
@@ -44,6 +45,7 @@ public class EmployeeService {
      */
     public Page<UserProfileDTO> getAllEmployees(Pageable pageable) {
         Page<NhanVien> pageNhanVien = nhanVienRepository.findAll(pageable);
+
         return pageNhanVien.map(this::mapToDTO);
     }
 
@@ -72,6 +74,7 @@ public class EmployeeService {
         }
 
         Page<NhanVien> pageNhanVien = nhanVienRepository.findByChucVu_TenChucVuContainingIgnoreCase(keyword, pageable);
+
         return pageNhanVien.map(this::mapToDTO);
     }
 
@@ -85,6 +88,7 @@ public class EmployeeService {
     public Page<UserProfileDTO> searchEmployees(String keyword, Pageable pageable) {
         Page<NhanVien> pageNhanVien = nhanVienRepository
                 .findByHoTenContainingIgnoreCaseOrTaiKhoan_TenDangNhapContainingIgnoreCase(keyword, keyword, pageable);
+
         return pageNhanVien.map(this::mapToDTO);
     }
 
@@ -95,21 +99,17 @@ public class EmployeeService {
      */
     @Transactional
     public void createEmployee(EmployeeFormDTO form) {
-        // 1. Tạo tài khoản trước
         TaiKhoan tk = new TaiKhoan();
-        // Đưa tên đăng nhập về chữ thường để tránh lỗi phân biệt hoa/thường khi đăng nhập
         tk.setTenDangNhap(form.getTenDangNhap().toLowerCase());
         tk.setMatKhau(passwordEncoder.encode(form.getMatKhau()));
         tk.setAnh("user.png");
-
         tk.setQuyenHan(form.getMaChucVu() == 1 ? 1 : 2);
+
         taiKhoanRepository.save(tk);
 
-        // 2. Lấy chức vụ từ DB
         ChucVu cv = chucVuRepository.findById(form.getMaChucVu())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy chức vụ"));
 
-        // 3. Tạo nhân viên và liên kết khóa ngoại
         NhanVien nv = new NhanVien();
         nv.setHoTen(form.getHoTen());
         nv.setSoDienThoai(form.getSoDienThoai());
@@ -145,6 +145,7 @@ public class EmployeeService {
                 taiKhoanRepository.save(tk);
             }
         }
+
         nhanVienRepository.save(nv);
     }
 
@@ -190,6 +191,7 @@ public class EmployeeService {
             dto.setQuyenHan(nv.getTaiKhoan().getQuyenHan());
             dto.setAnh(nv.getTaiKhoan().getAnh());
         }
+
         return dto;
     }
 }

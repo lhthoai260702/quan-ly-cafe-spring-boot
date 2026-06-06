@@ -7,13 +7,20 @@
 <body>
 <main class="flex-1 p-4 md:p-8 overflow-y-auto bg-[#f9f9f7]">
 
-    <div th:if="${successMsg}" class="mb-4 p-3 bg-green-100 text-green-700 rounded-lg text-sm"
+    <div th:if="${successMsg}"
+         class="mb-4 p-3 bg-green-100 text-green-700 rounded-lg text-sm font-medium flex items-center gap-2"
          th:text="${successMsg}"></div>
-    <div th:if="${errorMsg}" class="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm" th:text="${errorMsg}"></div>
+    <div th:if="${errorMsg}"
+         class="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm font-medium flex items-center gap-2"
+         th:text="${errorMsg}"></div>
 
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 md:mb-8 gap-4">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4">
         <div>
-            <h2 class="text-2xl font-bold text-[#1a1c1b] font-sans">Quản lý nhân viên</h2>
+            <div class="flex items-center gap-3">
+                <h2 class="text-2xl font-bold text-[#1a1c1b] font-sans">Quản lý nhân viên</h2>
+                <span class="bg-[#ffdcc6] text-[#553722] text-xs font-bold px-2.5 py-1 rounded-full shadow-sm"
+                      th:text="${totalEmployees != null ? totalEmployees : 0} + ' nhân sự'">0 nhân sự</span>
+            </div>
             <p class="text-sm text-[#50453e] opacity-80 mt-1">Quản lý sơ lược hồ sơ làm việc, chức vụ và thông tin liên
                 lạc.</p>
         </div>
@@ -24,7 +31,7 @@
         </button>
     </div>
 
-    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 bg-white p-4 rounded-2xl shadow-sm border border-[#e2e3e1]/30">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 bg-white p-4 rounded-2xl shadow-sm border border-[#e2e3e1]/40">
         <div class="flex gap-1.5 overflow-x-auto pb-2 lg:pb-0 w-full lg:w-auto scrollbar-hide shrink-0">
             <a th:href="@{/employees}"
                th:classappend="${param.role == null || #strings.isEmpty(param.role)} ? 'bg-[#553722] text-white' : 'bg-[#f4f4f2] text-[#50453e] hover:bg-[#e8e8e6]'"
@@ -42,62 +49,102 @@
         </div>
 
         <form th:action="@{/employees}" method="GET"
-              class="flex items-center bg-[#f4f4f2] rounded-full px-4 py-2.5 border border-[#e2e3e1]/20 w-full lg:max-w-md">
+              class="flex items-center bg-[#f4f4f2] rounded-full px-4 py-2 border border-[#e2e3e1]/20 w-full lg:max-w-md focus-within:ring-2 focus-within:ring-[#553722]/20 transition-all">
             <i data-lucide="search" class="w-4 h-4 text-[#50453e] opacity-70 mr-2 shrink-0"></i>
             <input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm kiếm theo họ tên, username..."
-                   class="bg-transparent border-none outline-none text-xs text-[#1a1c1b] w-full placeholder:text-[#50453e]/70 focus:ring-0 p-0"/>
+                   class="bg-transparent border-none outline-none text-sm text-[#1a1c1b] w-full placeholder:text-[#50453e]/60 focus:ring-0 p-0"/>
             <button type="submit" class="hidden"></button>
         </form>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
-        <div th:each="emp : ${employees}"
-             class="bg-white rounded-2xl p-4 md:p-5 shadow-sm border border-[#e2e3e1]/40 flex flex-col justify-between space-y-4 hover:shadow-md transition-shadow relative">
-            <div class="flex items-start gap-4">
-                <div class="w-12 h-12 rounded-full overflow-hidden shrink-0 bg-slate-100 border border-slate-100">
-                    <img th:src="@{'/images/' + ${emp.anh}}" alt="Avatar" class="w-full h-full object-cover"
-                         onerror="this.src='/images/user.png'"/>
-                </div>
-                <div class="min-w-0 flex-1">
-                    <h4 class="text-sm font-bold text-[#1a1c1b] truncate" th:text="${emp.hoTen}">Tên nhân viên</h4>
-                    <div class="flex items-center gap-1.5 text-xs text-[#50453e] opacity-80 mt-0.5">
-                        <i data-lucide="shield" class="w-3 h-3 text-[#553722] shrink-0"></i>
-                        <span class="truncate"
-                              th:text="${emp.tenChucVu} + ' (u: ' + ${emp.tenDangNhap} + ')'">Chức vụ</span>
-                    </div>
-                    <div class="flex items-center gap-1.5 text-[11px] text-gray-500 mt-0.5">
-                        <i data-lucide="wallet" class="w-3 h-3 shrink-0"></i>
-                        <span th:text="'Lương: ' + ${emp.luong != null ? #numbers.formatDecimal(emp.luong, 0, 'COMMA', 0, 'POINT') : '0'} + ' VNĐ'">Lương</span>
-                    </div>
-                </div>
-            </div>
+    <div class="bg-white rounded-2xl shadow-sm border border-[#e2e3e1]/40 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse table-fixed min-w-[1024px]">
+                <thead>
+                <tr class="bg-[#f4f4f2] text-[#50453e] text-[10px] uppercase tracking-wider font-bold border-b border-[#e2e3e1]/60">
+                    <th class="px-4 py-4 text-center w-12 whitespace-nowrap">#</th>
+                    <th class="px-4 py-4 w-60">Hồ sơ nhân viên</th>
+                    <th class="px-4 py-4 w-36 whitespace-nowrap">Liên hệ</th>
+                    <th class="px-4 py-4">Địa chỉ</th>
+                    <th class="px-4 py-4 text-center w-36 whitespace-nowrap">Chức vụ</th>
+                    <th class="px-4 py-4 text-right w-40 whitespace-nowrap">Lương cơ bản</th>
+                    <th class="px-4 py-4 text-center w-28 whitespace-nowrap">Thao tác</th>
+                </tr>
+                </thead>
+                <tbody class="text-sm text-[#1a1c1b] divide-y divide-[#e2e3e1]/40">
+                <tr th:if="${#lists.isEmpty(employees)}">
+                    <td colspan="7" class="px-4 py-10 text-center text-[#50453e] opacity-70">
+                        <i data-lucide="users" class="w-10 h-10 mx-auto mb-3 opacity-50"></i>
+                        <p>Không tìm thấy dữ liệu nhân viên nào.</p>
+                    </td>
+                </tr>
 
-            <div class="space-y-1.5 border-t border-[#e2e3e1]/30 pt-3 text-[11px] text-[#50453e]">
-                <div class="flex items-center gap-2">
-                    <i data-lucide="phone" class="w-3 h-3 text-gray-400 shrink-0"></i>
-                    <span th:text="${emp.soDienThoai}">Số điện thoại</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <i data-lucide="map-pin" class="w-3 h-3 text-gray-400 shrink-0"></i>
-                    <span class="truncate" th:text="${emp.diaChi}">Địa chỉ</span>
-                </div>
-            </div>
+                <tr th:each="emp, iterStat : ${employees}"
+                    class="hover:bg-[#f9f9f7]/50 transition-colors group align-top">
+                    <td class="px-4 py-4 text-center text-xs text-gray-400 font-medium whitespace-nowrap"
+                        th:text="${(currentPage - 1) * 10 + iterStat.count}">1
+                    </td>
 
-            <div class="flex items-center justify-end gap-1.5 pt-2 border-t border-[#e2e3e1]/30">
-                <button type="button" th:data-id="${emp.maNhanVien}" th:data-name="${emp.hoTen}"
-                        th:data-phone="${emp.soDienThoai}" th:data-address="${emp.diaChi}"
-                        th:data-role="${emp.maChucVu}"
-                        onclick="openEditModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-phone'), this.getAttribute('data-address'), this.getAttribute('data-role'))"
-                        class="flex items-center justify-center flex-1 md:flex-none gap-1 px-3 py-2 md:py-1.5 text-[10px] md:text-xs uppercase font-bold tracking-wider text-[#553722] bg-[#ffdcc6]/20 hover:bg-[#ffdcc6]/40 border border-[#ffdcc6]/30 rounded-lg duration-150 transition-all">
-                    <i data-lucide="pen-line" class="w-3 h-3"></i> Sửa hồ sơ
-                </button>
+                    <td class="px-4 py-4">
+                        <div class="flex items-start gap-3 max-w-full">
+                            <div class="w-9 h-9 rounded-full overflow-hidden bg-slate-100 border border-slate-200 shrink-0 mt-0.5">
+                                <img th:src="@{'/images/' + ${emp.anh}}" alt="Avatar" class="w-full h-full object-cover"
+                                     onerror="this.src='/images/user.png'"/>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <div class="font-bold text-[#1a1c1b] whitespace-normal break-all leading-tight"
+                                     th:text="${emp.hoTen}">Tên
+                                </div>
+                                <div class="text-[11px] text-gray-500 font-medium whitespace-normal break-all mt-1 leading-tight"
+                                     th:text="'@' + ${emp.tenDangNhap}">Username
+                                </div>
+                            </div>
+                        </div>
+                    </td>
 
-                <button type="button" th:data-id="${emp.maNhanVien}" th:data-name="${emp.hoTen}"
-                        onclick="openDeleteModal(this.getAttribute('data-id'), this.getAttribute('data-name'))"
-                        class="p-2 md:p-1.5 text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg duration-150 transition-all block">
-                    <i data-lucide="trash-2" class="w-4 h-4 md:w-3.5 md:h-3.5"></i>
-                </button>
-            </div>
+                    <td class="px-4 py-4 text-[#50453e] whitespace-nowrap">
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="phone" class="w-3.5 h-3.5 text-gray-400 shrink-0"></i>
+                            <span th:text="${emp.soDienThoai}">SĐT</span>
+                        </div>
+                    </td>
+
+                    <td class="px-4 py-4 text-[#50453e]">
+                        <div class="whitespace-normal break-all leading-relaxed" th:text="${emp.diaChi}">Địa chỉ</div>
+                    </td>
+
+                    <td class="px-4 py-4 text-center">
+                            <span th:classappend="${emp.maChucVu == 1 ? 'bg-amber-100 text-amber-700 border-amber-200' : (emp.maChucVu == 2 ? 'bg-blue-100 text-blue-700 border-blue-200' : 'bg-emerald-100 text-emerald-700 border-emerald-200')}"
+                                  class="inline-block px-2.5 py-1 text-[10px] uppercase tracking-wider font-bold rounded-md border whitespace-normal break-words leading-relaxed max-w-full"
+                                  th:text="${emp.tenChucVu}">Chức vụ</span>
+                    </td>
+
+                    <td class="px-4 py-4 text-right font-medium text-[#50453e] whitespace-nowrap"
+                        th:text="${emp.luong != null ? #numbers.formatDecimal(emp.luong, 0, 'COMMA', 0, 'POINT') + ' đ' : '0 đ'}">
+                        0 đ
+                    </td>
+
+                    <td class="px-4 py-4 whitespace-nowrap">
+                        <div class="flex items-start justify-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                            <button type="button" th:data-id="${emp.maNhanVien}" th:data-name="${emp.hoTen}"
+                                    th:data-phone="${emp.soDienThoai}" th:data-address="${emp.diaChi}"
+                                    th:data-role="${emp.maChucVu}"
+                                    onclick="openEditModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-phone'), this.getAttribute('data-address'), this.getAttribute('data-role'))"
+                                    class="p-1.5 text-[#553722] hover:bg-[#ffdcc6]/50 rounded-lg transition-colors"
+                                    title="Sửa hồ sơ">
+                                <i data-lucide="pen-line" class="w-4 h-4"></i>
+                            </button>
+                            <button type="button" th:data-id="${emp.maNhanVien}" th:data-name="${emp.hoTen}"
+                                    onclick="openDeleteModal(this.getAttribute('data-id'), this.getAttribute('data-name'))"
+                                    class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-100 rounded-lg transition-colors"
+                                    title="Xóa hồ sơ">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
@@ -105,7 +152,7 @@
          th:with="
             startPage=${totalPages <= 5 ? 1 : (currentPage <= 3 ? 1 : (currentPage >= totalPages - 2 ? totalPages - 4 : currentPage - 2))},
             endPage=${totalPages <= 5 ? totalPages : (currentPage <= 3 ? 5 : (currentPage >= totalPages - 2 ? totalPages : currentPage + 2))}"
-         class="flex justify-center items-center mt-8 gap-1.5 md:gap-2">
+         class="flex justify-center items-center mt-6 gap-1.5 md:gap-2">
 
         <a th:if="${startPage > 1}"
            th:href="@{/employees(page=1, role=${param.role}, keyword=${param.keyword})}"
@@ -171,17 +218,15 @@
                         <div>
                             <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Tên
                                 đăng nhập *</label>
-                            <input type="text" th:field="*{tenDangNhap}" required
-                                   pattern="^[a-zA-Z0-9_]+$"
-                                   title="Tên đăng nhập phải viết liền không dấu, không khoảng trắng (chỉ gồm chữ cái, số hoặc dấu gạch dưới)"
+                            <input type="text" th:field="*{tenDangNhap}" required pattern="^[a-zA-Z0-9_]+$"
+                                   title="Tên đăng nhập phải viết liền không dấu (chỉ gồm chữ cái, số, gạch dưới)"
                                    class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Mật
                                 khẩu *</label>
-                            <input type="password" th:field="*{matKhau}" required minlength="6"
-                                   pattern="^[\x20-\x7E]+$"
-                                   title="Mật khẩu phải từ 6 ký tự trở lên và không được chứa ký tự tiếng Việt có dấu"
+                            <input type="password" th:field="*{matKhau}" required minlength="6" pattern="^[\x20-\x7E]+$"
+                                   title="Mật khẩu phải từ 6 ký tự trở lên"
                                    class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
                         </div>
                     </div>
@@ -220,22 +265,24 @@
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
-            <form th:action="@{/employees/edit}" th:object="${editForm}" method="POST"
+            <form th:action="@{/employees/edit}" method="POST"
                   class="p-5 overflow-y-auto custom-validate-form" novalidate>
-                <input type="hidden" th:field="*{maNhanVien}" id="edit_maNhanVien">
+                <input type="hidden" name="maNhanVien" id="edit_maNhanVien" th:value="${editForm?.maNhanVien}">
                 <div class="space-y-4">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Họ và
                                 tên *</label>
-                            <input type="text" th:field="*{hoTen}" id="edit_hoTen" required minlength="2"
+                            <input type="text" name="hoTen" id="edit_hoTen" th:value="${editForm?.hoTen}" required
+                                   minlength="2"
                                    title="Vui lòng nhập họ và tên (ít nhất 2 ký tự)"
                                    class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Số
                                 điện thoại *</label>
-                            <input type="text" th:field="*{soDienThoai}" id="edit_soDienThoai" required
+                            <input type="text" name="soDienThoai" id="edit_soDienThoai"
+                                   th:value="${editForm?.soDienThoai}" required
                                    pattern="^0[35789]\d{8}$"
                                    title="Vui lòng nhập đúng 10 số (bắt đầu bằng 03, 05, 07, 08, 09)"
                                    class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
@@ -244,22 +291,22 @@
                     <div>
                         <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Địa chỉ
                             *</label>
-                        <input type="text" th:field="*{diaChi}" id="edit_diaChi" required
+                        <input type="text" name="diaChi" id="edit_diaChi" th:value="${editForm?.diaChi}" required
                                title="Vui lòng nhập địa chỉ liên hệ"
                                class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Chức
                             vụ</label>
-                        <select th:field="*{maChucVu}" id="edit_maChucVu" required
+                        <select name="maChucVu" id="edit_maChucVu" required
                                 class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722]">
-                            <option value="1">Quản Lý</option>
-                            <option value="2">Phục Vụ</option>
-                            <option value="3">Pha Chế</option>
+                            <option value="1" th:selected="${editForm?.maChucVu == 1}">Quản Lý</option>
+                            <option value="2" th:selected="${editForm?.maChucVu == 2}">Phục Vụ</option>
+                            <option value="3" th:selected="${editForm?.maChucVu == 3}">Pha Chế</option>
                         </select>
                     </div>
                 </div>
-                <div class="mt-6 flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t border-[#e2e3e1]/60">
+                <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-[#e2e3e1]/60">
                     <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')"
                             class="px-5 py-2.5 rounded-xl text-sm font-bold text-[#50453e] bg-gray-100 hover:bg-gray-200">
                         Hủy
@@ -282,19 +329,17 @@
                 </div>
                 <h3 class="text-lg font-bold text-[#1a1c1b] mb-2">Xác nhận xóa hồ sơ</h3>
                 <p class="text-sm text-[#50453e] mb-6 leading-relaxed">
-                    Bạn có chắc chắn muốn xóa hồ sơ và tài khoản của nhân viên <strong id="delete_empName"
-                                                                                       class="text-rose-600"></strong>
-                    không? Thao tác này không thể hoàn tác!
+                    Bạn có chắc chắn muốn xóa hồ sơ của <strong id="delete_empName" class="text-rose-600"></strong>
+                    không?
                 </p>
-                <form th:action="@{/employees/delete}" method="POST"
-                      class="flex flex-col sm:flex-row justify-center gap-3">
+                <form th:action="@{/employees/delete}" method="POST" class="flex justify-center gap-3">
                     <input type="hidden" name="maNhanVien" id="delete_maNhanVien">
                     <button type="button" onclick="document.getElementById('deleteModal').classList.add('hidden')"
-                            class="px-5 py-2.5 rounded-xl text-sm font-bold text-[#50453e] bg-gray-100 hover:bg-gray-200 transition-all flex-1 order-2 sm:order-1">
+                            class="px-5 py-2.5 rounded-xl text-sm font-bold text-[#50453e] bg-gray-100 hover:bg-gray-200 transition-all flex-1">
                         Hủy bỏ
                     </button>
                     <button type="submit"
-                            class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 shadow-md transition-all flex-1 order-1 sm:order-2">
+                            class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 shadow-md transition-all flex-1">
                         Đồng ý xóa
                     </button>
                 </form>
@@ -315,6 +360,17 @@
         }
         /*]]>*/
 
+        // Hàm click để chuyển đổi đóng/mở chuỗi viết liền dài
+        function toggleText(element) {
+            if (element.classList.contains('truncate')) {
+                element.classList.remove('truncate');
+                element.classList.add('whitespace-normal', 'break-all');
+            } else {
+                element.classList.add('truncate');
+                element.classList.remove('whitespace-normal', 'break-all');
+            }
+        }
+
         function openEditModal(id, name, phone, address, roleId) {
             document.getElementById('edit_maNhanVien').value = id;
             document.getElementById('edit_hoTen').value = name;
@@ -330,7 +386,6 @@
             document.getElementById('deleteModal').classList.remove('hidden');
         }
 
-        // TỰ VẼ LẠI THÔNG BÁO LỖI UI BẰNG JAVASCRIPT & TAILWIND (Thay thế bong bóng trình duyệt)
         document.addEventListener("DOMContentLoaded", function () {
             const forms = document.querySelectorAll(".custom-validate-form");
             forms.forEach(form => {
@@ -339,39 +394,31 @@
                     const inputs = form.querySelectorAll("input, select");
 
                     inputs.forEach(input => {
-                        // 1. Dọn dẹp lỗi cũ mỗi khi bấm submit lại
                         let existingError = input.parentElement.querySelector(".error-msg");
                         if (existingError) existingError.remove();
                         input.classList.remove("border-rose-500", "bg-rose-50");
 
-                        // 2. Kiểm tra lỗi
                         if (!input.validity.valid) {
                             isValid = false;
-
-                            // Đổi màu viền và nền ô nhập liệu thành màu đỏ
                             input.classList.remove("border-transparent");
                             input.classList.add("border-rose-500", "bg-rose-50");
 
-                            // Lấy thông báo từ thuộc tính title hoặc báo lỗi mặc định
                             let errorText = input.getAttribute("title") || "Vui lòng nhập trường này hợp lệ.";
                             if (input.validity.valueMissing) {
                                 errorText = "Trường này không được để trống.";
                             }
 
-                            // Chèn câu thông báo lỗi bằng giao diện Tailwind ngay dưới ô input
                             let errorHtml = `<span class="error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"><i data-lucide="info" class="w-3 h-3"></i> ${errorText}</span>`;
                             input.insertAdjacentHTML("afterend", errorHtml);
                         }
                     });
 
-                    // 3. Nếu form có lỗi thì chặn không cho gửi dữ liệu
                     if (!isValid) {
                         e.preventDefault();
-                        if(typeof lucide !== 'undefined') lucide.createIcons(); // Load lại icon cho câu báo lỗi
+                        if(typeof lucide !== 'undefined') lucide.createIcons();
                     }
                 });
 
-                // 4. Xóa câu báo lỗi màu đỏ đi ngay khi người dùng bắt đầu gõ lại
                 form.querySelectorAll("input, select").forEach(input => {
                     input.addEventListener("input", function () {
                         let existingError = input.parentElement.querySelector(".error-msg");
