@@ -37,6 +37,10 @@
                th:classappend="${param.role == null || #strings.isEmpty(param.role)} ? 'bg-[#553722] text-white' : 'bg-[#f4f4f2] text-[#50453e] hover:bg-[#e8e8e6]'"
                class="px-4 py-2 rounded-full text-xs font-bold shrink-0 transition-all block text-center">Tất cả vị
                 trí</a>
+            <a th:href="@{/employees(role='giamdoc')}"
+               th:classappend="${#strings.equals(param.role, 'giamdoc')} ? 'bg-[#553722] text-white' : 'bg-[#f4f4f2] text-[#50453e] hover:bg-[#e8e8e6]'"
+               class="px-4 py-2 rounded-full text-xs font-bold shrink-0 transition-all block text-center">Giám Đốc</a>
+
             <a th:href="@{/employees(role='quanly')}"
                th:classappend="${#strings.equals(param.role, 'quanly')} ? 'bg-[#553722] text-white' : 'bg-[#f4f4f2] text-[#50453e] hover:bg-[#e8e8e6]'"
                class="px-4 py-2 rounded-full text-xs font-bold shrink-0 transition-all block text-center">Quản Lý</a>
@@ -114,7 +118,7 @@
                     </td>
 
                     <td class="px-4 py-4 text-center">
-                            <span th:classappend="${emp.maChucVu == 1 ? 'bg-amber-100 text-amber-700 border-amber-200' : (emp.maChucVu == 2 ? 'bg-blue-100 text-blue-700 border-blue-200' : 'bg-emerald-100 text-emerald-700 border-emerald-200')}"
+                            <span th:classappend="${#strings.containsIgnoreCase(emp.tenChucVu, 'Giám Đốc') ? 'bg-purple-100 text-purple-700 border-purple-200' : (#strings.containsIgnoreCase(emp.tenChucVu, 'Quản Lý') ? 'bg-amber-100 text-amber-700 border-amber-200' : (#strings.containsIgnoreCase(emp.tenChucVu, 'Phục Vụ') ? 'bg-blue-100 text-blue-700 border-blue-200' : 'bg-emerald-100 text-emerald-700 border-emerald-200'))}"
                                   class="inline-block px-2.5 py-1 text-[10px] uppercase tracking-wider font-bold rounded-md border whitespace-normal break-words leading-relaxed max-w-full"
                                   th:text="${emp.tenChucVu}">Chức vụ</span>
                     </td>

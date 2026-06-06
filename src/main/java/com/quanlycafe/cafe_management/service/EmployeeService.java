@@ -15,18 +15,19 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * EmployeeService
- * * Version 1.2
+ * * Version 1.4
  * * Date: 04-06-2026
  * * Copyright
  * * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026 lthoai       Create
- * 30-05-2026 lthoai       Format convention, apply EmployeeFormDTO
- * 30-05-2026 lthoai       Apply pagination (Pageable)
- * 04-06-2026 Quản Lý      Standardize Java Convention
+ * 04-06-2026 lthoai      Standardize Java Convention & Dynamic Roles
+ * 04-06-2026 lthoai      Add Director Role & Update Permission Logic
  */
 @Service
 @RequiredArgsConstructor
@@ -38,19 +39,27 @@ public class EmployeeService {
     private final PasswordEncoder passwordEncoder;
 
     /**
-     * Hiển thị tất cả nhân viên (có phân trang)
+     * Lấy danh sách tất cả chức vụ từ Database để đổ ra dropdown
+     *
+     * @return List<ChucVu>
+     */
+    public List<ChucVu> getAllChucVu() {
+        return chucVuRepository.findAll();
+    }
+
+    /**
+     * Lấy danh sách tất cả nhân viên có phân trang
      *
      * @param pageable Pageable
      * @return Page<UserProfileDTO>
      */
     public Page<UserProfileDTO> getAllEmployees(Pageable pageable) {
         Page<NhanVien> pageNhanVien = nhanVienRepository.findAll(pageable);
-
         return pageNhanVien.map(this::mapToDTO);
     }
 
     /**
-     * Lọc nhân viên theo chức vụ (có phân trang)
+     * Lọc nhân viên theo chức vụ (Cập nhật 4 loại)
      *
      * @param roleType String
      * @param pageable Pageable
@@ -60,6 +69,9 @@ public class EmployeeService {
         String keyword = "";
 
         switch (roleType) {
+            case "giamdoc":
+                keyword = "Giám Đốc";
+                break;
             case "quanly":
                 keyword = "Quản Lý";
                 break;
@@ -74,12 +86,11 @@ public class EmployeeService {
         }
 
         Page<NhanVien> pageNhanVien = nhanVienRepository.findByChucVu_TenChucVuContainingIgnoreCase(keyword, pageable);
-
         return pageNhanVien.map(this::mapToDTO);
     }
 
     /**
-     * Tìm kiếm nhân viên (có phân trang)
+     * Tìm kiếm nhân viên theo từ khóa (họ tên hoặc tên đăng nhập)
      *
      * @param keyword  String
      * @param pageable Pageable
@@ -88,27 +99,30 @@ public class EmployeeService {
     public Page<UserProfileDTO> searchEmployees(String keyword, Pageable pageable) {
         Page<NhanVien> pageNhanVien = nhanVienRepository
                 .findByHoTenContainingIgnoreCaseOrTaiKhoan_TenDangNhapContainingIgnoreCase(keyword, keyword, pageable);
-
         return pageNhanVien.map(this::mapToDTO);
     }
 
     /**
-     * Thêm nhân viên
+     * Thêm mới nhân viên và tài khoản
      *
      * @param form EmployeeFormDTO
      */
     @Transactional
     public void createEmployee(EmployeeFormDTO form) {
+        ChucVu cv = chucVuRepository.findById(form.getMaChucVu())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy chức vụ"));
+
         TaiKhoan tk = new TaiKhoan();
         tk.setTenDangNhap(form.getTenDangNhap().toLowerCase());
         tk.setMatKhau(passwordEncoder.encode(form.getMatKhau()));
         tk.setAnh("user.png");
-        tk.setQuyenHan(form.getMaChucVu() == 1 ? 1 : 2);
+
+        // Nếu tên chức vụ chứa chữ "Giám đốc" hoặc "Quản lý" thì cấp quyền Admin (1)
+        boolean isAdmin = cv.getTenChucVu().toLowerCase().contains("giám đốc") ||
+                cv.getTenChucVu().toLowerCase().contains("quản lý");
+        tk.setQuyenHan(isAdmin ? 1 : 2);
 
         taiKhoanRepository.save(tk);
-
-        ChucVu cv = chucVuRepository.findById(form.getMaChucVu())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy chức vụ"));
 
         NhanVien nv = new NhanVien();
         nv.setHoTen(form.getHoTen());
@@ -141,7 +155,10 @@ public class EmployeeService {
 
             TaiKhoan tk = nv.getTaiKhoan();
             if (tk != null) {
-                tk.setQuyenHan(form.getMaChucVu() == 1 ? 1 : 2);
+                // Cập nhật lại quyền nếu lỡ đổi chức vụ
+                boolean isAdmin = cv.getTenChucVu().toLowerCase().contains("giám đốc") ||
+                        cv.getTenChucVu().toLowerCase().contains("quản lý");
+                tk.setQuyenHan(isAdmin ? 1 : 2);
                 taiKhoanRepository.save(tk);
             }
         }
@@ -150,7 +167,7 @@ public class EmployeeService {
     }
 
     /**
-     * Xoá nhân viên
+     * Xóa nhân viên và tài khoản liên kết
      *
      * @param maNhanVien Integer
      */
@@ -168,7 +185,7 @@ public class EmployeeService {
     }
 
     /**
-     * Chuyển đổi Entity sang DTO
+     * Chuyển đổi dữ liệu Entity sang DTO
      *
      * @param nv NhanVien
      * @return UserProfileDTO
