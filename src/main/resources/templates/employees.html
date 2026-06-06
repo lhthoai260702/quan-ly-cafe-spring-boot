@@ -239,9 +239,10 @@
                             vụ</label>
                         <select th:field="*{maChucVu}" required
                                 class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722]">
-                            <option value="1">Quản Lý</option>
-                            <option value="2">Phục Vụ</option>
-                            <option value="3">Pha Chế</option>
+                            <option value="" disabled selected>-- Chọn chức vụ --</option>
+                            <option th:each="r : ${listRoles}"
+                                    th:value="${r.maChucVu}"
+                                    th:text="${r.tenChucVu}"></option>
                         </select>
                     </div>
                 </div>
@@ -304,9 +305,10 @@
                             vụ</label>
                         <select name="maChucVu" id="edit_maChucVu" required
                                 class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722]">
-                            <option value="1" th:selected="${editForm?.maChucVu == 1}">Quản Lý</option>
-                            <option value="2" th:selected="${editForm?.maChucVu == 2}">Phục Vụ</option>
-                            <option value="3" th:selected="${editForm?.maChucVu == 3}">Pha Chế</option>
+                            <option value="" disabled>-- Chọn chức vụ --</option>
+                            <option th:each="r : ${listRoles}"
+                                    th:value="${r.maChucVu}"
+                                    th:text="${r.tenChucVu}"></option>
                         </select>
                     </div>
                 </div>
@@ -364,7 +366,6 @@
         }
         /*]]>*/
 
-        // Hàm click để chuyển đổi đóng/mở chuỗi viết liền dài
         function toggleText(element) {
             if (element.classList.contains('truncate')) {
                 element.classList.remove('truncate');
@@ -380,7 +381,20 @@
             document.getElementById('edit_hoTen').value = name;
             document.getElementById('edit_soDienThoai').value = phone;
             document.getElementById('edit_diaChi').value = address;
-            document.getElementById('edit_maChucVu').value = roleId;
+
+            let roleSelect = document.getElementById('edit_maChucVu');
+            if(roleId) {
+                let roleVal = roleId.toString().trim();
+                let optionExists = Array.from(roleSelect.options).some(opt => opt.value === roleVal);
+
+                if(optionExists) {
+                    roleSelect.value = roleVal;
+                } else {
+                    console.warn("Không tìm thấy Option cho mã chức vụ: " + roleVal);
+                    roleSelect.value = "";
+                }
+            }
+
             document.getElementById('editModal').classList.remove('hidden');
         }
 

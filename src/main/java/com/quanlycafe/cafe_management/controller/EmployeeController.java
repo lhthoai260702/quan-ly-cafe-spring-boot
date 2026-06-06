@@ -22,17 +22,17 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
  * EmployeeController
- * * Version 1.4
- * * Date: 04-06-2026
- * * Copyright
- * * Modification Logs:
+ * <p>
+ * Version 1.0
+ * <p>
+ * Date: 06-06-2026
+ * <p>
+ * Copyright
+ * <p>
+ * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lthoai       Create
- * 04-06-2026 Quản Lý      List UI, Sort by name, Total employees
- * 04-06-2026 Quản Lý      Fix Silent Validation in Edit Form
- * 04-06-2026 Quản Lý      Standardize Java Convention
- * 04-06-2026 Quản Lý      Keep filter URL state after Add/Edit/Delete (Referer)
+ * 06-06-2026 lhthoai      Create and update logic
  */
 @Controller
 @RequiredArgsConstructor
@@ -42,12 +42,12 @@ public class EmployeeController {
 
     /**
      * Hiển thị trang quản lý nhân viên (có phân trang, sắp xếp theo tên)
+     * * @param role
      *
-     * @param role    String
-     * @param keyword String
-     * @param page    int
-     * @param size    int
-     * @param model   Model
+     * @param keyword
+     * @param page
+     * @param size
+     * @param model
      * @return String
      */
     @GetMapping("/employees")
@@ -76,6 +76,9 @@ public class EmployeeController {
         model.addAttribute("activeTab", "employee");
         model.addAttribute("keyword", keyword);
 
+        // ĐÂY LÀ DÒNG CODE QUAN TRỌNG ĐƯỢC THÊM VÀO ĐỂ LẤY DANH SÁCH CHỨC VỤ TỪ DB
+        model.addAttribute("listRoles", employeeService.getAllChucVu());
+
         if (!model.containsAttribute("addForm")) {
             model.addAttribute("addForm", new EmployeeFormDTO());
         }
@@ -89,11 +92,11 @@ public class EmployeeController {
 
     /**
      * Thêm nhân viên
+     * * @param form
      *
-     * @param form               EmployeeFormDTO
-     * @param bindingResult      BindingResult
-     * @param redirectAttributes RedirectAttributes
-     * @param request            HttpServletRequest (Để lấy URL gốc)
+     * @param bindingResult
+     * @param redirectAttributes
+     * @param request
      * @return String
      */
     @PostMapping("/employees/add")
@@ -102,7 +105,6 @@ public class EmployeeController {
                               RedirectAttributes redirectAttributes,
                               HttpServletRequest request) {
 
-        // Lấy URL hiện tại trước khi submit form (VD: /employees?role=phache)
         String referer = request.getHeader("Referer");
         String redirectUrl = referer != null ? referer : "/employees";
 
@@ -134,11 +136,11 @@ public class EmployeeController {
 
     /**
      * Sửa nhân viên
+     * * @param form
      *
-     * @param form               EmployeeFormDTO
-     * @param bindingResult      BindingResult
-     * @param redirectAttributes RedirectAttributes
-     * @param request            HttpServletRequest
+     * @param bindingResult
+     * @param redirectAttributes
+     * @param request
      * @return String
      */
     @PostMapping("/employees/edit")
@@ -180,10 +182,10 @@ public class EmployeeController {
 
     /**
      * Xóa nhân viên
+     * * @param maNhanVien
      *
-     * @param maNhanVien         Integer
-     * @param redirectAttributes RedirectAttributes
-     * @param request            HttpServletRequest
+     * @param redirectAttributes
+     * @param request
      * @return String
      */
     @PostMapping("/employees/delete")
