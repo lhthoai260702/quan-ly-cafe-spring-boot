@@ -5,7 +5,7 @@
     <title>Quản lý thiết bị</title>
 </head>
 <body>
-<main class="flex-1 p-4 md:p-8 overflow-y-auto bg-[#f9f9f7]">
+<main class="flex-1 p-4 md:p-8 overflow-y-auto overflow-x-hidden bg-[#f9f9f7]">
 
     <div th:if="${successMsg}"
          class="mb-4 p-3 bg-green-100 text-green-700 rounded-lg text-sm font-medium flex items-center gap-2"
@@ -21,37 +21,54 @@
                 <span class="bg-[#ffdcc6] text-[#553722] text-xs font-bold px-2.5 py-1 rounded-full shadow-sm"
                       th:text="${totalItems != null ? totalItems : 0} + ' thiết bị'">0 thiết bị</span>
             </div>
-            <p class="text-sm text-[#50453e] opacity-80 mt-1">Quản lý số lượng, tình trạng và giá trị thiết bị của
-                quán.</p>
+            <p class="text-sm text-[#50453e] opacity-80 mt-1">Quản lý tình trạng và giá trị thiết bị của quán.</p>
         </div>
-        <button onclick="document.getElementById('addModal').classList.remove('hidden')"
+        <button onclick="openAddModal()"
                 class="w-full md:w-auto justify-center flex items-center gap-2 bg-[#553722] hover:bg-[#6f4e37] text-white px-5 py-2.5 rounded-xl text-sm font-semibold uppercase tracking-wider transition-all duration-200 shadow-md">
             <i data-lucide="plus-circle" class="w-4 h-4"></i> Thêm thiết bị mới
         </button>
     </div>
 
-    <div class="flex flex-col md:flex-row md:items-center justify-end gap-4 mb-6 bg-white p-4 rounded-2xl shadow-sm border border-[#e2e3e1]/40">
+    <div class="flex flex-col lg:flex-row lg:items-start justify-between gap-4 mb-6 bg-white p-4 rounded-2xl shadow-sm border border-[#e2e3e1]/40">
+        <div class="flex flex-wrap gap-2 w-full lg:flex-1">
+            <a th:href="@{/equipment(status='Tất cả', keyword=${keyword})}"
+               th:classappend="${status == 'Tất cả' or status == null} ? 'bg-[#553722] text-white' : 'bg-[#f4f4f2] text-[#50453e] hover:bg-[#e8e8e6]'"
+               class="px-4 py-2 rounded-full text-xs font-bold transition-all block text-center">Tất cả</a>
+
+            <a th:href="@{/equipment(status='Hoạt động tốt', keyword=${keyword})}"
+               th:classappend="${status == 'Hoạt động tốt'} ? 'bg-[#553722] text-white' : 'bg-[#f4f4f2] text-[#50453e] hover:bg-[#e8e8e6]'"
+               class="px-4 py-2 rounded-full text-xs font-bold transition-all block text-center">Hoạt động tốt</a>
+
+            <a th:href="@{/equipment(status='Đang sửa', keyword=${keyword})}"
+               th:classappend="${status == 'Đang sửa'} ? 'bg-[#553722] text-white' : 'bg-[#f4f4f2] text-[#50453e] hover:bg-[#e8e8e6]'"
+               class="px-4 py-2 rounded-full text-xs font-bold transition-all block text-center">Đang sửa</a>
+
+            <a th:href="@{/equipment(status='Hỏng', keyword=${keyword})}"
+               th:classappend="${status == 'Hỏng'} ? 'bg-[#553722] text-white' : 'bg-[#f4f4f2] text-[#50453e] hover:bg-[#e8e8e6]'"
+               class="px-4 py-2 rounded-full text-xs font-bold transition-all block text-center">Hỏng</a>
+        </div>
+
         <form th:action="@{/equipment}" method="GET"
-              class="flex items-center bg-[#f4f4f2] rounded-full px-4 py-2 border border-[#e2e3e1]/20 w-full md:max-w-md focus-within:ring-2 focus-within:ring-[#553722]/20 transition-all shrink-0">
+              class="flex items-center bg-[#f4f4f2] rounded-full px-4 py-2 border border-[#e2e3e1]/20 w-full lg:max-w-md focus-within:ring-2 focus-within:ring-[#553722]/20 transition-all shrink-0">
             <i data-lucide="search" class="w-4 h-4 text-[#50453e] opacity-70 mr-2 shrink-0"></i>
+            <input type="hidden" name="status" th:value="${status}">
             <input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm kiếm tên thiết bị..."
                    class="bg-transparent border-none outline-none text-sm text-[#1a1c1b] w-full placeholder:text-[#50453e]/60 focus:ring-0 p-0"/>
-            <button type="submit" class="hidden"></button>
         </form>
     </div>
 
     <div class="bg-white rounded-2xl shadow-sm border border-[#e2e3e1]/40 overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse table-fixed min-w-[1024px]">
+            <table class="w-full text-left border-collapse table-fixed min-w-[800px]">
                 <thead>
                 <tr class="bg-[#f4f4f2] text-[#50453e] text-[10px] uppercase tracking-wider font-bold border-b border-[#e2e3e1]/60">
-                    <th class="px-4 py-4 text-center w-12 whitespace-nowrap">#</th>
-                    <th class="px-4 py-4 w-72">Tên thiết bị</th>
-                    <th class="px-4 py-4 text-center w-32 whitespace-nowrap">Số lượng</th>
-                    <th class="px-4 py-4 text-right w-40 whitespace-nowrap">Đơn giá (VNĐ)</th>
-                    <th class="px-4 py-4 text-center w-36 whitespace-nowrap">Ngày mua</th>
-                    <th class="px-4 py-4 w-56">Ghi chú</th>
-                    <th class="px-4 py-4 text-center w-32 whitespace-nowrap">Thao tác</th>
+                    <th class="px-4 py-4 text-center w-[5%] whitespace-nowrap">#</th>
+                    <th class="px-4 py-4 w-[25%]">Tên thiết bị</th>
+                    <th class="px-4 py-4 text-center w-[15%] whitespace-nowrap">Tình trạng</th>
+                    <th class="px-4 py-4 text-right w-[15%] whitespace-nowrap">Đơn giá (VNĐ)</th>
+                    <th class="px-4 py-4 text-center w-[12%] whitespace-nowrap">Ngày mua</th>
+                    <th class="px-4 py-4 w-[18%]">Ghi chú</th>
+                    <th class="px-4 py-4 text-center w-[10%] whitespace-nowrap">Thao tác</th>
                 </tr>
                 </thead>
                 <tbody class="text-sm text-[#1a1c1b] divide-y divide-[#e2e3e1]/40">
@@ -73,13 +90,22 @@
                             <div class="w-10 h-10 rounded-xl bg-[#ffdcc6]/30 text-[#553722] flex items-center justify-center shrink-0 border border-[#ffdcc6]/50">
                                 <i data-lucide="monitor" class="w-5 h-5"></i>
                             </div>
-                            <div class="font-bold text-[#1a1c1b] whitespace-normal break-words leading-tight"
-                                 th:text="${tb.tenThietBi}">Tên thiết bị
+                            <div class="flex-1 min-w-0">
+                                <div class="font-bold text-[#1a1c1b] whitespace-normal break-words leading-tight"
+                                     th:text="${tb.tenThietBi}">Tên thiết bị
+                                </div>
                             </div>
                         </div>
                     </td>
 
-                    <td class="px-4 py-4 text-center font-bold text-[#553722]" th:text="${tb.soLuong}">0</td>
+                    <td class="px-4 py-4 text-center">
+                        <span th:if="${tb.tinhTrang == 'Hoạt động tốt'}"
+                              class="px-2.5 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">Hoạt động tốt</span>
+                        <span th:if="${tb.tinhTrang == 'Đang sửa'}"
+                              class="px-2.5 py-1 rounded-full text-xs font-bold bg-yellow-100 text-yellow-700">Đang sửa</span>
+                        <span th:if="${tb.tinhTrang == 'Hỏng'}"
+                              class="px-2.5 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-700">Hỏng</span>
+                    </td>
 
                     <td class="px-4 py-4 text-right font-bold text-amber-600 whitespace-nowrap"
                         th:text="${tb.donGiaMua != null ? #numbers.formatDecimal(tb.donGiaMua, 0, 'COMMA', 0, 'POINT') : '---'}">
@@ -91,18 +117,20 @@
                     </td>
 
                     <td class="px-4 py-4 text-xs text-gray-600">
-                        <span class="line-clamp-2"
-                              th:text="${tb.ghiChu != null and tb.ghiChu != '' ? tb.ghiChu : '---'}">---</span>
+                        <div class="break-words whitespace-normal line-clamp-2 cursor-help"
+                             th:title="${tb.ghiChu != null and tb.ghiChu != '' ? tb.ghiChu : 'Không có ghi chú'}"
+                             th:text="${tb.ghiChu != null and tb.ghiChu != '' ? tb.ghiChu : '---'}">---
+                        </div>
                     </td>
 
                     <td class="px-4 py-4 whitespace-nowrap">
                         <div class="flex items-start justify-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
                             <button type="button"
                                     th:data-id="${tb.maThietBi}" th:data-name="${tb.tenThietBi}"
-                                    th:data-qty="${tb.soLuong}"
+                                    th:data-status="${tb.tinhTrang}"
                                     th:data-price="${tb.donGiaMua != null ? #numbers.formatInteger(tb.donGiaMua, 0) : ''}"
                                     th:data-date="${tb.ngayMua}" th:data-note="${tb.ghiChu}"
-                                    onclick="openEditModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-qty'), this.getAttribute('data-price'), this.getAttribute('data-date'), this.getAttribute('data-note'))"
+                                    onclick="openEditModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-status'), this.getAttribute('data-price'), this.getAttribute('data-date'), this.getAttribute('data-note'))"
                                     class="p-1.5 text-[#553722] hover:bg-[#ffdcc6]/50 rounded-lg transition-colors"
                                     title="Sửa thiết bị">
                                 <i data-lucide="pen-line" class="w-4 h-4"></i>
@@ -127,13 +155,13 @@
          class="flex justify-center items-center mt-6 gap-1.5 md:gap-2">
 
         <a th:if="${startPage > 1}"
-           th:href="@{/equipment(page=1, keyword=${param.keyword})}"
+           th:href="@{/equipment(page=1, keyword=${param.keyword}, status=${param.status})}"
            class="w-8 h-8 flex items-center justify-center rounded-lg border border-[#e2e3e1] bg-white text-[#50453e] hover:bg-[#f4f4f2] text-sm transition-colors shadow-sm">
             <i data-lucide="chevrons-left" class="w-4 h-4"></i>
         </a>
 
         <th:block th:each="i : ${#numbers.sequence(startPage, endPage)}">
-            <a th:href="@{/equipment(page=${i}, keyword=${param.keyword})}"
+            <a th:href="@{/equipment(page=${i}, keyword=${param.keyword}, status=${param.status})}"
                th:text="${i}"
                th:classappend="${currentPage == i} ? 'bg-[#553722] text-white border-[#553722] shadow-md pointer-events-none' : 'bg-white text-[#50453e] border-[#e2e3e1] hover:bg-[#f4f4f2] shadow-sm'"
                class="w-8 h-8 flex items-center justify-center rounded-lg border text-xs font-bold transition-colors">
@@ -141,7 +169,7 @@
         </th:block>
 
         <a th:if="${endPage < totalPages}"
-           th:href="@{/equipment(page=${totalPages}, keyword=${param.keyword})}"
+           th:href="@{/equipment(page=${totalPages}, keyword=${param.keyword}, status=${param.status})}"
            class="w-8 h-8 flex items-center justify-center rounded-lg border border-[#e2e3e1] bg-white text-[#50453e] hover:bg-[#f4f4f2] text-sm transition-colors shadow-sm">
             <i data-lucide="chevrons-right" class="w-4 h-4"></i>
         </a>
@@ -149,7 +177,7 @@
 
     <div id="addModal"
          class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm transition-opacity p-4">
-        <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-[#e2e3e1]">
+        <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-[#e2e3e1]">
             <div class="px-5 py-4 border-b border-[#e2e3e1]/60 flex justify-between items-center bg-[#f9f9f7] shrink-0">
                 <h3 class="text-base md:text-lg font-bold text-[#1a1c1b]">Thêm thiết bị mới</h3>
                 <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')"
@@ -160,70 +188,58 @@
 
             <form th:action="@{/equipment/add}" th:object="${addForm}" method="POST"
                   class="p-5 overflow-y-auto custom-validate-form" novalidate>
-                <div class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Tên thiết
-                            bị *</label>
-                        <input type="text" th:field="*{tenThietBi}" required
-                               title="Vui lòng không để trống tên thiết bị"
-                               th:classappend="${#fields.hasErrors('tenThietBi')} ? 'border-rose-500 bg-rose-50' : 'border-[#e2e3e1]'"
-                               class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] transition-all"
+                        <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">
+                            Tên thiết bị <span class="text-rose-500">*</span>
+                        </label>
+                        <input type="text" th:field="*{tenThietBi}" required maxlength="100"
+                               class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] focus:ring-4 focus:ring-[#553722]/10 transition-all"
                                placeholder="VD: Máy tính tiền POS">
-                        <span th:if="${#fields.hasErrors('tenThietBi')}" th:errors="*{tenThietBi}"
-                              class="server-error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"></span>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Số
-                                lượng *</label>
-                            <input type="number" th:field="*{soLuong}" min="0" required
-                                   title="Vui lòng nhập số lượng (không âm)"
-                                   th:classappend="${#fields.hasErrors('soLuong')} ? 'border-rose-500 bg-rose-50' : 'border-[#e2e3e1]'"
-                                   class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] transition-all"
-                                   placeholder="1">
-                            <span th:if="${#fields.hasErrors('soLuong')}" th:errors="*{soLuong}"
-                                  class="server-error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"></span>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Ngày
-                                mua</label>
-                            <input type="date" th:field="*{ngayMua}" title="Vui lòng chọn ngày hợp lệ"
-                                   th:classappend="${#fields.hasErrors('ngayMua')} ? 'border-rose-500 bg-rose-50' : 'border-[#e2e3e1]'"
-                                   class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] transition-all">
-                            <span th:if="${#fields.hasErrors('ngayMua')}" th:errors="*{ngayMua}"
-                                  class="server-error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"></span>
-                        </div>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Đơn giá
-                            mua (VNĐ)</label>
-                        <input type="number" th:field="*{donGiaMua}" min="0" step="1000"
-                               title="Đơn giá không được là số âm"
-                               th:classappend="${#fields.hasErrors('donGiaMua')} ? 'border-rose-500 bg-rose-50' : 'border-[#e2e3e1]'"
-                               class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] transition-all"
-                               placeholder="VD: 5000000">
-                        <span th:if="${#fields.hasErrors('donGiaMua')}" th:errors="*{donGiaMua}"
-                              class="server-error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"></span>
+                        <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">
+                            Tình trạng <span class="text-rose-500">*</span>
+                        </label>
+                        <select th:field="*{tinhTrang}" required
+                                class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] focus:ring-4 focus:ring-[#553722]/10 transition-all">
+                            <option value="Hoạt động tốt">Hoạt động tốt</option>
+                            <option value="Đang sửa">Đang sửa</option>
+                            <option value="Hỏng">Hỏng</option>
+                        </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Ghi
-                            chú</label>
-                        <textarea th:field="*{ghiChu}" rows="3" title="Nhập ghi chú (nếu có)"
-                                  th:classappend="${#fields.hasErrors('ghiChu')} ? 'border-rose-500 bg-rose-50' : 'border-[#e2e3e1]'"
-                                  class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] transition-all"
-                                  placeholder="Tình trạng, vị trí đặt..."></textarea>
-                        <span th:if="${#fields.hasErrors('ghiChu')}" th:errors="*{ghiChu}"
-                              class="server-error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"></span>
+                        <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">
+                            Ngày mua <span class="text-rose-500">*</span>
+                        </label>
+                        <input type="date" th:field="*{ngayMua}" id="add_ngayMua" required
+                               class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] focus:ring-4 focus:ring-[#553722]/10 transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">
+                            Đơn giá mua (VNĐ) <span class="text-rose-500">*</span>
+                        </label>
+                        <input type="text" id="add_donGia_display" required maxlength="15"
+                               oninput="formatCurrency(this, 'add_donGiaMua')"
+                               class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] focus:ring-4 focus:ring-[#553722]/10 transition-all"
+                               placeholder="VD: 5,000,000">
+                        <input type="hidden" th:field="*{donGiaMua}" id="add_donGiaMua">
                     </div>
                 </div>
-                <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-[#e2e3e1]/60">
+
+                <div class="mt-4">
+                    <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Ghi
+                        chú</label>
+                    <textarea th:field="*{ghiChu}" rows="3"
+                              class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] focus:ring-4 focus:ring-[#553722]/10 transition-all"
+                              placeholder="Vị trí đặt, thông tin bảo hành..."></textarea>
+                </div>
+
+                <div class="mt-6 pt-4 flex justify-end gap-3 border-t border-[#e2e3e1]/60">
                     <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')"
-                            class="px-5 py-2.5 rounded-xl text-sm font-bold text-[#50453e] bg-gray-100 hover:bg-gray-200">
-                        Hủy
+                            class="px-5 py-2.5 rounded-xl text-sm font-bold bg-gray-100">Hủy
                     </button>
-                    <button type="submit"
-                            class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-[#553722] hover:bg-[#6f4e37] shadow-md flex items-center gap-2">
-                        <i data-lucide="save" class="w-4 h-4"></i> Lưu
+                    <button type="submit" class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-[#553722]">Lưu
                     </button>
                 </div>
             </form>
@@ -232,7 +248,7 @@
 
     <div id="editModal"
          class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm transition-opacity p-4">
-        <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-[#e2e3e1]">
+        <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-[#e2e3e1]">
             <div class="px-5 py-4 border-b border-[#e2e3e1]/60 flex justify-between items-center bg-[#f9f9f7] shrink-0">
                 <h3 class="text-base md:text-lg font-bold text-[#1a1c1b]">Cập nhật thiết bị</h3>
                 <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')"
@@ -244,67 +260,55 @@
             <form th:action="@{/equipment/edit}" th:object="${editForm}" method="POST"
                   class="p-5 overflow-y-auto custom-validate-form" novalidate>
                 <input type="hidden" th:field="*{maThietBi}" id="edit_maThietBi">
-                <div class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Tên thiết
-                            bị *</label>
-                        <input type="text" th:field="*{tenThietBi}" id="edit_tenThietBi" required
-                               title="Vui lòng không để trống tên thiết bị"
-                               th:classappend="${#fields.hasErrors('tenThietBi')} ? 'border-rose-500 bg-rose-50' : 'border-[#e2e3e1]'"
-                               class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] transition-all">
-                        <span th:if="${#fields.hasErrors('tenThietBi')}" th:errors="*{tenThietBi}"
-                              class="server-error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"></span>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Số
-                                lượng *</label>
-                            <input type="number" th:field="*{soLuong}" id="edit_soLuong" min="0" required
-                                   title="Vui lòng nhập số lượng (không âm)"
-                                   th:classappend="${#fields.hasErrors('soLuong')} ? 'border-rose-500 bg-rose-50' : 'border-[#e2e3e1]'"
-                                   class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] transition-all">
-                            <span th:if="${#fields.hasErrors('soLuong')}" th:errors="*{soLuong}"
-                                  class="server-error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"></span>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Ngày
-                                mua</label>
-                            <input type="date" th:field="*{ngayMua}" id="edit_ngayMua" title="Vui lòng chọn ngày hợp lệ"
-                                   th:classappend="${#fields.hasErrors('ngayMua')} ? 'border-rose-500 bg-rose-50' : 'border-[#e2e3e1]'"
-                                   class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] transition-all">
-                            <span th:if="${#fields.hasErrors('ngayMua')}" th:errors="*{ngayMua}"
-                                  class="server-error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"></span>
-                        </div>
+                        <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">
+                            Tên thiết bị <span class="text-rose-500">*</span>
+                        </label>
+                        <input type="text" th:field="*{tenThietBi}" id="edit_tenThietBi" required maxlength="100"
+                               class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] focus:ring-4 focus:ring-[#553722]/10 transition-all">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Đơn giá
-                            mua (VNĐ)</label>
-                        <input type="number" th:field="*{donGiaMua}" id="edit_donGiaMua" min="0" step="1000"
-                               title="Đơn giá không được là số âm"
-                               th:classappend="${#fields.hasErrors('donGiaMua')} ? 'border-rose-500 bg-rose-50' : 'border-[#e2e3e1]'"
-                               class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] transition-all">
-                        <span th:if="${#fields.hasErrors('donGiaMua')}" th:errors="*{donGiaMua}"
-                              class="server-error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"></span>
+                        <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">
+                            Tình trạng <span class="text-rose-500">*</span>
+                        </label>
+                        <select th:field="*{tinhTrang}" id="edit_tinhTrang" required
+                                class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] focus:ring-4 focus:ring-[#553722]/10 transition-all">
+                            <option value="Hoạt động tốt">Hoạt động tốt</option>
+                            <option value="Đang sửa">Đang sửa</option>
+                            <option value="Hỏng">Hỏng</option>
+                        </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Ghi
-                            chú</label>
-                        <textarea th:field="*{ghiChu}" id="edit_ghiChu" rows="3" title="Nhập ghi chú (nếu có)"
-                                  th:classappend="${#fields.hasErrors('ghiChu')} ? 'border-rose-500 bg-rose-50' : 'border-[#e2e3e1]'"
-                                  class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] transition-all"></textarea>
-                        <span th:if="${#fields.hasErrors('ghiChu')}" th:errors="*{ghiChu}"
-                              class="server-error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"></span>
+                        <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">
+                            Ngày mua <span class="text-rose-500">*</span>
+                        </label>
+                        <input type="date" th:field="*{ngayMua}" id="edit_ngayMua" required
+                               class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] focus:ring-4 focus:ring-[#553722]/10 transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">
+                            Đơn giá mua (VNĐ) <span class="text-rose-500">*</span>
+                        </label>
+                        <input type="text" id="edit_donGia_display" required maxlength="15"
+                               oninput="formatCurrency(this, 'edit_donGiaMua')"
+                               class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] focus:ring-4 focus:ring-[#553722]/10 transition-all">
+                        <input type="hidden" th:field="*{donGiaMua}" id="edit_donGiaMua">
                     </div>
                 </div>
 
-                <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-[#e2e3e1]/60">
+                <div class="mt-4">
+                    <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Ghi
+                        chú</label>
+                    <textarea th:field="*{ghiChu}" id="edit_ghiChu" rows="3"
+                              class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] focus:ring-4 focus:ring-[#553722]/10 transition-all"></textarea>
+                </div>
+
+                <div class="mt-6 pt-4 flex justify-end gap-3 border-t border-[#e2e3e1]/60">
                     <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')"
-                            class="px-5 py-2.5 rounded-xl text-sm font-bold text-[#50453e] bg-gray-100 hover:bg-gray-200">
-                        Hủy
+                            class="px-5 py-2.5 rounded-xl text-sm font-bold bg-gray-100">Hủy
                     </button>
-                    <button type="submit"
-                            class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-[#553722] hover:bg-[#6f4e37] shadow-md flex items-center gap-2">
-                        <i data-lucide="check" class="w-4 h-4"></i> Lưu
+                    <button type="submit" class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-[#553722]">Lưu
                     </button>
                 </div>
             </form>
@@ -313,27 +317,17 @@
 
     <div id="deleteModal"
          class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm transition-opacity p-4">
-        <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden border border-[#e2e3e1]">
-            <div class="p-6 text-center">
-                <div class="w-14 h-14 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-4">
-                    <i data-lucide="alert-triangle" class="w-7 h-7"></i>
-                </div>
-                <h3 class="text-base md:text-lg font-bold text-[#1a1c1b] mb-2">Xác nhận xóa</h3>
-                <p class="text-xs md:text-sm text-[#50453e] mb-6 leading-relaxed">
-                    Bạn có chắc chắn muốn xóa <strong id="delete_tbName" class="text-rose-600"></strong>?
-                </p>
-                <form th:action="@{/equipment/delete}" method="POST" class="flex justify-center gap-3">
-                    <input type="hidden" name="maThietBi" id="delete_maThietBi">
-                    <button type="button" onclick="document.getElementById('deleteModal').classList.add('hidden')"
-                            class="px-5 py-2.5 rounded-xl text-sm font-bold text-[#50453e] bg-gray-100 hover:bg-gray-200 flex-1">
-                        Hủy bỏ
-                    </button>
-                    <button type="submit"
-                            class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 shadow-md flex-1">
-                        Đồng ý xóa
-                    </button>
-                </form>
-            </div>
+        <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden p-6 text-center">
+            <h3 class="font-bold text-lg mb-2">Xác nhận xóa</h3>
+            <p class="text-sm mb-4">Bạn có chắc chắn muốn xóa <strong id="delete_tbName" class="text-rose-600"></strong>?
+            </p>
+            <form th:action="@{/equipment/delete}" method="POST" class="flex justify-center gap-3">
+                <input type="hidden" name="maThietBi" id="delete_maThietBi">
+                <button type="button" onclick="document.getElementById('deleteModal').classList.add('hidden')"
+                        class="px-4 py-2 bg-gray-100 rounded-lg">Hủy
+                </button>
+                <button type="submit" class="px-4 py-2 bg-rose-600 text-white rounded-lg">Đồng ý</button>
+            </form>
         </div>
     </div>
 
@@ -350,11 +344,54 @@
         }
         /*]]>*/
 
-        function openEditModal(id, name, qty, price, date, note) {
+        // Hàm format tiền tệ (Loại bỏ chữ, thêm dấu phẩy)
+        function formatCurrency(input, hiddenFieldId) {
+            // Lấy giá trị, dùng regex loại bỏ tất cả ký tự không phải số (\D)
+            let rawValue = input.value.replace(/\D/g, '');
+
+            // GIỚI HẠN: Chỉ cho phép tối đa 10 chữ số (Tương ứng DECIMAL(12,2))
+            if (rawValue.length > 10) {
+                rawValue = rawValue.substring(0, 10);
+            }
+
+            // Cập nhật giá trị số thực vào trường hidden để gửi lên server
+            document.getElementById(hiddenFieldId).value = rawValue;
+
+            // Format lại hiển thị với dấu phẩy
+            if (rawValue !== '') {
+                input.value = parseInt(rawValue, 10).toLocaleString('en-US');
+            } else {
+                input.value = '';
+            }
+        }
+
+        // Mở form thêm mới
+        function openAddModal() {
+            document.getElementById('addModal').classList.remove('hidden');
+            const dateInput = document.getElementById('add_ngayMua');
+            if (!dateInput.value) {
+                const today = new Date().toISOString().split('T')[0];
+                dateInput.value = today;
+            }
+        }
+
+        // Mở form chỉnh sửa
+        function openEditModal(id, name, status, price, date, note) {
             document.getElementById('edit_maThietBi').value = id;
             document.getElementById('edit_tenThietBi').value = name;
-            document.getElementById('edit_soLuong').value = qty;
-            document.getElementById('edit_donGiaMua').value = (price && price !== 'null') ? price : '';
+            document.getElementById('edit_tinhTrang').value = status;
+
+            // Xử lý nạp giá trị hiển thị cho trường Giá tiền
+            const priceHidden = document.getElementById('edit_donGiaMua');
+            const priceDisplay = document.getElementById('edit_donGia_display');
+            if (price && price !== 'null' && price !== '') {
+                priceHidden.value = price;
+                priceDisplay.value = parseInt(price, 10).toLocaleString('en-US'); // Hiển thị có phẩy
+            } else {
+                priceHidden.value = '';
+                priceDisplay.value = '';
+            }
+
             document.getElementById('edit_ngayMua').value = (date && date !== 'null') ? date : '';
             document.getElementById('edit_ghiChu').value = (note && note !== 'null') ? note : '';
             document.getElementById('editModal').classList.remove('hidden');
@@ -371,28 +408,25 @@
             forms.forEach(form => {
                 form.addEventListener("submit", function (e) {
                     let isValid = true;
-                    const inputs = form.querySelectorAll("input, select, textarea");
+                    // Bổ sung lọc cả thẻ hidden để kiểm tra validate form
+                    const inputs = form.querySelectorAll("input[required], select[required], textarea[required]");
 
                     inputs.forEach(input => {
-                        let existingError = input.parentElement.querySelector(".error-msg, .server-error-msg");
+                        let existingError = input.parentElement.querySelector(".error-msg");
                         if (existingError) existingError.remove();
                         input.classList.remove("border-rose-500", "bg-rose-50");
 
-                        if (!input.validity.valid) {
+                        // Do chúng ta dùng input dummy (text) nên cần phải check value của input text hiển thị
+                        if (!input.value || input.value.trim() === '') {
                             isValid = false;
 
-                            input.classList.remove("border-[#e2e3e1]");
-                            input.classList.add("border-rose-500", "bg-rose-50");
-
-                            let errorText = input.getAttribute("title") || "Vui lòng kiểm tra lại thông tin.";
-                            if (input.validity.valueMissing) {
-                                errorText = "Trường này không được để trống.";
-                            } else if (input.validity.rangeUnderflow) {
-                                errorText = input.getAttribute("title") || "Giá trị không hợp lệ.";
+                            // Tránh viền đỏ vào input hidden
+                            if(input.type !== 'hidden'){
+                                input.classList.remove("border-[#e2e3e1]");
+                                input.classList.add("border-rose-500", "bg-rose-50");
+                                let errorHtml = `<span class="error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"><i data-lucide="info" class="w-3 h-3"></i> Trường này không được để trống.</span>`;
+                                input.insertAdjacentHTML("afterend", errorHtml);
                             }
-
-                            let errorHtml = `<span class="error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"><i data-lucide="info" class="w-3 h-3"></i> ${errorText}</span>`;
-                            input.insertAdjacentHTML("afterend", errorHtml);
                         }
                     });
 
@@ -402,9 +436,9 @@
                     }
                 });
 
-                form.querySelectorAll("input, select, textarea").forEach(input => {
+                form.querySelectorAll("input:not([type='hidden']), select, textarea").forEach(input => {
                     input.addEventListener("input", function () {
-                        let existingError = input.parentElement.querySelector(".error-msg, .server-error-msg");
+                        let existingError = input.parentElement.querySelector(".error-msg");
                         if (existingError) existingError.remove();
 
                         input.classList.remove("border-rose-500", "bg-rose-50");

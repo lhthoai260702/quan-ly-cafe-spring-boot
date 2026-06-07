@@ -6,6 +6,7 @@ import com.quanlycafe.cafe_management.entity.ThucDon;
 import com.quanlycafe.cafe_management.repository.ChiTietThucDonRepository;
 import com.quanlycafe.cafe_management.repository.HangHoaRepository;
 import com.quanlycafe.cafe_management.service.MenuService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -133,13 +134,17 @@ public class MenuController {
     @PostMapping("/menu/add")
     public String addMenuItem(@Valid @ModelAttribute("addForm") MenuFormDTO form,
                               BindingResult bindingResult,
-                              RedirectAttributes redirectAttributes) {
+                              RedirectAttributes redirectAttributes,
+                              HttpServletRequest request) {
+
+        String referer = request.getHeader("Referer");
+        String redirectUrl = referer != null ? referer : "/menu";
 
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.addForm", bindingResult);
             redirectAttributes.addFlashAttribute("addForm", form);
             redirectAttributes.addFlashAttribute("hasAddError", true);
-            return "redirect:/menu";
+            return "redirect:" + redirectUrl;
         }
 
         try {
@@ -149,7 +154,7 @@ public class MenuController {
             redirectAttributes.addFlashAttribute("errorMsg", "Lỗi: " + e.getMessage());
         }
 
-        return "redirect:/menu";
+        return "redirect:" + redirectUrl;
     }
 
     /**
@@ -163,13 +168,17 @@ public class MenuController {
     @PostMapping("/menu/edit")
     public String editMenuItem(@Valid @ModelAttribute("editForm") MenuFormDTO form,
                                BindingResult bindingResult,
-                               RedirectAttributes redirectAttributes) {
+                               RedirectAttributes redirectAttributes,
+                               HttpServletRequest request) {
+
+        String referer = request.getHeader("Referer");
+        String redirectUrl = referer != null ? referer : "/menu";
 
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.editForm", bindingResult);
             redirectAttributes.addFlashAttribute("editForm", form);
             redirectAttributes.addFlashAttribute("hasEditError", true);
-            return "redirect:/menu";
+            return "redirect:" + redirectUrl;
         }
 
         try {
@@ -179,7 +188,7 @@ public class MenuController {
             redirectAttributes.addFlashAttribute("errorMsg", "Lỗi: " + e.getMessage());
         }
 
-        return "redirect:/menu";
+        return "redirect:" + redirectUrl;
     }
 
     /**
@@ -190,7 +199,13 @@ public class MenuController {
      * @return String
      */
     @PostMapping("/menu/delete")
-    public String deleteMenuItem(@RequestParam Integer maThucDon, RedirectAttributes redirectAttributes) {
+    public String deleteMenuItem(@RequestParam Integer maThucDon,
+                                 RedirectAttributes redirectAttributes,
+                                 HttpServletRequest request) {
+
+        String referer = request.getHeader("Referer");
+        String redirectUrl = referer != null ? referer : "/menu";
+
         try {
             menuService.deleteMenuItem(maThucDon);
             redirectAttributes.addFlashAttribute("successMsg", "Đã xóa món khỏi thực đơn!");
@@ -198,6 +213,6 @@ public class MenuController {
             redirectAttributes.addFlashAttribute("errorMsg", "Lỗi: " + e.getMessage());
         }
 
-        return "redirect:/menu";
+        return "redirect:" + redirectUrl;
     }
 }

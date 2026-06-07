@@ -13,15 +13,15 @@ import java.math.BigDecimal;
 
 /**
  * EquipmentService
- * Version 1.2
- * Date: 29-05-2026
- * Copyright
+ * Version 1.3
+ * Date: 07-06-2026
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026 lthoai       Create
  * 30-05-2026 Quản Lý      Apply EquipmentFormDTO & format convention
  * 06-06-2026 Quản Lý      Apply Pagination and Sorting
+ * 07-06-2026 Quản Lý      Update match new DB, add Status filter, apply soft delete
  */
 @Service
 @RequiredArgsConstructor
@@ -30,24 +30,19 @@ public class EquipmentService {
     private final ThietBiRepository thietBiRepository;
 
     /**
-     * Lấy tất cả thiết bị có phân trang
-     *
-     * @param pageable Pageable
-     * @return Page<ThietBi>
-     */
-    public Page<ThietBi> getAllEquipments(Pageable pageable) {
-        return thietBiRepository.findAll(pageable);
-    }
-
-    /**
-     * Tìm kiếm thiết bị theo tên có phân trang
+     * Tìm kiếm thiết bị theo tên và trạng thái có phân trang
      *
      * @param keyword  String
+     * @param status   String
      * @param pageable Pageable
      * @return Page<ThietBi>
      */
-    public Page<ThietBi> searchEquipment(String keyword, Pageable pageable) {
-        return thietBiRepository.findByTenThietBiContainingIgnoreCase(keyword, pageable);
+    public Page<ThietBi> searchEquipment(String keyword, String status, Pageable pageable) {
+        if ("Tất cả".equalsIgnoreCase(status) || status.isEmpty()) {
+            return thietBiRepository.findByTenThietBiContainingIgnoreCaseAndFlagDelete(keyword, 0, pageable);
+        } else {
+            return thietBiRepository.findByTenThietBiContainingIgnoreCaseAndTinhTrangAndFlagDelete(keyword, status, 0, pageable);
+        }
     }
 
     /**
@@ -59,10 +54,11 @@ public class EquipmentService {
     public void createEquipment(EquipmentFormDTO form) {
         ThietBi thietBi = new ThietBi();
         thietBi.setTenThietBi(form.getTenThietBi());
-        thietBi.setSoLuong(form.getSoLuong() != null ? form.getSoLuong() : 0);
+        thietBi.setTinhTrang(form.getTinhTrang());
         thietBi.setGhiChu(form.getGhiChu());
         thietBi.setNgayMua(form.getNgayMua());
         thietBi.setDonGiaMua(form.getDonGiaMua() != null ? BigDecimal.valueOf(form.getDonGiaMua()) : null);
+        thietBi.setFlagDelete(0);
 
         thietBiRepository.save(thietBi);
     }
@@ -78,7 +74,7 @@ public class EquipmentService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy thiết bị"));
 
         thietBi.setTenThietBi(form.getTenThietBi());
-        thietBi.setSoLuong(form.getSoLuong() != null ? form.getSoLuong() : 0);
+        thietBi.setTinhTrang(form.getTinhTrang());
         thietBi.setGhiChu(form.getGhiChu());
         thietBi.setNgayMua(form.getNgayMua());
         thietBi.setDonGiaMua(form.getDonGiaMua() != null ? BigDecimal.valueOf(form.getDonGiaMua()) : null);
@@ -87,16 +83,16 @@ public class EquipmentService {
     }
 
     /**
-     * Xóa thiết bị
+     * Xóa mềm thiết bị (Đổi cờ flag_delete = 1)
      *
      * @param maThietBi Integer
      */
     @Transactional
     public void deleteEquipment(Integer maThietBi) {
-        if (thietBiRepository.existsById(maThietBi)) {
-            thietBiRepository.deleteById(maThietBi);
-        } else {
-            throw new RuntimeException("Không tìm thấy thiết bị để xóa");
-        }
+        ThietBi thietBi = thietBiRepository.findById(maThietBi)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy thiết bị để xóa"));
+
+        thietBi.setFlagDelete(1);
+        thietBiRepository.save(thietBi);
     }
 }

@@ -3,6 +3,7 @@ package com.quanlycafe.cafe_management.controller;
 import com.quanlycafe.cafe_management.dto.EquipmentFormDTO;
 import com.quanlycafe.cafe_management.entity.ThietBi;
 import com.quanlycafe.cafe_management.service.EquipmentService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,8 +21,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
  * EquipmentController
- * Version 1.2
- * Date: 29-05-2026
+ * Version 1.3
+ * Date: 07-06-2026
  * Copyright
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
@@ -29,6 +30,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * 29-05-2026 lthoai       Create
  * 30-05-2026 Quản Lý      Add PRG Validation & format convention
  * 06-06-2026 Quản Lý      Add Pagination & Sorting list
+ * 07-06-2026 Quản Lý      Add dynamic Status filter
  */
 @Controller
 @RequiredArgsConstructor
@@ -40,6 +42,7 @@ public class EquipmentController {
      * Hiển thị trang quản lý thiết bị
      *
      * @param keyword Từ khóa tìm kiếm
+     * @param status  Trạng thái thiết bị
      * @param page    Trang hiện tại (mặc định 1)
      * @param model   Model
      * @return String
@@ -47,24 +50,21 @@ public class EquipmentController {
     @GetMapping("/equipment")
     public String showEquipmentManager(
             @RequestParam(required = false, defaultValue = "") String keyword,
+            @RequestParam(required = false, defaultValue = "Tất cả") String status,
             @RequestParam(defaultValue = "1") int page,
             Model model) {
 
-        // Giới hạn 10 record/trang, sắp xếp theo tên tăng dần (không phân biệt hoa/thường)
+        // Giới hạn 10 record/trang, sắp xếp theo mã thiết bị giảm dần (mới nhất lên đầu)
         Pageable pageable = PageRequest.of(page - 1, 10, Sort.by(Sort.Order.asc("tenThietBi").ignoreCase()));
-        Page<ThietBi> equipmentPage;
 
-        if (!keyword.trim().isEmpty()) {
-            equipmentPage = equipmentService.searchEquipment(keyword.trim(), pageable);
-        } else {
-            equipmentPage = equipmentService.getAllEquipments(pageable);
-        }
+        Page<ThietBi> equipmentPage = equipmentService.searchEquipment(keyword.trim(), status, pageable);
 
         model.addAttribute("equipments", equipmentPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", equipmentPage.getTotalPages());
         model.addAttribute("totalItems", equipmentPage.getTotalElements());
         model.addAttribute("keyword", keyword);
+        model.addAttribute("status", status);
         model.addAttribute("activeTab", "equipment");
 
         // Khởi tạo DTO rỗng nếu model chưa có (tránh lỗi khi load trang)
@@ -89,13 +89,17 @@ public class EquipmentController {
     @PostMapping("/equipment/add")
     public String addEquipment(@Valid @ModelAttribute("addForm") EquipmentFormDTO form,
                                BindingResult bindingResult,
-                               RedirectAttributes redirectAttributes) {
+                               RedirectAttributes redirectAttributes,
+                               HttpServletRequest request) {
+
+        String referer = request.getHeader("Referer");
+        String redirectUrl = referer != null ? referer : "/equipment";
 
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.addForm", bindingResult);
             redirectAttributes.addFlashAttribute("addForm", form);
             redirectAttributes.addFlashAttribute("hasAddError", true);
-            return "redirect:/equipment";
+            return "redirect:" + redirectUrl;
         }
 
         try {
@@ -104,7 +108,7 @@ public class EquipmentController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMsg", "Lỗi: " + e.getMessage());
         }
-        return "redirect:/equipment";
+        return "redirect:" + redirectUrl;
     }
 
     /**
@@ -118,13 +122,16 @@ public class EquipmentController {
     @PostMapping("/equipment/edit")
     public String editEquipment(@Valid @ModelAttribute("editForm") EquipmentFormDTO form,
                                 BindingResult bindingResult,
-                                RedirectAttributes redirectAttributes) {
+                                RedirectAttributes redirectAttributes,
+                                HttpServletRequest request) {
+        String referer = request.getHeader("Referer");
+        String redirectUrl = referer != null ? referer : "/equipment";
 
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.editForm", bindingResult);
             redirectAttributes.addFlashAttribute("editForm", form);
             redirectAttributes.addFlashAttribute("hasEditError", true);
-            return "redirect:/equipment";
+            return "redirect:" + redirectUrl;
         }
 
         try {
@@ -133,7 +140,7 @@ public class EquipmentController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMsg", "Lỗi: " + e.getMessage());
         }
-        return "redirect:/equipment";
+        return "redirect:" + redirectUrl;
     }
 
     /**
@@ -144,13 +151,18 @@ public class EquipmentController {
      * @return String
      */
     @PostMapping("/equipment/delete")
-    public String deleteEquipment(@RequestParam Integer maThietBi, RedirectAttributes redirectAttributes) {
+    public String deleteEquipment(@RequestParam Integer maThietBi,
+                                  RedirectAttributes redirectAttributes,
+                                  HttpServletRequest request) {
+        String referer = request.getHeader("Referer");
+        String redirectUrl = referer != null ? referer : "/equipment";
+        
         try {
             equipmentService.deleteEquipment(maThietBi);
             redirectAttributes.addFlashAttribute("successMsg", "Đã xóa thiết bị khỏi hệ thống!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMsg", "Lỗi: " + e.getMessage());
         }
-        return "redirect:/equipment";
+        return "redirect:" + redirectUrl;
     }
 }

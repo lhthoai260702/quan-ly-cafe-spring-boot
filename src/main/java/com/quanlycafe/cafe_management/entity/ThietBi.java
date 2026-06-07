@@ -10,12 +10,13 @@ import java.time.LocalDate;
 
 /**
  * ThietBi
- * Version 1.0
- * Date: 29-05-2026
+ * Version 1.1
+ * Date: 07-06-2026
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026 lthoai       Create
+ * 07-06-2026 lthoai       Update entity to match new database schema
  */
 @Entity
 @Table(name = "thietbi")
@@ -32,15 +33,18 @@ public class ThietBi {
     @Column(name = "tenthietbi", nullable = false, length = 100)
     private String tenThietBi;
 
-    @Column(name = "soluong", nullable = false)
-    private Integer soLuong = 0;
+    @Column(name = "tinhtrang", length = 50)
+    private String tinhTrang = "Hoạt động tốt";
 
     @Column(name = "ghichu", columnDefinition = "TEXT")
     private String ghiChu;
 
-    @Column(name = "ngaymua")
+    @Column(name = "ngaymua", nullable = false)
     private LocalDate ngayMua;
 
     @Column(name = "dongiamua", precision = 12, scale = 2)
     private BigDecimal donGiaMua;
+
+    @Column(name = "flag_delete")
+    private Integer flagDelete = 0;
 }

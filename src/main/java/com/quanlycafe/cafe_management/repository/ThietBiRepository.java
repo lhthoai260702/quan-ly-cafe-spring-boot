@@ -8,23 +8,36 @@ import org.springframework.stereotype.Repository;
 
 /**
  * ThietBiRepository
- * Version 1.2
- * Date: 29-05-2026
+ * Version 1.3
+ * Date: 07-06-2026
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026 lthoai       Create
  * 06-06-2026 Quản Lý      Add Pagination
+ * 07-06-2026 Quản Lý      Add filters for TinhTrang and flagDelete
  */
 @Repository
 public interface ThietBiRepository extends JpaRepository<ThietBi, Integer> {
 
     /**
-     * Tìm kiếm thiết bị theo tên có phân trang
+     * Tìm kiếm thiết bị theo tên (bỏ qua thiết bị đã xóa mềm)
      *
-     * @param keyword  String
-     * @param pageable Pageable
+     * @param keyword    String
+     * @param flagDelete Integer
+     * @param pageable   Pageable
      * @return Page<ThietBi>
      */
-    Page<ThietBi> findByTenThietBiContainingIgnoreCase(String keyword, Pageable pageable);
+    Page<ThietBi> findByTenThietBiContainingIgnoreCaseAndFlagDelete(String keyword, Integer flagDelete, Pageable pageable);
+
+    /**
+     * Tìm kiếm thiết bị theo tên và tình trạng (bỏ qua thiết bị đã xóa mềm)
+     *
+     * @param keyword    String
+     * @param tinhTrang  String
+     * @param flagDelete Integer
+     * @param pageable   Pageable
+     * @return Page<ThietBi>
+     */
+    Page<ThietBi> findByTenThietBiContainingIgnoreCaseAndTinhTrangAndFlagDelete(String keyword, String tinhTrang, Integer flagDelete, Pageable pageable);
 }
