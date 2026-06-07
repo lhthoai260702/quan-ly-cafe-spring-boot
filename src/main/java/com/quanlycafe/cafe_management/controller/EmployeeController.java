@@ -126,8 +126,16 @@ public class EmployeeController {
         try {
             employeeService.createEmployee(form);
             redirectAttributes.addFlashAttribute("successMsg", "Tuyển nhân sự thành công!");
+        } catch (IllegalArgumentException ex) {
+            bindingResult.addError(new FieldError("addForm", "tenDangNhap", ex.getMessage()));
+
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.addForm", bindingResult);
+            redirectAttributes.addFlashAttribute("addForm", form);
+            redirectAttributes.addFlashAttribute("hasAddError", true);
+
+            return "redirect:" + redirectUrl;
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMsg", "Lỗi: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMsg", "Lỗi hệ thống: " + e.getMessage());
         }
 
         return "redirect:" + redirectUrl;
@@ -180,28 +188,32 @@ public class EmployeeController {
     }
 
     /**
-     * Xóa nhân viên
+     * Xoá nhân viên
      *
-     * @param maNhanVien         Integer
-     * @param redirectAttributes RedirectAttributes
-     * @param request            HttpServletRequest
-     * @return String
+     * @param maNhanVien
+     * @param redirectAttributes
+     * @param request
+     * @return
      */
     @PostMapping("/employees/delete")
     public String deleteEmployee(@RequestParam Integer maNhanVien,
                                  RedirectAttributes redirectAttributes,
                                  HttpServletRequest request) {
 
-        String referer = request.getHeader("Referer");
-        String redirectUrl = referer != null ? referer : "/employees";
-
         try {
-            employeeService.deleteEmployee(maNhanVien);
+            boolean isSelfDeleted = employeeService.deleteEmployee(maNhanVien);
+
+            if (isSelfDeleted) {
+                // Hủy session hiện tại và đăng xuất
+                request.getSession().invalidate();
+                return "redirect:/login?logout";
+            }
+
             redirectAttributes.addFlashAttribute("successMsg", "Đã xóa nhân viên thành công!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMsg", "Lỗi: " + e.getMessage());
         }
 
-        return "redirect:" + redirectUrl;
+        return "redirect:/employees";
     }
 }

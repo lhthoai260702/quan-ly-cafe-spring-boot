@@ -11,6 +11,8 @@ import com.quanlycafe.cafe_management.repository.TaiKhoanRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +22,7 @@ import java.util.List;
 /**
  * EmployeeService
  * <p>
- * Version 1.7
+ * Version 1.8
  * <p>
  * Date: 07-06-2026
  * <p>
@@ -33,6 +35,7 @@ import java.util.List;
  * 04-06-2026 lthoai       Standardize Java Convention & Dynamic Roles
  * 07-06-2026 Quản Lý      Dynamic database role filtering, map and save NhanVien Luong
  * 07-06-2026 Quản Lý      Standardize imports and Javadoc comments
+ * 07-06-2026 Quản Lý      Apply Soft Delete for TaiKhoan
  */
 @Service
 @RequiredArgsConstructor
@@ -95,11 +98,15 @@ public class EmployeeService {
      */
     @Transactional
     public void createEmployee(EmployeeFormDTO form) {
+        if (taiKhoanRepository.existsByTenDangNhapIgnoreCase(form.getTenDangNhap().trim())) {
+            throw new IllegalArgumentException("Tên đăng nhập này đã có người sử dụng. Vui lòng chọn tên khác!");
+        }
+
         ChucVu cv = chucVuRepository.findById(form.getMaChucVu())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy chức vụ"));
 
         TaiKhoan tk = new TaiKhoan();
-        tk.setTenDangNhap(form.getTenDangNhap().toLowerCase());
+        tk.setTenDangNhap(form.getTenDangNhap().toLowerCase().trim());
         tk.setMatKhau(passwordEncoder.encode(form.getMatKhau()));
         tk.setAnh("user.png");
 
@@ -107,15 +114,21 @@ public class EmployeeService {
                 cv.getTenChucVu().toLowerCase().contains("quản lý");
         tk.setQuyenHan(isAdmin ? 1 : 2);
 
+        // Gán cờ bằng 0 cho tài khoản mới
+        tk.setFlagDelete(0);
+
         taiKhoanRepository.save(tk);
 
         NhanVien nv = new NhanVien();
         nv.setHoTen(form.getHoTen());
         nv.setSoDienThoai(form.getSoDienThoai());
         nv.setDiaChi(form.getDiaChi());
-        nv.setLuong(form.getLuong()); // LƯU LƯƠNG NHÂN VIÊN VÀO DB
+        nv.setLuong(form.getLuong());
         nv.setTaiKhoan(tk);
         nv.setChucVu(cv);
+
+        // Gán cờ bằng 0 cho nhân viên mới
+        nv.setFlagDelete(0);
 
         nhanVienRepository.save(nv);
     }
@@ -133,7 +146,7 @@ public class EmployeeService {
         nv.setHoTen(form.getHoTen());
         nv.setSoDienThoai(form.getSoDienThoai());
         nv.setDiaChi(form.getDiaChi());
-        nv.setLuong(form.getLuong()); // CẬP NHẬT LƯƠNG NHÂN VIÊN
+        nv.setLuong(form.getLuong());
 
         if (form.getMaChucVu() != null) {
             ChucVu cv = chucVuRepository.findById(form.getMaChucVu())
@@ -153,21 +166,37 @@ public class EmployeeService {
     }
 
     /**
-     * Xóa hồ sơ nhân viên và tài khoản liên kết
      *
-     * @param maNhanVien Integer
+     * @param maNhanVien
+     * @return
      */
     @Transactional
-    public void deleteEmployee(Integer maNhanVien) {
+    public boolean deleteEmployee(Integer maNhanVien) {
         NhanVien nv = nhanVienRepository.findById(maNhanVien)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy nhân viên cần xóa"));
 
         TaiKhoan tk = nv.getTaiKhoan();
-        nhanVienRepository.delete(nv);
+        boolean isSelfDeleted = false;
+
+        // Kiểm tra tài khoản đang đăng nhập
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetails) {
+            String loggedInUsername = ((UserDetails) principal).getUsername();
+            if (tk != null && tk.getTenDangNhap().equals(loggedInUsername)) {
+                isSelfDeleted = true;
+            }
+        }
+
+        // Thực hiện xóa mềm
+        nv.setFlagDelete(1);
+        nhanVienRepository.save(nv);
 
         if (tk != null) {
-            taiKhoanRepository.delete(tk);
+            tk.setFlagDelete(1);
+            taiKhoanRepository.save(tk);
         }
+
+        return isSelfDeleted;
     }
 
     /**
@@ -197,4 +226,5 @@ public class EmployeeService {
 
         return dto;
     }
+
 }

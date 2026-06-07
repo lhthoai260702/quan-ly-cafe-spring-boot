@@ -104,10 +104,10 @@ function executeAction(actionType) {
             fetch(`/tables/${currentSelectedTableId}/order-details`)
                 .then(response => response.text())
                 .then(html => {
-                    document.getElementById('orderModalContainer').innerHTML = html;
-                    document.getElementById('orderModalOverlay').classList.remove('hidden');
-                    setTimeout(() => document.getElementById('orderModalBox').classList.remove('scale-95', 'opacity-0'), 20);
-                })
+                document.getElementById('orderModalContainer').innerHTML = html;
+                document.getElementById('orderModalOverlay').classList.remove('hidden');
+                setTimeout(() => document.getElementById('orderModalBox').classList.remove('scale-95', 'opacity-0'), 20);
+            })
                 .catch(() => showCustomError("Không thể kết nối đến máy chủ!"));
             break;
 
@@ -139,17 +139,17 @@ function executeAction(actionType) {
             fetch(`/tables/${currentSelectedTableId}/items`)
                 .then(response => response.json())
                 .then(items => {
-                    const tbody = document.getElementById('splitItemsTableBody');
-                    tbody.innerHTML = items.length === 0 ? `<tr><td colspan="3" class="p-4 text-center text-gray-400 italic">Bàn trống!</td></tr>` : '';
-                    items.forEach(item => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `<td class="p-3 font-semibold">${item.tenmon}<input type="hidden" name="mathucdonList" value="${item.mathucdon}"></td>
+                const tbody = document.getElementById('splitItemsTableBody');
+                tbody.innerHTML = items.length === 0 ? `<tr><td colspan="3" class="p-4 text-center text-gray-400 italic">Bàn trống!</td></tr>` : '';
+                items.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td class="p-3 font-semibold">${item.tenmon}<input type="hidden" name="mathucdonList" value="${item.mathucdon}"></td>
                                          <td class="p-3 text-center">${item.soluong}</td>
                                          <td class="p-3 text-center"><input type="number" name="soluongTachList" value="0" min="0" max="${item.soluong}" class="w-16 border rounded text-center"></td>`;
-                        tbody.appendChild(row);
-                    });
-                    document.getElementById('splitModal').classList.remove('hidden');
+                    tbody.appendChild(row);
                 });
+                document.getElementById('splitModal').classList.remove('hidden');
+            });
             break;
 
         case 'datban':
@@ -232,7 +232,6 @@ function closePrintSettingsModal() {
 
 // Hàm xử lý lưu cấu hình (Mô phỏng lưu thành công)
 function savePrintSettings() {
-    // Em có thể nâng cấp viết hàm lưu vào LocalStorage hoặc gửi qua Session sau, hiện tại ta thông báo trực quan:
     alert("Đã lưu cấu hình thiết bị in ấn của quầy thành công!");
     closePrintSettingsModal();
 }

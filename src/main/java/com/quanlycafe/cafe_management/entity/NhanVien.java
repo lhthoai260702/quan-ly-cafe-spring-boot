@@ -4,22 +4,24 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.math.BigDecimal;
 
 /**
  * NhanVien
- * Version 1.1
+ * Version 1.3
  * Date: 07-06-2026
- * Copyright
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026 lthoai       Create
- * 07-06-2026 lthoai      Update mapping DB schema (add luong, flag_delete), clean imports
+ * 07-06-2026 lthoai      Update mapping DB schema (add luong, flag_delete)
+ * 07-06-2026 lthoai      Replace deprecated @Where with @SQLRestriction
  */
 @Entity
 @Table(name = "nhanvien")
+@SQLRestriction("flag_delete = 0 OR flag_delete IS NULL")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -52,4 +54,5 @@ public class NhanVien {
 
     @Column(name = "flag_delete", columnDefinition = "integer default 0")
     private Integer flagDelete;
+
 }

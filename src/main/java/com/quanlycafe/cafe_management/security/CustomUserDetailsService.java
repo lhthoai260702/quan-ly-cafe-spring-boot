@@ -13,12 +13,17 @@ import java.util.Collections;
 
 /**
  * CustomUserDetailsService
- * Version 1.0
+ * <p>
+ * Version 1.2
+ * <p>
  * Date: 29-05-2026
+ * <p>
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026 lthoai       Create
+ * 07-06-2026 lthoai      Check flag_delete during login
+ * 07-06-2026 lthoai      Standardize Java Coding Convention
  */
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -35,21 +40,24 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     /**
-     * Tải thông tin người dùng theo tên đăng nhập
+     * Tải thông tin người dùng theo tên đăng nhập và kiểm tra trạng thái xóa mềm
      *
      * @param username String
      * @return UserDetails
-     * @throws UsernameNotFoundException
+     * @throws UsernameNotFoundException khi không tìm thấy tài khoản hoặc tài khoản đã bị xóa
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // Ép chuỗi nhập vào thành chữ thường trước khi gọi xuống Database
-        String usernameLower = username.toLowerCase();
+        String usernameLower = username.toLowerCase().trim();
 
         TaiKhoan taiKhoan = taiKhoanRepository.findByTenDangNhap(usernameLower)
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy tài khoản: " + username));
 
-        // Phân quyền: 1 là Quản lý (ADMIN), 2 là Nhân viên (USER)
+        // Kiểm tra trạng thái xóa mềm (flagDelete == 1 là đã bị xóa)
+        if (taiKhoan.getFlagDelete() != null && taiKhoan.getFlagDelete() == 1) {
+            throw new UsernameNotFoundException("Không tìm thấy tài khoản: " + username);
+        }
+
         String role = (taiKhoan.getQuyenHan() == 1) ? "ROLE_ADMIN" : "ROLE_USER";
 
         return new User(

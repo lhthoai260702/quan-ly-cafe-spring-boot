@@ -25,4 +25,11 @@ public interface TaiKhoanRepository extends JpaRepository<TaiKhoan, Integer> {
      * @return Optional<TaiKhoan>
      */
     Optional<TaiKhoan> findByTenDangNhap(String tenDangNhap);
+
+    /**
+     *
+     * @param tenDangNhap
+     * @return
+     */
+    boolean existsByTenDangNhapIgnoreCase(String tenDangNhap);
 }
