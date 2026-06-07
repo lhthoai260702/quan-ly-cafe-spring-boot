@@ -19,15 +19,20 @@ import java.util.List;
 
 /**
  * EmployeeService
- * * Version 1.4
- * * Date: 04-06-2026
- * * Copyright
- * * Modification Logs:
+ * <p>
+ * Version 1.7
+ * <p>
+ * Date: 07-06-2026
+ * <p>
+ * Copyright
+ * <p>
+ * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026 lthoai       Create
- * 04-06-2026 lthoai      Standardize Java Convention & Dynamic Roles
- * 04-06-2026 lthoai      Add Director Role & Update Permission Logic
+ * 04-06-2026 lthoai       Standardize Java Convention & Dynamic Roles
+ * 07-06-2026 Quản Lý      Dynamic database role filtering, map and save NhanVien Luong
+ * 07-06-2026 Quản Lý      Standardize imports and Javadoc comments
  */
 @Service
 @RequiredArgsConstructor
@@ -59,38 +64,19 @@ public class EmployeeService {
     }
 
     /**
-     * Lọc nhân viên theo chức vụ (Cập nhật 4 loại)
+     * Lọc danh sách nhân viên theo mã chức vụ
      *
-     * @param roleType String
+     * @param roleId   Integer
      * @param pageable Pageable
      * @return Page<UserProfileDTO>
      */
-    public Page<UserProfileDTO> getEmployeesByRoleType(String roleType, Pageable pageable) {
-        String keyword = "";
-
-        switch (roleType) {
-            case "giamdoc":
-                keyword = "Giám Đốc";
-                break;
-            case "quanly":
-                keyword = "Quản Lý";
-                break;
-            case "phucvu":
-                keyword = "Phục Vụ";
-                break;
-            case "phache":
-                keyword = "Pha Chế";
-                break;
-            default:
-                return getAllEmployees(pageable);
-        }
-
-        Page<NhanVien> pageNhanVien = nhanVienRepository.findByChucVu_TenChucVuContainingIgnoreCase(keyword, pageable);
+    public Page<UserProfileDTO> getEmployeesByRoleId(Integer roleId, Pageable pageable) {
+        Page<NhanVien> pageNhanVien = nhanVienRepository.findByChucVu_MaChucVu(roleId, pageable);
         return pageNhanVien.map(this::mapToDTO);
     }
 
     /**
-     * Tìm kiếm nhân viên theo từ khóa (họ tên hoặc tên đăng nhập)
+     * Tìm kiếm nhân viên theo họ tên hoặc tên đăng nhập
      *
      * @param keyword  String
      * @param pageable Pageable
@@ -103,7 +89,7 @@ public class EmployeeService {
     }
 
     /**
-     * Thêm mới nhân viên và tài khoản
+     * Tạo mới nhân viên và cấp tài khoản tương ứng
      *
      * @param form EmployeeFormDTO
      */
@@ -117,7 +103,6 @@ public class EmployeeService {
         tk.setMatKhau(passwordEncoder.encode(form.getMatKhau()));
         tk.setAnh("user.png");
 
-        // Nếu tên chức vụ chứa chữ "Giám đốc" hoặc "Quản lý" thì cấp quyền Admin (1)
         boolean isAdmin = cv.getTenChucVu().toLowerCase().contains("giám đốc") ||
                 cv.getTenChucVu().toLowerCase().contains("quản lý");
         tk.setQuyenHan(isAdmin ? 1 : 2);
@@ -128,6 +113,7 @@ public class EmployeeService {
         nv.setHoTen(form.getHoTen());
         nv.setSoDienThoai(form.getSoDienThoai());
         nv.setDiaChi(form.getDiaChi());
+        nv.setLuong(form.getLuong()); // LƯU LƯƠNG NHÂN VIÊN VÀO DB
         nv.setTaiKhoan(tk);
         nv.setChucVu(cv);
 
@@ -135,7 +121,7 @@ public class EmployeeService {
     }
 
     /**
-     * Cập nhật thông tin nhân viên
+     * Cập nhật thông tin nhân viên và phân quyền lại nếu chức vụ thay đổi
      *
      * @param form EmployeeFormDTO
      */
@@ -147,6 +133,7 @@ public class EmployeeService {
         nv.setHoTen(form.getHoTen());
         nv.setSoDienThoai(form.getSoDienThoai());
         nv.setDiaChi(form.getDiaChi());
+        nv.setLuong(form.getLuong()); // CẬP NHẬT LƯƠNG NHÂN VIÊN
 
         if (form.getMaChucVu() != null) {
             ChucVu cv = chucVuRepository.findById(form.getMaChucVu())
@@ -155,7 +142,6 @@ public class EmployeeService {
 
             TaiKhoan tk = nv.getTaiKhoan();
             if (tk != null) {
-                // Cập nhật lại quyền nếu lỡ đổi chức vụ
                 boolean isAdmin = cv.getTenChucVu().toLowerCase().contains("giám đốc") ||
                         cv.getTenChucVu().toLowerCase().contains("quản lý");
                 tk.setQuyenHan(isAdmin ? 1 : 2);
@@ -167,7 +153,7 @@ public class EmployeeService {
     }
 
     /**
-     * Xóa nhân viên và tài khoản liên kết
+     * Xóa hồ sơ nhân viên và tài khoản liên kết
      *
      * @param maNhanVien Integer
      */
@@ -185,7 +171,7 @@ public class EmployeeService {
     }
 
     /**
-     * Chuyển đổi dữ liệu Entity sang DTO
+     * Chuyển đổi đối tượng NhanVien sang UserProfileDTO để hiển thị
      *
      * @param nv NhanVien
      * @return UserProfileDTO
@@ -196,10 +182,10 @@ public class EmployeeService {
         dto.setHoTen(nv.getHoTen());
         dto.setSoDienThoai(nv.getSoDienThoai());
         dto.setDiaChi(nv.getDiaChi());
+        dto.setLuong(nv.getLuong());
 
         if (nv.getChucVu() != null) {
             dto.setTenChucVu(nv.getChucVu().getTenChucVu());
-            dto.setLuong(nv.getChucVu().getLuong());
             dto.setMaChucVu(nv.getChucVu().getMaChucVu());
         }
 

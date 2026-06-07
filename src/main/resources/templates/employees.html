@@ -34,27 +34,22 @@
     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 bg-white p-4 rounded-2xl shadow-sm border border-[#e2e3e1]/40">
         <div class="flex gap-1.5 overflow-x-auto pb-2 lg:pb-0 w-full lg:w-auto scrollbar-hide shrink-0">
             <a th:href="@{/employees}"
-               th:classappend="${param.role == null || #strings.isEmpty(param.role)} ? 'bg-[#553722] text-white' : 'bg-[#f4f4f2] text-[#50453e] hover:bg-[#e8e8e6]'"
+               th:classappend="${selectedRole == null} ? 'bg-[#553722] text-white' : 'bg-[#f4f4f2] text-[#50453e] hover:bg-[#e8e8e6]'"
                class="px-4 py-2 rounded-full text-xs font-bold shrink-0 transition-all block text-center">Tất cả vị
                 trí</a>
-            <a th:href="@{/employees(role='giamdoc')}"
-               th:classappend="${#strings.equals(param.role, 'giamdoc')} ? 'bg-[#553722] text-white' : 'bg-[#f4f4f2] text-[#50453e] hover:bg-[#e8e8e6]'"
-               class="px-4 py-2 rounded-full text-xs font-bold shrink-0 transition-all block text-center">Giám Đốc</a>
 
-            <a th:href="@{/employees(role='quanly')}"
-               th:classappend="${#strings.equals(param.role, 'quanly')} ? 'bg-[#553722] text-white' : 'bg-[#f4f4f2] text-[#50453e] hover:bg-[#e8e8e6]'"
-               class="px-4 py-2 rounded-full text-xs font-bold shrink-0 transition-all block text-center">Quản Lý</a>
-            <a th:href="@{/employees(role='phucvu')}"
-               th:classappend="${#strings.equals(param.role, 'phucvu')} ? 'bg-[#553722] text-white' : 'bg-[#f4f4f2] text-[#50453e] hover:bg-[#e8e8e6]'"
-               class="px-4 py-2 rounded-full text-xs font-bold shrink-0 transition-all block text-center">Phục Vụ</a>
-            <a th:href="@{/employees(role='phache')}"
-               th:classappend="${#strings.equals(param.role, 'phache')} ? 'bg-[#553722] text-white' : 'bg-[#f4f4f2] text-[#50453e] hover:bg-[#e8e8e6]'"
-               class="px-4 py-2 rounded-full text-xs font-bold shrink-0 transition-all block text-center">Pha Chế</a>
+            <th:block th:each="r : ${listRoles}">
+                <a th:href="@{/employees(role=${r.maChucVu})}"
+                   th:classappend="${selectedRole == r.maChucVu} ? 'bg-[#553722] text-white' : 'bg-[#f4f4f2] text-[#50453e] hover:bg-[#e8e8e6]'"
+                   class="px-4 py-2 rounded-full text-xs font-bold shrink-0 transition-all block text-center"
+                   th:text="${r.tenChucVu}">Tên Chức Vụ</a>
+            </th:block>
         </div>
 
         <form th:action="@{/employees}" method="GET"
               class="flex items-center bg-[#f4f4f2] rounded-full px-4 py-2 border border-[#e2e3e1]/20 w-full lg:max-w-md focus-within:ring-2 focus-within:ring-[#553722]/20 transition-all">
             <i data-lucide="search" class="w-4 h-4 text-[#50453e] opacity-70 mr-2 shrink-0"></i>
+            <input type="hidden" name="role" th:if="${selectedRole != null}" th:value="${selectedRole}">
             <input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm kiếm theo họ tên, username..."
                    class="bg-transparent border-none outline-none text-sm text-[#1a1c1b] w-full placeholder:text-[#50453e]/60 focus:ring-0 p-0"/>
             <button type="submit" class="hidden"></button>
@@ -71,7 +66,7 @@
                     <th class="px-4 py-4 w-36 whitespace-nowrap">Liên hệ</th>
                     <th class="px-4 py-4">Địa chỉ</th>
                     <th class="px-4 py-4 text-center w-36 whitespace-nowrap">Chức vụ</th>
-                    <th class="px-4 py-4 text-right w-40 whitespace-nowrap">Lương cơ bản</th>
+                    <th class="px-4 py-4 text-right w-40 whitespace-nowrap">Mức lương</th>
                     <th class="px-4 py-4 text-center w-28 whitespace-nowrap">Thao tác</th>
                 </tr>
                 </thead>
@@ -118,9 +113,15 @@
                     </td>
 
                     <td class="px-4 py-4 text-center">
-                            <span th:classappend="${#strings.containsIgnoreCase(emp.tenChucVu, 'Giám Đốc') ? 'bg-purple-100 text-purple-700 border-purple-200' : (#strings.containsIgnoreCase(emp.tenChucVu, 'Quản Lý') ? 'bg-amber-100 text-amber-700 border-amber-200' : (#strings.containsIgnoreCase(emp.tenChucVu, 'Phục Vụ') ? 'bg-blue-100 text-blue-700 border-blue-200' : 'bg-emerald-100 text-emerald-700 border-emerald-200'))}"
-                                  class="inline-block px-2.5 py-1 text-[10px] uppercase tracking-wider font-bold rounded-md border whitespace-normal break-words leading-relaxed max-w-full"
-                                  th:text="${emp.tenChucVu}">Chức vụ</span>
+                        <span th:with="colorId=${emp.maChucVu != null ? (emp.maChucVu % 6) : 0}"
+                              th:classappend="${colorId == 1 ? 'bg-purple-100 text-purple-700 border-purple-200' :
+                                              (colorId == 2 ? 'bg-amber-100 text-amber-700 border-amber-200' :
+                                              (colorId == 3 ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                                              (colorId == 4 ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
+                                              (colorId == 5 ? 'bg-rose-100 text-rose-700 border-rose-200' :
+                                                              'bg-cyan-100 text-cyan-700 border-cyan-200'))))}"
+                              class="inline-block px-2.5 py-1 text-[10px] uppercase tracking-wider font-bold rounded-md border whitespace-normal break-words leading-relaxed max-w-full"
+                              th:text="${emp.tenChucVu != null ? emp.tenChucVu : 'Chưa phân công'}">Chức vụ</span>
                     </td>
 
                     <td class="px-4 py-4 text-right font-medium text-[#50453e] whitespace-nowrap"
@@ -132,8 +133,8 @@
                         <div class="flex items-start justify-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
                             <button type="button" th:data-id="${emp.maNhanVien}" th:data-name="${emp.hoTen}"
                                     th:data-phone="${emp.soDienThoai}" th:data-address="${emp.diaChi}"
-                                    th:data-role="${emp.maChucVu}"
-                                    onclick="openEditModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-phone'), this.getAttribute('data-address'), this.getAttribute('data-role'))"
+                                    th:data-role="${emp.maChucVu}" th:data-salary="${emp.luong}"
+                                    onclick="openEditModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-phone'), this.getAttribute('data-address'), this.getAttribute('data-role'), this.getAttribute('data-salary'))"
                                     class="p-1.5 text-[#553722] hover:bg-[#ffdcc6]/50 rounded-lg transition-colors"
                                     title="Sửa hồ sơ">
                                 <i data-lucide="pen-line" class="w-4 h-4"></i>
@@ -159,13 +160,13 @@
          class="flex justify-center items-center mt-6 gap-1.5 md:gap-2">
 
         <a th:if="${startPage > 1}"
-           th:href="@{/employees(page=1, role=${param.role}, keyword=${param.keyword})}"
+           th:href="@{/employees(page=1, role=${selectedRole}, keyword=${param.keyword})}"
            class="w-8 h-8 flex items-center justify-center rounded-lg border border-[#e2e3e1] bg-white text-[#50453e] hover:bg-[#f4f4f2] text-sm transition-colors shadow-sm">
             <i data-lucide="chevrons-left" class="w-4 h-4"></i>
         </a>
 
         <th:block th:each="i : ${#numbers.sequence(startPage, endPage)}">
-            <a th:href="@{/employees(page=${i}, role=${param.role}, keyword=${param.keyword})}"
+            <a th:href="@{/employees(page=${i}, role=${selectedRole}, keyword=${param.keyword})}"
                th:text="${i}"
                th:classappend="${currentPage == i} ? 'bg-[#553722] text-white border-[#553722] shadow-md pointer-events-none' : 'bg-white text-[#50453e] border-[#e2e3e1] hover:bg-[#f4f4f2] shadow-sm'"
                class="w-8 h-8 flex items-center justify-center rounded-lg border text-xs font-bold transition-colors">
@@ -173,7 +174,7 @@
         </th:block>
 
         <a th:if="${endPage < totalPages}"
-           th:href="@{/employees(page=${totalPages}, role=${param.role}, keyword=${param.keyword})}"
+           th:href="@{/employees(page=${totalPages}, role=${selectedRole}, keyword=${param.keyword})}"
            class="w-8 h-8 flex items-center justify-center rounded-lg border border-[#e2e3e1] bg-white text-[#50453e] hover:bg-[#f4f4f2] text-sm transition-colors shadow-sm">
             <i data-lucide="chevrons-right" class="w-4 h-4"></i>
         </a>
@@ -196,14 +197,15 @@
                         <div>
                             <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Họ và
                                 tên *</label>
-                            <input type="text" th:field="*{hoTen}" required minlength="2"
-                                   title="Vui lòng nhập họ và tên (ít nhất 2 ký tự)"
+                            <input type="text" th:field="*{hoTen}" required minlength="2" maxlength="100"
+                                   title="Vui lòng nhập họ và tên hợp lệ (tối đa 100 ký tự)"
                                    class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Số
                                 điện thoại *</label>
-                            <input type="text" th:field="*{soDienThoai}" required pattern="^0[35789]\d{8}$"
+                            <input type="text" th:field="*{soDienThoai}" required maxlength="15"
+                                   pattern="^0[35789]\d{8}$"
                                    title="Vui lòng nhập đúng 10 số (bắt đầu bằng 03, 05, 07, 08, 09)"
                                    class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
                         </div>
@@ -211,7 +213,8 @@
                     <div>
                         <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Địa chỉ
                             *</label>
-                        <input type="text" th:field="*{diaChi}" required title="Vui lòng nhập địa chỉ liên hệ"
+                        <input type="text" th:field="*{diaChi}" required maxlength="255"
+                               title="Vui lòng nhập địa chỉ liên hệ"
                                class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
                     </div>
                     <div class="pt-3 pb-1">
@@ -222,28 +225,39 @@
                         <div>
                             <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Tên
                                 đăng nhập *</label>
-                            <input type="text" th:field="*{tenDangNhap}" required pattern="^[a-zA-Z0-9_]+$"
-                                   title="Tên đăng nhập phải viết liền không dấu (chỉ gồm chữ cái, số, gạch dưới)"
+                            <input type="text" th:field="*{tenDangNhap}" required maxlength="50"
+                                   pattern="^[a-zA-Z0-9_]+$"
+                                   title="Tên đăng nhập phải viết liền không dấu (tối đa 50 ký tự)"
                                    class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Mật
                                 khẩu *</label>
-                            <input type="password" th:field="*{matKhau}" required minlength="6" pattern="^[\x20-\x7E]+$"
+                            <input type="password" th:field="*{matKhau}" required minlength="6" maxlength="255"
+                                   pattern="^[\x20-\x7E]+$"
                                    title="Mật khẩu phải từ 6 ký tự trở lên"
                                    class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
                         </div>
                     </div>
-                    <div>
-                        <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Chức
-                            vụ</label>
-                        <select th:field="*{maChucVu}" required
-                                class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722]">
-                            <option value="" disabled selected>-- Chọn chức vụ --</option>
-                            <option th:each="r : ${listRoles}"
-                                    th:value="${r.maChucVu}"
-                                    th:text="${r.tenChucVu}"></option>
-                        </select>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Chức
+                                vụ *</label>
+                            <select th:field="*{maChucVu}" required
+                                    class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722]">
+                                <option value="" disabled selected>-- Chọn chức vụ --</option>
+                                <option th:each="r : ${listRoles}"
+                                        th:value="${r.maChucVu}"
+                                        th:text="${r.tenChucVu}"></option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Mức
+                                lương (VNĐ) *</label>
+                            <input type="number" th:field="*{luong}" required min="0" step="1000"
+                                   title="Vui lòng nhập mức lương hợp lệ"
+                                   class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
+                        </div>
                     </div>
                 </div>
                 <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-[#e2e3e1]/60">
@@ -279,15 +293,15 @@
                             <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Họ và
                                 tên *</label>
                             <input type="text" name="hoTen" id="edit_hoTen" th:value="${editForm?.hoTen}" required
-                                   minlength="2"
-                                   title="Vui lòng nhập họ và tên (ít nhất 2 ký tự)"
+                                   minlength="2" maxlength="100"
+                                   title="Vui lòng nhập họ và tên hợp lệ (tối đa 100 ký tự)"
                                    class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Số
                                 điện thoại *</label>
                             <input type="text" name="soDienThoai" id="edit_soDienThoai"
-                                   th:value="${editForm?.soDienThoai}" required
+                                   th:value="${editForm?.soDienThoai}" required maxlength="15"
                                    pattern="^0[35789]\d{8}$"
                                    title="Vui lòng nhập đúng 10 số (bắt đầu bằng 03, 05, 07, 08, 09)"
                                    class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
@@ -297,19 +311,30 @@
                         <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Địa chỉ
                             *</label>
                         <input type="text" name="diaChi" id="edit_diaChi" th:value="${editForm?.diaChi}" required
+                               maxlength="255"
                                title="Vui lòng nhập địa chỉ liên hệ"
                                class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
                     </div>
-                    <div>
-                        <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Chức
-                            vụ</label>
-                        <select name="maChucVu" id="edit_maChucVu" required
-                                class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722]">
-                            <option value="" disabled>-- Chọn chức vụ --</option>
-                            <option th:each="r : ${listRoles}"
-                                    th:value="${r.maChucVu}"
-                                    th:text="${r.tenChucVu}"></option>
-                        </select>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Chức
+                                vụ *</label>
+                            <select name="maChucVu" id="edit_maChucVu" required
+                                    class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722]">
+                                <option value="" disabled>-- Chọn chức vụ --</option>
+                                <option th:each="r : ${listRoles}"
+                                        th:value="${r.maChucVu}"
+                                        th:text="${r.tenChucVu}"></option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Mức
+                                lương (VNĐ) *</label>
+                            <input type="number" name="luong" id="edit_luong" th:value="${editForm?.luong}" required
+                                   min="0" step="1000"
+                                   title="Vui lòng nhập mức lương hợp lệ"
+                                   class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
+                        </div>
                     </div>
                 </div>
                 <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-[#e2e3e1]/60">
@@ -376,11 +401,16 @@
             }
         }
 
-        function openEditModal(id, name, phone, address, roleId) {
+        // Đã bổ sung tham số salary để đổ dữ liệu khi Edit
+        function openEditModal(id, name, phone, address, roleId, salary) {
             document.getElementById('edit_maNhanVien').value = id;
             document.getElementById('edit_hoTen').value = name;
             document.getElementById('edit_soDienThoai').value = phone;
             document.getElementById('edit_diaChi').value = address;
+
+            // Đổ dữ liệu lương cũ
+            let luongInput = document.getElementById('edit_luong');
+            if(luongInput) luongInput.value = salary ? salary : '';
 
             let roleSelect = document.getElementById('edit_maChucVu');
             if(roleId) {

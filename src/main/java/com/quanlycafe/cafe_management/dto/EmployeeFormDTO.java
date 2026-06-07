@@ -43,4 +43,6 @@ public class EmployeeFormDTO {
     @Size(min = 6, message = "Mật khẩu phải có ít nhất 6 ký tự")
     @Pattern(regexp = "^[\\x20-\\x7E]+$", message = "Mật khẩu không được chứa ký tự tiếng Việt có dấu")
     private String matKhau;
+
+    private java.math.BigDecimal luong;
 }

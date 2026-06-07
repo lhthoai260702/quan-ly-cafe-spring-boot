@@ -5,14 +5,18 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 /**
  * NhanVien
- * Version 1.0
- * Date: 29-05-2026
+ * Version 1.1
+ * Date: 07-06-2026
+ * Copyright
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026 lthoai       Create
+ * 07-06-2026 lthoai      Update mapping DB schema (add luong, flag_delete), clean imports
  */
 @Entity
 @Table(name = "nhanvien")
@@ -42,4 +46,10 @@ public class NhanVien {
 
     @Column(name = "diachi", length = 255)
     private String diaChi;
+
+    @Column(name = "luong", precision = 12, scale = 2)
+    private BigDecimal luong;
+
+    @Column(name = "flag_delete", columnDefinition = "integer default 0")
+    private Integer flagDelete;
 }

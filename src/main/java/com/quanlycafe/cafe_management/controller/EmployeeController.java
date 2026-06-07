@@ -22,17 +22,14 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
  * EmployeeController
- * <p>
- * Version 1.0
- * <p>
- * Date: 06-06-2026
- * <p>
- * Copyright
- * <p>
- * Modification Logs:
+ * * Version 1.1
+ * * Date: 07-06-2026
+ * * Copyright
+ * * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 06-06-2026 lhthoai      Create and update logic
+ * 07-06-2026 Quản Lý      Update Dynamic Role Filter
  */
 @Controller
 @RequiredArgsConstructor
@@ -41,18 +38,18 @@ public class EmployeeController {
     private final EmployeeService employeeService;
 
     /**
-     * Hiển thị trang quản lý nhân viên (có phân trang, sắp xếp theo tên)
-     * * @param role
+     * Hiển thị trang quản lý nhân viên (có phân trang, sắp xếp theo tên, lọc động)
      *
-     * @param keyword
-     * @param page
-     * @param size
-     * @param model
+     * @param roleId  Integer (Mã chức vụ cần lọc)
+     * @param keyword String
+     * @param page    int
+     * @param size    int
+     * @param model   Model
      * @return String
      */
     @GetMapping("/employees")
     public String showEmployeeManager(
-            @RequestParam(required = false) String role,
+            @RequestParam(required = false, name = "role") Integer roleId,
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -61,10 +58,11 @@ public class EmployeeController {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Order.asc("hoTen").ignoreCase()));
         Page<UserProfileDTO> employeePage;
 
+        // Ưu tiên tìm kiếm từ khóa trước, nếu không thì lọc theo chức vụ
         if (keyword != null && !keyword.trim().isEmpty()) {
             employeePage = employeeService.searchEmployees(keyword.trim(), pageable);
-        } else if (role != null && !role.trim().isEmpty()) {
-            employeePage = employeeService.getEmployeesByRoleType(role, pageable);
+        } else if (roleId != null) {
+            employeePage = employeeService.getEmployeesByRoleId(roleId, pageable);
         } else {
             employeePage = employeeService.getAllEmployees(pageable);
         }
@@ -75,8 +73,9 @@ public class EmployeeController {
         model.addAttribute("totalEmployees", employeePage.getTotalElements());
         model.addAttribute("activeTab", "employee");
         model.addAttribute("keyword", keyword);
+        model.addAttribute("selectedRole", roleId); // Trả lại ID được chọn để view highlight
 
-        // ĐÂY LÀ DÒNG CODE QUAN TRỌNG ĐƯỢC THÊM VÀO ĐỂ LẤY DANH SÁCH CHỨC VỤ TỪ DB
+        // Load danh sách chức vụ động từ DB ra giao diện
         model.addAttribute("listRoles", employeeService.getAllChucVu());
 
         if (!model.containsAttribute("addForm")) {
@@ -92,11 +91,11 @@ public class EmployeeController {
 
     /**
      * Thêm nhân viên
-     * * @param form
      *
-     * @param bindingResult
-     * @param redirectAttributes
-     * @param request
+     * @param form               EmployeeFormDTO
+     * @param bindingResult      BindingResult
+     * @param redirectAttributes RedirectAttributes
+     * @param request            HttpServletRequest
      * @return String
      */
     @PostMapping("/employees/add")
@@ -136,11 +135,11 @@ public class EmployeeController {
 
     /**
      * Sửa nhân viên
-     * * @param form
      *
-     * @param bindingResult
-     * @param redirectAttributes
-     * @param request
+     * @param form               EmployeeFormDTO
+     * @param bindingResult      BindingResult
+     * @param redirectAttributes RedirectAttributes
+     * @param request            HttpServletRequest
      * @return String
      */
     @PostMapping("/employees/edit")
@@ -182,10 +181,10 @@ public class EmployeeController {
 
     /**
      * Xóa nhân viên
-     * * @param maNhanVien
      *
-     * @param redirectAttributes
-     * @param request
+     * @param maNhanVien         Integer
+     * @param redirectAttributes RedirectAttributes
+     * @param request            HttpServletRequest
      * @return String
      */
     @PostMapping("/employees/delete")

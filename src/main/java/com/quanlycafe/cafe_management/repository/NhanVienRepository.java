@@ -10,8 +10,8 @@ import java.util.Optional;
 
 /**
  * NhanVienRepository
- * * Version 1.2
- * * Date: 04-06-2026
+ * * Version 1.3
+ * * Date: 07-06-2026
  * * Copyright
  * * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
@@ -19,6 +19,7 @@ import java.util.Optional;
  * 29-05-2026 lthoai       Create
  * 30-05-2026 Quản Lý      Apply Pagination (Pageable)
  * 04-06-2026 Quản Lý      Standardize Java Convention
+ * 07-06-2026 Quản Lý      Add findByChucVu_MaChucVu for dynamic filtering
  */
 @Repository
 public interface NhanVienRepository extends JpaRepository<NhanVien, Integer> {
@@ -32,7 +33,16 @@ public interface NhanVienRepository extends JpaRepository<NhanVien, Integer> {
     Optional<NhanVien> findByTaiKhoan_TenDangNhap(String tenDangNhap);
 
     /**
-     * Tìm danh sách nhân viên theo tên chức vụ (Có phân trang)
+     * Tìm danh sách nhân viên theo mã chức vụ (Có phân trang)
+     *
+     * @param maChucVu Integer
+     * @param pageable Pageable
+     * @return Page<NhanVien>
+     */
+    Page<NhanVien> findByChucVu_MaChucVu(Integer maChucVu, Pageable pageable);
+
+    /**
+     * Tìm danh sách nhân viên theo tên chức vụ (Có phân trang) - Đã giữ lại để dự phòng
      *
      * @param tenChucVu String
      * @param pageable  Pageable

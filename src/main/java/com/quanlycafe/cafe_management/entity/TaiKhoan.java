@@ -7,12 +7,14 @@ import lombok.NoArgsConstructor;
 
 /**
  * TaiKhoan
- * Version 1.0
- * Date: 29-05-2026
+ * Version 1.1
+ * Date: 07-06-2026
+ * Copyright
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026 lthoai       Create
+ * 07-06-2026 lthoai      Update mapping DB schema (add flag_delete), clean wildcard imports
  */
 @Entity
 @Table(name = "taikhoan")
@@ -37,4 +39,7 @@ public class TaiKhoan {
 
     @Column(name = "anh", columnDefinition = "TEXT")
     private String anh;
+
+    @Column(name = "flag_delete", columnDefinition = "integer default 0")
+    private Integer flagDelete;
 }

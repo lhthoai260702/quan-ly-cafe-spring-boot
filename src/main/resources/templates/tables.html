@@ -10,7 +10,12 @@
 
     <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 md:mb-8 gap-4">
         <div>
-            <h2 class="text-xl md:text-2xl font-bold text-[#1a1c1b] font-sans">Sơ Đồ Bàn & Phòng</h2>
+            <div class="flex items-center gap-3">
+                <h2 class="text-xl md:text-2xl font-bold text-[#1a1c1b] font-sans">Sơ Đồ Bàn & Phòng</h2>
+                <span class="bg-[#ffdcc6] text-[#553722] text-xs font-bold px-2.5 py-1 rounded-full shadow-sm"
+                      th:text="${totalElements != null ? totalElements : 0} + ' bàn'">0 bàn</span>
+            </div>
+
             <p class="text-xs md:text-sm text-[#50453e] opacity-80 mt-1">Quản lý trạng thái bàn, order món và thanh toán
                 cho khách hàng.</p>
         </div>
@@ -25,22 +30,22 @@
                 <button type="submit" name="status" value="Tất cả"
                         class="w-full sm:w-auto px-2 md:px-4 py-2.5 md:py-2 text-[11px] md:text-xs font-semibold rounded-xl transition-all shadow-sm"
                         th:classappend="${currentStatus == 'Tất cả' ? 'bg-[#553722] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">
-                    Tất cả (<span th:text="${tongSoBan}">0</span>)
+                    Tất cả
                 </button>
                 <button type="submit" name="status" value="Trống"
                         class="w-full sm:w-auto px-2 md:px-4 py-2.5 md:py-2 text-[11px] md:text-xs font-semibold rounded-xl transition-all shadow-sm"
                         th:classappend="${currentStatus == 'Trống' ? 'bg-[#553722] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">
-                    Trống (<span th:text="${soBanTrong}">0</span>)
+                    Trống
                 </button>
                 <button type="submit" name="status" value="Có khách"
                         class="w-full sm:w-auto px-2 md:px-4 py-2.5 md:py-2 text-[11px] md:text-xs font-semibold rounded-xl transition-all shadow-sm"
                         th:classappend="${currentStatus == 'Có khách' ? 'bg-amber-500 text-white' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'}">
-                    Có khách (<span th:text="${soBanCoKhach}">0</span>)
+                    Có khách
                 </button>
                 <button type="submit" name="status" value="Đã đặt"
                         class="w-full sm:w-auto px-2 md:px-4 py-2.5 md:py-2 text-[11px] md:text-xs font-semibold rounded-xl transition-all shadow-sm"
                         th:classappend="${currentStatus == 'Đã đặt' ? 'bg-blue-500 text-white' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}">
-                    Đã đặt (<span th:text="${soBanDaDat}">0</span>)
+                    Đã đặt
                 </button>
             </div>
 
@@ -57,25 +62,25 @@
             </div>
         </form>
 
-        <!-- KHỐI LƯỚI DANH SÁCH BÀN (TỐI ĐA 4 CỘT) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6" id="tableGrid">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6" id="tableGrid">
             <div th:each="ban : ${danhSachBan}"
                  th:id="'table-card-' + ${ban.maBan}"
                  th:data-id="${ban.maBan}"
                  th:data-ten="${ban.tenBan}"
                  th:data-tinhtrang="${ban.tinhTrang}"
                  onclick="handleTableClick(this)"
-                 class="table-card p-4 rounded-2xl border transition-all cursor-pointer relative shadow-sm hover:shadow-md flex flex-col justify-between h-32 w-full"
+                 class="table-card p-4 rounded-2xl border transition-all cursor-pointer relative shadow-sm hover:shadow-md flex flex-col justify-between h-full min-h-[128px] w-full"
                  th:classappend="${ban.tinhTrang == 'Đang sử dụng' ? 'bg-[#fff8ed] border-[#fde68a]' :
                          (ban.tinhTrang == 'Đã đặt trước' ? 'bg-[#eff6ff] border-[#bfdbfe]' :
                          'bg-white border-[#e2e3e1]')}">
 
-                <div class="flex justify-between items-start gap-2">
-                    <div class="flex-1 min-w-0">
-                        <h3 class="font-bold text-sm text-[#1a1c1b] truncate" th:text="${ban.tenBan}">Bàn X</h3>
+                <div class="flex flex-col items-start gap-2 mb-3 w-full">
+                    <div class="w-full">
+                        <h3 class="font-bold text-sm text-[#1a1c1b] break-words whitespace-normal w-full"
+                            th:text="${ban.tenBan}">Bàn X</h3>
                     </div>
 
-                    <span class="w-[90px] flex-shrink-0 text-center inline-block text-[9px] px-1.5 py-1 font-bold uppercase tracking-wider rounded-md text-white shadow-sm"
+                    <span class="w-max flex-shrink-0 text-center inline-block text-[10px] px-2.5 py-1 font-bold uppercase tracking-wider rounded-md text-white shadow-sm"
                           th:text="${ban.tinhTrang}"
                           th:classappend="${ban.tinhTrang == 'Đang sử dụng' ? 'bg-[#f59e0b]' :
                                   (ban.tinhTrang == 'Đã đặt trước' ? 'bg-[#3b82f6]' :
@@ -84,7 +89,7 @@
                     </span>
                 </div>
 
-                <div class="pt-2 border-t border-dashed border-[#e2e3e1] flex items-center justify-end">
+                <div class="mt-auto pt-3 border-t border-dashed border-[#e2e3e1] flex items-center justify-end">
                     <div th:if="${ban.tinhTrang == 'Đang sử dụng'}">
                         <span class="text-xs font-bold text-[#d97706]"><i class="fa-solid fa-mug-hot mr-1.5"></i>Đang phục vụ</span>
                     </div>
@@ -99,21 +104,18 @@
             </div>
         </div>
 
-        <!-- KHỐI GIAO DIỆN PHÂN TRANG (CỬA SỔ TRƯỢT 5 TRANG) -->
         <div th:if="${totalPages > 1}"
              th:with="
                 startPage=${totalPages <= 5 ? 1 : (currentPage <= 3 ? 1 : (currentPage >= totalPages - 2 ? totalPages - 4 : currentPage - 2))},
                 endPage=${totalPages <= 5 ? totalPages : (currentPage <= 3 ? 5 : (currentPage >= totalPages - 2 ? totalPages : currentPage + 2))}"
              class="flex justify-center items-center mt-8 gap-1.5 md:gap-2">
 
-            <!-- Nút << (Trang đầu tiên) - Chỉ hiện khi khối 5 trang KHÔNG chứa trang 1 -->
             <a th:if="${startPage > 1}"
                th:href="@{/tables(page=1, status=${param.status}, search=${param.search})}"
                class="w-8 h-8 flex items-center justify-center rounded-lg border border-[#e2e3e1] bg-white text-[#50453e] hover:bg-[#f4f4f2] text-sm transition-colors shadow-sm">
                 <i class="fa-solid fa-angles-left text-[10px]"></i>
             </a>
 
-            <!-- Vòng lặp in 5 trang trượt -->
             <th:block th:each="i : ${#numbers.sequence(startPage, endPage)}">
                 <a th:href="@{/tables(page=${i}, status=${param.status}, search=${param.search})}"
                    th:text="${i}"
@@ -122,7 +124,6 @@
                 </a>
             </th:block>
 
-            <!-- Nút >> (Trang cuối cùng) - Chỉ hiện khi khối 5 trang KHÔNG chứa trang cuối -->
             <a th:if="${endPage < totalPages}"
                th:href="@{/tables(page=${totalPages}, status=${param.status}, search=${param.search})}"
                class="w-8 h-8 flex items-center justify-center rounded-lg border border-[#e2e3e1] bg-white text-[#50453e] hover:bg-[#f4f4f2] text-sm transition-colors shadow-sm">
@@ -130,7 +131,6 @@
             </a>
 
         </div>
-        <!-- KẾT THÚC KHỐI PHÂN TRANG -->
     </main>
 
     <div id="bottomActionBar"

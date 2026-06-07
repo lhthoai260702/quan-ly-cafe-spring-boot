@@ -53,12 +53,16 @@ public class TablesController {
             @RequestParam(name = "status", required = false) String status,
             @RequestParam(name = "search", required = false) String search,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "16") int size,
+            @RequestParam(defaultValue = "15") int size,
             Model model) {
 
-        // 1. Xử lý phân trang (Sắp xếp theo tên bàn mặc định)
+        // 1. Xử lý phân trang (Sắp xếp theo tên bàn mặc định - Không phân biệt hoa/thường)
         org.springframework.data.domain.Pageable pageable =
-                org.springframework.data.domain.PageRequest.of(page - 1, size, org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.ASC, "tenBan"));
+                org.springframework.data.domain.PageRequest.of(page - 1, size,
+                        org.springframework.data.domain.Sort.by(
+                                org.springframework.data.domain.Sort.Order.asc("tenBan").ignoreCase()
+                        )
+                );
 
         org.springframework.data.domain.Page<Ban> banPage = tablesService.getTablesWithPagination(status, search, pageable);
         List<ThucDon> danhSachThucDon = thucDonRepository.findAll();
@@ -73,6 +77,7 @@ public class TablesController {
         model.addAttribute("danhSachBan", banPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", banPage.getTotalPages());
+        model.addAttribute("totalElements", banPage.getTotalElements());
 
         model.addAttribute("currentStatus", status != null ? status : "Tất cả");
         model.addAttribute("currentSearch", search != null ? search : "");
