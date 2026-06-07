@@ -1,7 +1,10 @@
 package com.quanlycafe.cafe_management.controller;
 
 import com.quanlycafe.cafe_management.dto.MenuFormDTO;
+import com.quanlycafe.cafe_management.entity.ChiTietThucDon;
 import com.quanlycafe.cafe_management.entity.ThucDon;
+import com.quanlycafe.cafe_management.repository.ChiTietThucDonRepository;
+import com.quanlycafe.cafe_management.repository.HangHoaRepository;
 import com.quanlycafe.cafe_management.service.MenuService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,10 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * MenuController
  * <p>
- * Version 1.3
+ * Version 1.4
  * <p>
  * Date: 30-05-2026
  * <p>
@@ -34,21 +34,24 @@ import java.util.List;
  * -----------------------------------------------------------------------
  * 29-05-2026 lhthoai      Create
  * 30-05-2026 lhthoai      Add Pagination, Sort by name ignore case, Java Convention
+ * 07-06-2026 Quản Lý      Integrate HangHoa for recipe/ingredients selection
  */
 @Controller
 @RequiredArgsConstructor
 public class MenuController {
 
     private final MenuService menuService;
+    private final HangHoaRepository hangHoaRepository;
+    private final ChiTietThucDonRepository chiTietThucDonRepository;
 
     /**
      * Hiển thị trang quản lý thực đơn (có phân trang, sắp xếp theo tên, hiển thị tổng số lượng)
-     * * @param category
      *
-     * @param keyword
-     * @param page
-     * @param size
-     * @param model
+     * @param category String
+     * @param keyword  String
+     * @param page     int
+     * @param size     int
+     * @param model    Model
      * @return String
      */
     @GetMapping("/menu")
@@ -59,7 +62,6 @@ public class MenuController {
             @RequestParam(defaultValue = "10") int size,
             Model model) {
 
-        // Bổ sung sắp xếp theo tên món không phân biệt in hoa/thường
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Order.asc("tenMon").ignoreCase()));
         Page<ThucDon> menuPage;
 
@@ -74,13 +76,14 @@ public class MenuController {
         model.addAttribute("menuItems", menuPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", menuPage.getTotalPages());
-        // Bổ sung tổng số lượng record
         model.addAttribute("totalItems", menuPage.getTotalElements());
-
         model.addAttribute("categories", categories);
         model.addAttribute("currentCategory", category);
         model.addAttribute("keyword", keyword);
         model.addAttribute("activeTab", "menu");
+
+        // Truyền danh sách Hàng Hóa vào Model để hiển thị dropdown nguyên liệu
+        model.addAttribute("listHangHoa", hangHoaRepository.findAll());
 
         if (!model.containsAttribute("addForm")) {
             model.addAttribute("addForm", new MenuFormDTO());
@@ -93,11 +96,38 @@ public class MenuController {
     }
 
     /**
-     * Thêm món mới vào thực đơn
-     * * @param form
+     * Lấy danh sách nguyên liệu
      *
-     * @param bindingResult
-     * @param redirectAttributes
+     * @param maThucDon
+     * @return
+     */
+    @GetMapping("/api/menu/ingredients/{maThucDon}")
+    @ResponseBody
+    public org.springframework.http.ResponseEntity<java.util.List<java.util.Map<String, Object>>> getIngredientsByThucDon(@PathVariable Integer maThucDon) {
+        List<ChiTietThucDon> list = chiTietThucDonRepository.findByMaThucDon(maThucDon);
+        java.util.List<java.util.Map<String, Object>> result = new java.util.ArrayList<>();
+
+        for (ChiTietThucDon c : list) {
+            java.util.Map<String, Object> map = new java.util.HashMap<>();
+            map.put("maHangHoa", c.getMaHangHoa());
+            map.put("khoiLuong", c.getKhoiLuong());
+            map.put("donViTinh", c.getDonViTinh());
+
+            // Lấy tên nguyên liệu để FE hiển thị
+            hangHoaRepository.findById(c.getMaHangHoa()).ifPresent(hh -> {
+                map.put("tenHangHoa", hh.getTenHangHoa());
+            });
+            result.add(map);
+        }
+        return org.springframework.http.ResponseEntity.ok(result);
+    }
+
+    /**
+     * Thêm món mới vào thực đơn kèm thành phần
+     *
+     * @param form               MenuFormDTO
+     * @param bindingResult      BindingResult
+     * @param redirectAttributes RedirectAttributes
      * @return String
      */
     @PostMapping("/menu/add")
@@ -124,10 +154,10 @@ public class MenuController {
 
     /**
      * Cập nhật thông tin món trong thực đơn
-     * * @param form
      *
-     * @param bindingResult
-     * @param redirectAttributes
+     * @param form               MenuFormDTO
+     * @param bindingResult      BindingResult
+     * @param redirectAttributes RedirectAttributes
      * @return String
      */
     @PostMapping("/menu/edit")
@@ -154,14 +184,13 @@ public class MenuController {
 
     /**
      * Xóa món khỏi thực đơn
-     * * @param maThucDon
      *
-     * @param redirectAttributes
+     * @param maThucDon          Integer
+     * @param redirectAttributes RedirectAttributes
      * @return String
      */
     @PostMapping("/menu/delete")
-    public String deleteMenuItem(@RequestParam Integer maThucDon,
-                                 RedirectAttributes redirectAttributes) {
+    public String deleteMenuItem(@RequestParam Integer maThucDon, RedirectAttributes redirectAttributes) {
         try {
             menuService.deleteMenuItem(maThucDon);
             redirectAttributes.addFlashAttribute("successMsg", "Đã xóa món khỏi thực đơn!");

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.math.BigDecimal;
 
@@ -15,9 +16,11 @@ import java.math.BigDecimal;
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026 lthoai       Create
+ * 07-06-2026 lthoai       Update DB schema (Add flag_delete, anh, SQLRestriction)
  */
 @Entity
 @Table(name = "thucdon")
+@SQLRestriction("flag_delete = 0 OR flag_delete IS NULL")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -36,4 +39,10 @@ public class ThucDon {
 
     @Column(name = "loaimon", length = 50)
     private String loaiMon;
+
+    @Column(name = "anh", columnDefinition = "TEXT")
+    private String anh;
+
+    @Column(name = "flag_delete", columnDefinition = "INT DEFAULT 0")
+    private Integer flagDelete = 0;
 }
