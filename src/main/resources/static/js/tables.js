@@ -235,3 +235,53 @@ function savePrintSettings() {
     alert("Đã lưu cấu hình thiết bị in ấn của quầy thành công!");
     closePrintSettingsModal();
 }
+
+document.addEventListener('change', function(e) {
+    // Kiểm tra xem phần tử vừa thay đổi có phải là combobox Khuyến mãi không
+    if (e.target && e.target.id === 'khuyenMaiSelect') {
+        var selectedOption = e.target.options[e.target.selectedIndex];
+        var tongTienGocElem = document.getElementById('tongTienGoc');
+        var tongTienCuoiElem = document.getElementById('tongTienCuoi');
+        var giamGiaTextElem = document.getElementById('giamGiaText');
+
+        if (!tongTienGocElem || !tongTienCuoiElem || !giamGiaTextElem) return;
+
+        // Lấy tổng tiền chưa giảm từ thuộc tính data-goc
+        var tongGoc = parseFloat(tongTienGocElem.getAttribute('data-goc')) || 0;
+
+        if (selectedOption.value === "") {
+            // Nếu không chọn KM: Khôi phục lại hiển thị ban đầu
+            tongTienCuoiElem.innerText = new Intl.NumberFormat('vi-VN').format(tongGoc) + ' đ';
+            tongTienGocElem.classList.add('hidden');
+            giamGiaTextElem.classList.add('hidden');
+        } else {
+            // Nếu có chọn KM: Lấy giá trị và tính toán
+            var loaiKm = selectedOption.getAttribute('data-loai').toLowerCase();
+            var giaTriGiam = parseFloat(selectedOption.getAttribute('data-giatri'));
+            var tienGiam = 0;
+
+            if (loaiKm.includes('phần')) {
+                tienGiam = tongGoc * (giaTriGiam / 100);
+            } else {
+                tienGiam = giaTriGiam;
+            }
+
+            // ÉP VỀ 0 NẾU SỐ TIỀN GIẢM VƯỢT QUÁ TỔNG TIỀN
+            var tongCuoi = Math.max(tongGoc - tienGiam, 0);
+
+            // Cập nhật giao diện
+            tongTienGocElem.classList.remove('hidden');
+            giamGiaTextElem.classList.remove('hidden');
+            giamGiaTextElem.innerText = 'Đã giảm: -' + new Intl.NumberFormat('vi-VN').format(tienGiam) + ' đ';
+            tongTienCuoiElem.innerText = new Intl.NumberFormat('vi-VN').format(tongCuoi) + ' đ';
+        }
+    }
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+    var errorMsg = /*[[${errorMsg}]]*/ null;
+    if (errorMsg) {
+        // Tận dụng hàm showCustomError có sẵn trong tables.js của bạn
+        showCustomError(errorMsg);
+    }
+});

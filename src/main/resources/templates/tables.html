@@ -201,11 +201,11 @@
 
     <div id="addOrderModal"
          class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[60] transition-all duration-300 p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col transform transition-all scale-100">
+        <div class="bg-white rounded-2xl shadow-2xl w-[70vw] max-h-[90vh] flex flex-col">
             <div class="flex justify-between items-center px-4 md:px-6 py-4 border-b shrink-0 bg-gray-50 rounded-t-2xl">
                 <h3 class="text-base md:text-lg font-bold text-[#553722]"><i class="fa-solid fa-utensils mr-2"></i>Chọn
                     Món / Gọi Món</h3>
-                <button type="button" onclick="closeViewOrderModal()"
+                <button type="button" onclick="closeOrderModal()"
                         class="text-gray-400 hover:text-red-500 transition-all">
                     <i class="fa-solid fa-xmark text-xl"></i>
                 </button>
@@ -222,26 +222,40 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 px-4 md:px-6 pb-4 overflow-y-auto flex-1 custom-scrollbar">
                     <div th:each="mon : ${danhSachThucDon}"
-                         class="border border-gray-200 rounded-xl p-3 flex justify-between items-center bg-gray-50 hover:bg-white transition-all shadow-sm">
+                         class="border border-gray-200 rounded-xl p-3 flex justify-between items-center transition-all shadow-sm"
+                         th:classappend="${mon.is_available} ? 'bg-gray-50 hover:bg-white' : 'bg-gray-100 opacity-60 grayscale pointer-events-none'">
+
                         <div>
-                            <h4 class="font-bold text-xs md:text-sm text-[#553722] line-clamp-1"
-                                th:text="${mon.tenMon}">Tên món</h4>
-                            <p class="text-[11px] md:text-xs text-amber-600 font-semibold mt-0.5"
-                               th:text="${#numbers.formatDecimal(mon.giaTienHienTai, 0, 'COMMA', 0, 'POINT')} + ' đ'">0
-                                đ</p>
+                            <h4 class="font-bold text-xs md:text-sm line-clamp-1"
+                                th:classappend="${mon.is_available} ? 'text-[#553722]' : 'text-gray-500'"
+                                th:text="${mon.tenmon}">Tên món</h4>
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <p class="text-[11px] md:text-xs font-semibold"
+                                   th:classappend="${mon.is_available} ? 'text-amber-600' : 'text-gray-400'"
+                                   th:text="${#numbers.formatDecimal(mon.giatienhientai, 0, 'COMMA', 0, 'POINT')} + ' đ'">
+                                    0 đ</p>
+
+                                <span th:if="${!mon.is_available}"
+                                      class="text-[9px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">
+                                Hết nguyên liệu
+                            </span>
+                            </div>
                         </div>
 
-                        <div class="flex items-center gap-1 md:gap-2 bg-white border border-gray-200 rounded-lg p-1 shrink-0">
-                            <input type="hidden" name="maThucDon" th:value="${mon.maThucDon}">
+                        <div class="flex items-center gap-1 md:gap-2 bg-white border border-gray-200 rounded-lg p-1 shrink-0"
+                             th:classappend="${!mon.is_available} ? 'opacity-50'">
+                            <input type="hidden" name="maThucDon" th:value="${mon.mathucdon}">
                             <button type="button" onclick="giamSoLuong(this)"
-                                    class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-gray-100 text-gray-600 rounded hover:bg-gray-200 transition-all font-bold text-sm md:text-base">
+                                    class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-gray-100 text-gray-600 rounded transition-all font-bold text-sm md:text-base"
+                                    th:classappend="${mon.is_available} ? 'hover:bg-gray-200' : 'cursor-not-allowed'">
                                 -
                             </button>
                             <input type="number" name="soLuong" value="0" min="0"
                                    class="w-6 md:w-8 text-center text-xs md:text-sm font-bold border-none focus:ring-0 p-0 text-gray-700 bg-transparent"
                                    readonly>
                             <button type="button" onclick="tangSoLuong(this)"
-                                    class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-amber-100 text-amber-700 rounded hover:bg-amber-200 transition-all font-bold text-sm md:text-base">
+                                    class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center rounded transition-all font-bold text-sm md:text-base"
+                                    th:classappend="${mon.is_available} ? 'bg-amber-100 text-amber-700 hover:bg-amber-200' : 'bg-gray-100 text-gray-400 cursor-not-allowed'">
                                 +
                             </button>
                         </div>
@@ -272,7 +286,7 @@
 
     <div id="transferModal"
          class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[60] transition-all duration-300 p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-5 md:p-6 transform transition-all scale-100">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col transform transition-all scale-100">
             <h3 class="text-base md:text-lg font-bold text-[#553722] mb-4 border-b pb-2"><i
                     class="fa-solid fa-arrow-right-arrow-left mr-2"></i>Chuyển Bàn</h3>
             <form th:action="@{/tables/transfer}" method="post">

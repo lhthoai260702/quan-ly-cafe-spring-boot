@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -44,6 +45,7 @@ public class MenuController {
     private final MenuService menuService;
     private final HangHoaRepository hangHoaRepository;
     private final ChiTietThucDonRepository chiTietThucDonRepository;
+    private final JdbcTemplate jdbcTemplate;
 
     /**
      * Hiển thị trang quản lý thực đơn (có phân trang, sắp xếp theo tên, hiển thị tổng số lượng)
@@ -84,7 +86,7 @@ public class MenuController {
         model.addAttribute("activeTab", "menu");
 
         // Truyền danh sách Hàng Hóa vào Model để hiển thị dropdown nguyên liệu
-        model.addAttribute("listHangHoa", hangHoaRepository.findAll());
+        model.addAttribute("listHangHoa", hangHoaRepository.findAll(Sort.by(Sort.Order.asc("tenHangHoa").ignoreCase())));
 
         if (!model.containsAttribute("addForm")) {
             model.addAttribute("addForm", new MenuFormDTO());
@@ -114,10 +116,18 @@ public class MenuController {
             map.put("khoiLuong", c.getKhoiLuong());
             map.put("donViTinh", c.getDonViTinh());
 
-            // Lấy tên nguyên liệu để FE hiển thị
-            hangHoaRepository.findById(c.getMaHangHoa()).ifPresent(hh -> {
-                map.put("tenHangHoa", hh.getTenHangHoa());
-            });
+            // Thay vì dùng hangHoaRepository.findById (bị chặn bởi cờ flag_delete = 0)
+            // Ta dùng Native SQL để ép lấy tên hàng hóa dù nó đã bị xóa
+            try {
+                String sql = "SELECT tenhanghoa FROM hanghoa WHERE mahanghoa = ?";
+                String tenHangHoa = jdbcTemplate.queryForObject(sql, String.class, c.getMaHangHoa());
+
+                // Đánh dấu thêm "(Đã ngưng)" để Quản lý dễ nhận biết nguyên liệu này không còn dùng nữa
+                map.put("tenHangHoa", tenHangHoa);
+            } catch (Exception e) {
+                map.put("tenHangHoa", "Nguyên liệu không xác định");
+            }
+
             result.add(map);
         }
         return org.springframework.http.ResponseEntity.ok(result);

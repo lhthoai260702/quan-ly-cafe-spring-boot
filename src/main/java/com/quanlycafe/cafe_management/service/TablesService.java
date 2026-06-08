@@ -452,43 +452,101 @@ public class TablesService {
      */
     @Transactional
     public void themMonVaoBan(Integer maBan, Integer maNhanVien, List<Integer> danhSachMaMon, List<Integer> danhSachSoLuong) {
+
+        // --- BƯỚC 1: KIỂM TRA TỔNG TỒN KHO TRƯỚC KHI CHO PHÉP ORDER ---
+        if (danhSachMaMon != null && !danhSachMaMon.isEmpty()) {
+            java.util.Map<Integer, Double> tongNguyenLieuCan = new java.util.HashMap<>();
+            java.util.Map<Integer, String> tenNguyenLieuMap = new java.util.HashMap<>();
+            java.util.Map<Integer, Double> tonKhoMap = new java.util.HashMap<>();
+            java.util.Map<Integer, java.util.Set<String>> nguyenLieuToMonMap = new java.util.HashMap<>();
+
+            for (int i = 0; i < danhSachMaMon.size(); i++) {
+                Integer maMon = danhSachMaMon.get(i);
+                Integer soLuong = danhSachSoLuong.get(i);
+
+                if (soLuong != null && soLuong > 0) {
+                    // Lấy công thức của món này
+                    String sqlCongThuc = "SELECT ct.mahanghoa, ct.khoiluong, td.tenmon, hh.tenhanghoa, hh.soluong " +
+                            "FROM chitietthucdon ct " +
+                            "JOIN thucdon td ON ct.mathucdon = td.mathucdon " +
+                            "JOIN hanghoa hh ON ct.mahanghoa = hh.mahanghoa " +
+                            "WHERE ct.mathucdon = ?";
+                    List<Map<String, Object>> listCongThuc = jdbcTemplate.queryForList(sqlCongThuc, maMon);
+
+                    for (Map<String, Object> row : listCongThuc) {
+                        Integer maHangHoa = ((Number) row.get("mahanghoa")).intValue();
+                        Double khoiLuong1Phan = ((Number) row.get("khoiluong")).doubleValue();
+                        String tenMon = (String) row.get("tenmon");
+                        String tenHangHoa = (String) row.get("tenhanghoa");
+                        Double tonKhoHienTai = row.get("soluong") != null ? ((Number) row.get("soluong")).doubleValue() : 0.0;
+
+                        // Cộng dồn nguyên liệu nếu nhiều món dùng chung
+                        double tongCan = khoiLuong1Phan * soLuong;
+                        tongNguyenLieuCan.put(maHangHoa, tongNguyenLieuCan.getOrDefault(maHangHoa, 0.0) + tongCan);
+
+                        tenNguyenLieuMap.put(maHangHoa, tenHangHoa);
+                        tonKhoMap.put(maHangHoa, tonKhoHienTai);
+
+                        // Lưu lại danh sách các món bị ảnh hưởng bởi nguyên liệu này
+                        nguyenLieuToMonMap.computeIfAbsent(maHangHoa, k -> new java.util.HashSet<>()).add(tenMon);
+                    }
+                }
+            }
+
+            // Đối chiếu tổng nguyên liệu cần với kho thực tế
+            List<String> loiThieuHang = new java.util.ArrayList<>();
+            for (java.util.Map.Entry<Integer, Double> entry : tongNguyenLieuCan.entrySet()) {
+                Integer maHangHoa = entry.getKey();
+                Double canDung = entry.getValue();
+                Double tonKho = tonKhoMap.get(maHangHoa);
+
+                if (canDung > tonKho) {
+                    String tenNguyenLieu = tenNguyenLieuMap.get(maHangHoa);
+                    java.util.Set<String> cacMonAnhHuong = nguyenLieuToMonMap.get(maHangHoa);
+
+                    loiThieuHang.add(String.format("Thiếu '%s' (Cần: %s, Kho còn: %s) cho món: [%s]",
+                            tenNguyenLieu, canDung, tonKho, String.join(", ", cacMonAnhHuong)));
+                }
+            }
+
+            // Nếu thiếu bất kỳ nguyên liệu nào, Throw Exception để hủy toàn bộ quá trình Order
+            if (!loiThieuHang.isEmpty()) {
+                throw new RuntimeException(String.join(".  ", loiThieuHang));
+            }
+        }
+        // --- KẾT THÚC BƯỚC 1 ---
+
+
+        // --- BƯỚC 2: TIẾN HÀNH ORDER NẾU ĐỦ HÀNG ---
         Ban ban = banRepository.findById(maBan)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy bàn"));
 
         Integer maHoaDon;
 
-        // 1. Kiểm tra trạng thái bàn và tìm/tạo Hóa Đơn
         if ("Trống".equalsIgnoreCase(ban.getTinhTrang())) {
-            // Cập nhật trạng thái bàn
             ban.setTinhTrang("Đang sử dụng");
             banRepository.save(ban);
 
-            // Tạo hóa đơn mới
             String sqlInsertHoaDon = "INSERT INTO hoadon (tongtien, trangthai) VALUES (0, 'Chưa thanh toán') RETURNING mahoadon";
             maHoaDon = jdbcTemplate.queryForObject(sqlInsertHoaDon, Integer.class);
 
-            // Tạo Chi tiết đặt bàn liên kết Hóa đơn, Bàn và Nhân viên
             String sqlInsertDatBan = "INSERT INTO chitietdatban (maban, manhanvien, mahoadon, tenkhachhang, ngaygiodat) VALUES (?, ?, ?, 'Khách vãng lai', CURRENT_TIMESTAMP)";
             jdbcTemplate.update(sqlInsertDatBan, maBan, maNhanVien, maHoaDon);
         } else {
-            // Tìm mã hóa đơn đang chưa thanh toán của bàn này
             String sqlFindHoaDon = "SELECT hd.mahoadon FROM hoadon hd JOIN chitietdatban ctdb ON hd.mahoadon = ctdb.mahoadon WHERE ctdb.maban = ? AND hd.trangthai = 'Chưa thanh toán' LIMIT 1";
             maHoaDon = jdbcTemplate.queryForObject(sqlFindHoaDon, Integer.class, maBan);
         }
 
-        // 2. Thêm món vào Chi tiết hóa đơn
         if (maHoaDon != null && danhSachMaMon != null) {
             for (int i = 0; i < danhSachMaMon.size(); i++) {
                 Integer maMon = danhSachMaMon.get(i);
                 Integer soLuong = danhSachSoLuong.get(i);
 
                 if (soLuong > 0) {
-                    // Lấy giá hiện tại của món
                     String sqlGiaMon = "SELECT giatienhientai FROM thucdon WHERE mathucdon = ?";
                     Double giaTien = jdbcTemplate.queryForObject(sqlGiaMon, Double.class, maMon);
                     Double thanhTien = giaTien * soLuong;
 
-                    // Kiểm tra món đã có trong hóa đơn chưa (nếu có thì cộng dồn, chưa thì insert)
                     String checkExist = "SELECT count(*) FROM chitiethoadon WHERE mahoadon = ? AND mathucdon = ?";
                     Integer count = jdbcTemplate.queryForObject(checkExist, Integer.class, maHoaDon, maMon);
 
@@ -502,39 +560,122 @@ public class TablesService {
                 }
             }
 
-            // 3. Cập nhật lại tổng tiền cho Hóa đơn
             String updateTongTien = "UPDATE hoadon SET tongtien = (SELECT COALESCE(SUM(thanhtien), 0) FROM chitiethoadon WHERE mahoadon = ?) WHERE mahoadon = ?";
             jdbcTemplate.update(updateTongTien, maHoaDon, maHoaDon);
         }
     }
 
     /**
-     * Thanh toán hóa đơn và giải phóng bàn
+     * Thanh toán hóa đơn, áp dụng khuyến mãi và trừ tồn kho
      *
-     * @param maBan Integer
+     * @param maBan       Integer
+     * @param maKhuyenMai Integer (có thể null nếu không áp dụng)
      */
     @Transactional
-    public void thanhToanHoaDon(Integer maBan) {
-        // 1. Tìm mã hóa đơn đang 'Chưa thanh toán' của bàn hiện tại
-        String sqlFindHoaDon = "SELECT hd.mahoadon FROM hoadon hd " +
+    public void thanhToanHoaDon(Integer maBan, Integer maKhuyenMai) {
+        // 1. Tìm mã hóa đơn
+        String sqlFindHoaDon = "SELECT hd.mahoadon, hd.tongtien FROM hoadon hd " +
                 "JOIN chitietdatban ctdb ON hd.mahoadon = ctdb.mahoadon " +
                 "WHERE ctdb.maban = ? AND hd.trangthai = 'Chưa thanh toán' LIMIT 1";
 
-        Integer maHoaDon = null;
+        Map<String, Object> hoaDonMap;
         try {
-            maHoaDon = jdbcTemplate.queryForObject(sqlFindHoaDon, Integer.class, maBan);
+            hoaDonMap = jdbcTemplate.queryForMap(sqlFindHoaDon, maBan);
         } catch (EmptyResultDataAccessException e) {
             throw new RuntimeException("Không tìm thấy hóa đơn chưa thanh toán cho bàn này!");
         }
 
-        if (maHoaDon != null) {
-            // 2. Đổi trạng thái Hóa đơn thành 'Đã thanh toán'
-            String sqlUpdateHoaDon = "UPDATE hoadon SET trangthai = 'Đã thanh toán' WHERE mahoadon = ?";
-            jdbcTemplate.update(sqlUpdateHoaDon, maHoaDon);
+        Integer maHoaDon = ((Number) hoaDonMap.get("mahoadon")).intValue();
+        Double tongTienBanDau = ((Number) hoaDonMap.get("tongtien")).doubleValue();
+        Double tongTienCuoiCung = tongTienBanDau;
 
-            // 3. Giải phóng Bàn (đổi tình trạng về 'Trống')
-            String sqlUpdateBan = "UPDATE ban SET tinhtrang = 'Trống' WHERE maban = ?";
-            jdbcTemplate.update(sqlUpdateBan, maBan);
+        // 2. Xử lý trừ nguyên liệu tồn kho (Inventory Deduction)
+        String sqlChiTietHoaDon = "SELECT mathucdon, soluong FROM chitiethoadon WHERE mahoadon = ?";
+        List<Map<String, Object>> listChiTiet = jdbcTemplate.queryForList(sqlChiTietHoaDon, maHoaDon);
+
+        for (Map<String, Object> chiTiet : listChiTiet) {
+            Integer maThucDon = ((Number) chiTiet.get("mathucdon")).intValue();
+            Integer soLuongMon = ((Number) chiTiet.get("soluong")).intValue();
+
+            // Tìm công thức của món ăn này
+            String sqlCongThuc = "SELECT mahanghoa, khoiluong FROM chitietthucdon WHERE mathucdon = ?";
+            List<Map<String, Object>> listCongThuc = jdbcTemplate.queryForList(sqlCongThuc, maThucDon);
+
+            for (Map<String, Object> nguyenLieu : listCongThuc) {
+                Integer maHangHoa = ((Number) nguyenLieu.get("mahanghoa")).intValue();
+                Double khoiLuong = ((Number) nguyenLieu.get("khoiluong")).doubleValue();
+
+                // Tính tổng nguyên liệu cần trừ = Số lượng món * Khối lượng công thức
+                Double tongTru = soLuongMon * khoiLuong;
+
+                // Cập nhật trừ kho
+                String sqlTruKho = "UPDATE hanghoa SET soluong = soluong - ? WHERE mahanghoa = ?";
+                jdbcTemplate.update(sqlTruKho, tongTru, maHangHoa);
+            }
         }
+
+        // 3. Xử lý khuyến mãi (Nếu có)
+        if (maKhuyenMai != null) {
+            String sqlKm = "SELECT loaikhuyenmai, giatrigiam FROM khuyenmai WHERE makhuyenmai = ?";
+            try {
+                Map<String, Object> kmMap = jdbcTemplate.queryForMap(sqlKm, maKhuyenMai);
+                String loaiKm = (String) kmMap.get("loaikhuyenmai");
+                Double giaTriGiam = ((Number) kmMap.get("giatrigiam")).doubleValue();
+
+                if (loaiKm != null && loaiKm.toLowerCase().contains("phần")) {
+                    // Khuyến mãi %
+                    tongTienCuoiCung = tongTienBanDau - (tongTienBanDau * giaTriGiam / 100);
+                } else {
+                    // Khuyến mãi tiền mặt
+                    tongTienCuoiCung = tongTienBanDau - giaTriGiam;
+                }
+
+                // Chống âm tiền nếu khuyến mãi lớn hơn cả tiền món
+                if (tongTienCuoiCung < 0) tongTienCuoiCung = 0.0;
+            } catch (Exception e) {
+                // Khuyến mãi không hợp lệ, bỏ qua
+                maKhuyenMai = null;
+            }
+        }
+
+        // 4. Cập nhật hóa đơn
+        String sqlUpdateHoaDon = "UPDATE hoadon SET trangthai = 'Đã thanh toán', tongtien = ?, makhuyenmai = ? WHERE mahoadon = ?";
+        jdbcTemplate.update(sqlUpdateHoaDon, tongTienCuoiCung, maKhuyenMai, maHoaDon);
+
+        // 5. Giải phóng Bàn
+        String sqlUpdateBan = "UPDATE ban SET tinhtrang = 'Trống' WHERE maban = ?";
+        jdbcTemplate.update(sqlUpdateBan, maBan);
+    }
+
+    /**
+     * Lấy danh sách khuyến mãi đang hợp lệ
+     *
+     * @return List<Map<String, Object>>
+     */
+    public List<Map<String, Object>> getKhuyenMaiHopLe() {
+        String sql = "SELECT makhuyenmai, tenkhuyenmai, loaikhuyenmai, giatrigiam " +
+                "FROM khuyenmai " +
+                "WHERE flag_delete = 0 AND CURRENT_DATE >= ngaybatdau AND CURRENT_DATE <= ngayketthuc";
+        return jdbcTemplate.queryForList(sql);
+    }
+
+    /**
+     * Lấy danh sách thực đơn kèm trạng thái còn/hết nguyên liệu
+     * Sắp xếp A-Z không phân biệt hoa thường
+     *
+     * @return List<Map<String, Object>>
+     */
+    public List<Map<String, Object>> getDanhSachThucDonVoiTrangThai() {
+        String sql = "SELECT td.mathucdon, td.tenmon, td.giatienhientai, " +
+                "CASE WHEN EXISTS ( " +
+                "    SELECT 1 FROM chitietthucdon ct " +
+                "    JOIN hanghoa hh ON ct.mahanghoa = hh.mahanghoa " +
+                "    WHERE ct.mathucdon = td.mathucdon AND COALESCE(hh.soluong, 0) < ct.khoiluong " +
+                ") THEN false ELSE true END AS is_available " +
+                "FROM thucdon td " +
+                "WHERE td.flag_delete = 0 " +
+                "ORDER BY LOWER(td.tenmon) ASC";
+
+        return jdbcTemplate.queryForList(sql);
     }
 }

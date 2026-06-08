@@ -114,6 +114,7 @@ public class InventoryService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy hàng hóa!"));
 
         item.setFlagDelete(1);
+        item.setSoLuong(BigDecimal.ZERO);
         hangHoaRepository.save(item);
     }
 

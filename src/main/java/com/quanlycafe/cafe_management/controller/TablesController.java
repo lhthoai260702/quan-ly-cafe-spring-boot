@@ -3,7 +3,6 @@ package com.quanlycafe.cafe_management.controller;
 import com.quanlycafe.cafe_management.dto.ThongTinBanGoiMonDTO;
 import com.quanlycafe.cafe_management.dto.UserProfileDTO;
 import com.quanlycafe.cafe_management.entity.Ban;
-import com.quanlycafe.cafe_management.entity.ThucDon;
 import com.quanlycafe.cafe_management.repository.ThucDonRepository;
 import com.quanlycafe.cafe_management.service.TablesService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,7 +64,7 @@ public class TablesController {
                 );
 
         org.springframework.data.domain.Page<Ban> banPage = tablesService.getTablesWithPagination(status, search, pageable);
-        List<ThucDon> danhSachThucDon = thucDonRepository.findAll();
+        List<Map<String, Object>> danhSachThucDon = tablesService.getDanhSachThucDonVoiTrangThai();
 
         // 2. Lấy số lượng thống kê (Tối ưu hóa: Dùng Count SQL thay vì tải toàn bộ DB lên RAM)
         model.addAttribute("tongSoBan", tablesService.countTongSoBan());
@@ -101,6 +100,10 @@ public class TablesController {
     public String getOrderDetailsFragment(@PathVariable("maBan") Integer maBan, Model model) {
         ThongTinBanGoiMonDTO thongTinGoiMon = tablesService.getChiTietGoiMonTheoBan(maBan);
         model.addAttribute("order", thongTinGoiMon);
+
+        // Lấy danh sách Khuyến mãi đang mở để thu ngân lựa chọn
+        List<Map<String, Object>> danhSachKhuyenMai = tablesService.getKhuyenMaiHopLe();
+        model.addAttribute("danhSachKhuyenMai", danhSachKhuyenMai);
 
         return "fragments/hoadon :: nội_dung_hóa_đơn";
     }
@@ -267,10 +270,11 @@ public class TablesController {
 
             if (danhSachMaMon != null && !danhSachMaMon.isEmpty()) {
                 tablesService.themMonVaoBan(maBan, maNhanVien, danhSachMaMon, danhSachSoLuong);
-                redirectAttributes.addFlashAttribute("successMessage", "Đã thêm món thành công!");
+                redirectAttributes.addFlashAttribute("successMsg", "Đã thêm món thành công!");
             }
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi gọi món: " + e.getMessage());
+            // Khi bị lỗi hết nguyên liệu, Service sẽ quăng lỗi và hứng ở đây để báo ra giao diện
+            redirectAttributes.addFlashAttribute("errorMsg", "Không thể order: " + e.getMessage());
         }
 
         return "redirect:/tables";
@@ -280,14 +284,17 @@ public class TablesController {
      * Xử lý thanh toán hóa đơn
      *
      * @param maBan              Integer
+     * @param maKhuyenMai        Integer (Thu ngân chọn từ giao diện)
      * @param redirectAttributes RedirectAttributes
      * @return String
      */
     @PostMapping("/tables/checkout")
-    public String xuLyThanhToan(@RequestParam("maBan") Integer maBan, RedirectAttributes redirectAttributes) {
+    public String xuLyThanhToan(@RequestParam("maBan") Integer maBan,
+                                @RequestParam(value = "maKhuyenMai", required = false) Integer maKhuyenMai,
+                                RedirectAttributes redirectAttributes) {
         try {
-            tablesService.thanhToanHoaDon(maBan);
-            redirectAttributes.addFlashAttribute("successMessage", "Thanh toán thành công! Bàn đã được dọn trống.");
+            tablesService.thanhToanHoaDon(maBan, maKhuyenMai);
+            redirectAttributes.addFlashAttribute("successMessage", "Thanh toán thành công! Bàn đã được dọn, kho đã được trừ.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Lỗi thanh toán: " + e.getMessage());
         }
