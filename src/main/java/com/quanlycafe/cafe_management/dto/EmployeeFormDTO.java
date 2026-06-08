@@ -15,7 +15,7 @@ import lombok.Data;
  * * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 30-05-2026 Quản Lý      Create DTO cho form Thêm/Sửa nhân viên
+ * 30-05-2026 lhthoai      Create DTO cho form Thêm/Sửa nhân viên
  */
 @Data
 public class EmployeeFormDTO {

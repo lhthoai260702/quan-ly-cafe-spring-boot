@@ -22,8 +22,8 @@ import java.util.Optional;
  * * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lthoai       Create
- * 30-05-2026 lthoai      Add PasswordEncoder & format by convention
+ * 29-05-2026 lhthoai       Create
+ * 30-05-2026 lhthoai      Add PasswordEncoder & format by convention
  */
 @Service
 public class ProfileService {

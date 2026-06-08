@@ -16,10 +16,10 @@ import java.util.Optional;
  * * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lthoai       Create
- * 30-05-2026 Quản Lý      Apply Pagination (Pageable)
- * 04-06-2026 Quản Lý      Standardize Java Convention
- * 07-06-2026 Quản Lý      Add findByChucVu_MaChucVu for dynamic filtering
+ * 29-05-2026 lhthoai       Create
+ * 30-05-2026 lhthoai      Apply Pagination (Pageable)
+ * 04-06-2026 lhthoai      Standardize Java Convention
+ * 07-06-2026 lhthoai      Add findByChucVu_MaChucVu for dynamic filtering
  */
 @Repository
 public interface NhanVienRepository extends JpaRepository<NhanVien, Integer> {

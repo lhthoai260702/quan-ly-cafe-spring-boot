@@ -15,7 +15,7 @@ import java.time.LocalDate;
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 08-06-2026 Quản Lý      Rename from StockActionDTO, remove export logic
+ * 08-06-2026 lhthoai      Rename from StockActionDTO, remove export logic
  */
 @Data
 public class ImportStockDTO {

@@ -4,21 +4,27 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
  * KhuyenMai
- * Version 1.0
- * Date: 29-05-2026
+ * <p>
+ * Version 1.1
+ * <p>
+ * Date: 08-06-2026
+ * <p>
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lthoai       Create
+ * 29-05-2026 lhthoai       Create
+ * 08-06-2026 lhthoai      Add flag_delete for soft delete functionality
  */
 @Entity
 @Table(name = "khuyenmai")
+@SQLRestriction("flag_delete = 0 OR flag_delete IS NULL")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -49,4 +55,7 @@ public class KhuyenMai {
 
     @Column(name = "mota", columnDefinition = "TEXT")
     private String moTa;
+
+    @Column(name = "flag_delete")
+    private Integer flagDelete;
 }

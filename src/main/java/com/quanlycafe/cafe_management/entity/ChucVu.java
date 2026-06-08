@@ -15,8 +15,8 @@ import java.math.BigDecimal;
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lthoai       Create
- * 07-06-2026 lthoai      Update mapping DB schema (add flag_delete), clean wildcard imports
+ * 29-05-2026 lhthoai       Create
+ * 07-06-2026 lhthoai      Update mapping DB schema (add flag_delete), clean wildcard imports
  */
 @Entity
 @Table(name = "chucvu")

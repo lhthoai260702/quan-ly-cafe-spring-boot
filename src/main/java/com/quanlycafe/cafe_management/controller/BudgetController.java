@@ -26,8 +26,8 @@ import java.util.List;
  * * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lthoai       Create
- * 30-05-2026 Quản Lý      Add PRG Validation & format convention
+ * 29-05-2026 lhthoai       Create
+ * 30-05-2026 lhthoai      Add PRG Validation & format convention
  */
 @Controller
 @RequiredArgsConstructor

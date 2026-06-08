@@ -15,8 +15,8 @@ import java.time.LocalDate;
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lthoai       Create
- * 07-06-2026 lthoai       Update entity to match new database schema
+ * 29-05-2026 lhthoai       Create
+ * 07-06-2026 lhthoai       Update entity to match new database schema
  */
 @Entity
 @Table(name = "thietbi")

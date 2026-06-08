@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lthoai       Create
+ * 29-05-2026 lhthoai       Create
  */
 @Entity
 @Table(name = "chitieu")

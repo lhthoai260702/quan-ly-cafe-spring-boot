@@ -13,9 +13,9 @@ import org.springframework.stereotype.Repository;
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lthoai       Create
- * 06-06-2026 Quản Lý      Add Pagination
- * 07-06-2026 Quản Lý      Add filters for TinhTrang and flagDelete
+ * 29-05-2026 lhthoai       Create
+ * 06-06-2026 lhthoai      Add Pagination
+ * 07-06-2026 lhthoai      Add filters for TinhTrang and flagDelete
  */
 @Repository
 public interface ThietBiRepository extends JpaRepository<ThietBi, Integer> {

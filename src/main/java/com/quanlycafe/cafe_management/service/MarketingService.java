@@ -14,15 +14,20 @@ import java.time.LocalDate;
 
 /**
  * MarketingService
- * * Version 1.2
- * * Date: 30-05-2026
- * * Copyright
- * * Modification Logs:
+ * <p>
+ * Version 1.3
+ * <p>
+ * Date: 08-06-2026
+ * <p>
+ * Copyright
+ * <p>
+ * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lthoai       Create
- * 30-05-2026 lthoai      Apply PromotionFormDTO & format convention
- * 30-05-2026 lthoai      Apply Pagination
+ * 29-05-2026 lhthoai       Create
+ * 30-05-2026 lhthoai       Apply PromotionFormDTO & format convention
+ * 30-05-2026 lhthoai       Apply Pagination
+ * 08-06-2026 lhthoai      Implement soft delete logic
  */
 @Service
 @RequiredArgsConstructor
@@ -85,6 +90,9 @@ public class MarketingService {
         km.setMoTa(form.getMoTa());
         km.setTrangThai(determineStatus(form.getNgayBatDau(), form.getNgayKetThuc()));
 
+        // Mặc định gán cờ 0 (hiển thị) khi tạo mới
+        km.setFlagDelete(0);
+
         khuyenMaiRepository.save(km);
     }
 
@@ -110,12 +118,17 @@ public class MarketingService {
     }
 
     /**
-     * Xóa khuyến mãi
+     * Xóa khuyến mãi (Xóa mềm - Chuyển cờ)
      *
      * @param maKhuyenMai Integer
      */
     @Transactional
     public void deletePromotion(Integer maKhuyenMai) {
-        khuyenMaiRepository.deleteById(maKhuyenMai);
+        KhuyenMai km = khuyenMaiRepository.findById(maKhuyenMai)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy Khuyến mãi"));
+
+        km.setFlagDelete(1);
+
+        khuyenMaiRepository.save(km);
     }
 }

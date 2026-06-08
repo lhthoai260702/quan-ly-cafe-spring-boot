@@ -31,11 +31,11 @@ import java.util.List;
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lthoai       Create
- * 04-06-2026 lthoai       Standardize Java Convention & Dynamic Roles
- * 07-06-2026 Quản Lý      Dynamic database role filtering, map and save NhanVien Luong
- * 07-06-2026 Quản Lý      Standardize imports and Javadoc comments
- * 07-06-2026 Quản Lý      Apply Soft Delete for TaiKhoan
+ * 29-05-2026 lhthoai       Create
+ * 04-06-2026 lhthoai       Standardize Java Convention & Dynamic Roles
+ * 07-06-2026 lhthoai      Dynamic database role filtering, map and save NhanVien Luong
+ * 07-06-2026 lhthoai      Standardize imports and Javadoc comments
+ * 07-06-2026 lhthoai      Apply Soft Delete for TaiKhoan
  */
 @Service
 @RequiredArgsConstructor

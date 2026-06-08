@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lthoai        Create
+ * 29-05-2026 lhthoai        Create
  */
 @Controller
 public class AuthController {

@@ -16,7 +16,7 @@ import java.time.LocalDate;
  * * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 30-05-2026 Quản Lý      Create DTO cho form Thêm khoản chi
+ * 30-05-2026 lhthoai      Create DTO cho form Thêm khoản chi
  */
 @Data
 public class ExpenseFormDTO {

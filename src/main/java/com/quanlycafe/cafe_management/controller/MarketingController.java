@@ -26,8 +26,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lthoai       Create
- * 06-06-2026 Quản Lý      Refactor: Sort by StartDate, Add TotalItems, Pagination 10
+ * 29-05-2026 lhthoai       Create
+ * 06-06-2026 lhthoai      Refactor: Sort by StartDate, Add TotalItems, Pagination 10
  */
 @Controller
 @RequiredArgsConstructor

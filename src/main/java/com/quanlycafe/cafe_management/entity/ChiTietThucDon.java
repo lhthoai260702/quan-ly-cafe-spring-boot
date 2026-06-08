@@ -19,7 +19,7 @@ import java.math.BigDecimal;
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 07-06-2026 Quản Lý      Create Entity (Sử dụng separate ChiTietThucDonId)
+ * 07-06-2026 lhthoai      Create Entity (Sử dụng separate ChiTietThucDonId)
  */
 @Entity
 @Table(name = "chitietthucdon")

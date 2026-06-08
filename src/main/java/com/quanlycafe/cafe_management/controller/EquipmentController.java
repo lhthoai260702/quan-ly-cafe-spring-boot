@@ -27,10 +27,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lthoai       Create
- * 30-05-2026 Quản Lý      Add PRG Validation & format convention
- * 06-06-2026 Quản Lý      Add Pagination & Sorting list
- * 07-06-2026 Quản Lý      Add dynamic Status filter
+ * 29-05-2026 lhthoai       Create
+ * 30-05-2026 lhthoai      Add PRG Validation & format convention
+ * 06-06-2026 lhthoai      Add Pagination & Sorting list
+ * 07-06-2026 lhthoai      Add dynamic Status filter
  */
 @Controller
 @RequiredArgsConstructor
@@ -156,7 +156,7 @@ public class EquipmentController {
                                   HttpServletRequest request) {
         String referer = request.getHeader("Referer");
         String redirectUrl = referer != null ? referer : "/equipment";
-        
+
         try {
             equipmentService.deleteEquipment(maThietBi);
             redirectAttributes.addFlashAttribute("successMsg", "Đã xóa thiết bị khỏi hệ thống!");

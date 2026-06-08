@@ -15,9 +15,9 @@ import java.math.BigDecimal;
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lthoai       Create
- * 07-06-2026 lthoai      Update mapping DB schema (add luong, flag_delete)
- * 07-06-2026 lthoai      Replace deprecated @Where with @SQLRestriction
+ * 29-05-2026 lhthoai       Create
+ * 07-06-2026 lhthoai      Update mapping DB schema (add luong, flag_delete)
+ * 07-06-2026 lhthoai      Replace deprecated @Where with @SQLRestriction
  */
 @Entity
 @Table(name = "nhanvien")

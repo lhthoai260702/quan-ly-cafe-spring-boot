@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 08-06-2026 Quản Lý      Create Entity based on DB schema
+ * 08-06-2026 lhthoai      Create Entity based on DB schema
  */
 @Entity
 @Table(name = "donnhap")

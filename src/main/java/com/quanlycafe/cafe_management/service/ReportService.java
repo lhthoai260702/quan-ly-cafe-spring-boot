@@ -20,7 +20,7 @@ import java.util.*;
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lthoai       Create
+ * 29-05-2026 lhthoai       Create
  */
 @Service
 @RequiredArgsConstructor

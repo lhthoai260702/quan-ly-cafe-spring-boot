@@ -16,8 +16,8 @@ import java.time.LocalDate;
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 30-05-2026 Quản Lý      Create DTO cho form Thêm/Sửa thiết bị
- * 07-06-2026 Quản Lý      Update DTO match new DB (remove soLuong, add tinhTrang)
+ * 30-05-2026 lhthoai      Create DTO cho form Thêm/Sửa thiết bị
+ * 07-06-2026 lhthoai      Update DTO match new DB (remove soLuong, add tinhTrang)
  */
 @Data
 public class EquipmentFormDTO {

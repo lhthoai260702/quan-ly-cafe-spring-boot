@@ -35,7 +35,7 @@ import java.util.List;
  * -----------------------------------------------------------------------
  * 29-05-2026 lhthoai      Create
  * 30-05-2026 lhthoai      Add Pagination, Sort by name ignore case, Java Convention
- * 07-06-2026 Quản Lý      Integrate HangHoa for recipe/ingredients selection
+ * 07-06-2026 lhthoai      Integrate HangHoa for recipe/ingredients selection
  */
 @Controller
 @RequiredArgsConstructor

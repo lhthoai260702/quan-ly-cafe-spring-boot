@@ -11,8 +11,8 @@ import jakarta.validation.ConstraintValidatorContext;
  * * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lthoai       Create
- * 07-06-2026 Quản Lý      Cập nhật chuẩn đầu vào: Bắt đầu bằng 0, có đúng 10 số
+ * 29-05-2026 lhthoai       Create
+ * 07-06-2026 lhthoai      Cập nhật chuẩn đầu vào: Bắt đầu bằng 0, có đúng 10 số
  */
 public class PhoneNumberValidator implements ConstraintValidator<ValidPhoneNumber, String> {
 

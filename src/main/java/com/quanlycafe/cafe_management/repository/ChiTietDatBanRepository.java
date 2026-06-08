@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lthoai       Create
+ * 29-05-2026 lhthoai       Create
  */
 @Repository
 public interface ChiTietDatBanRepository extends JpaRepository<ChiTietDatBan, ChiTietDatBanId> {

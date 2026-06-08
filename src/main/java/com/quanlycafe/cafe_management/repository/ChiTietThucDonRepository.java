@@ -21,8 +21,8 @@ import java.util.List;
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 07-06-2026 Quản Lý      Create Repository
- * 07-06-2026 Quản Lý      Fix Bug: Add @Modifying and @Transactional for delete method
+ * 07-06-2026 lhthoai      Create Repository
+ * 07-06-2026 lhthoai      Fix Bug: Add @Modifying and @Transactional for delete method
  */
 @Repository
 public interface ChiTietThucDonRepository extends JpaRepository<ChiTietThucDon, ChiTietThucDonId> {

@@ -18,7 +18,7 @@ import java.io.Serializable;
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 07-06-2026 Quản Lý      Create Composite Key cho ChiTietThucDon
+ * 07-06-2026 lhthoai      Create Composite Key cho ChiTietThucDon
  */
 @Data
 @NoArgsConstructor

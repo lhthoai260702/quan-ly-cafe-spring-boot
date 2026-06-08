@@ -8,13 +8,17 @@ import org.springframework.stereotype.Repository;
 
 /**
  * KhuyenMaiRepository
- * Version 1.2
- * Date: 30-05-2026
+ * <p>
+ * Version 1.3
+ * <p>
+ * Date: 08-06-2026
+ * <p>
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lthoai       Create
- * 30-05-2026 Quản Lý      Apply Pagination (Pageable)
+ * 29-05-2026 lhthoai       Create
+ * 30-05-2026 lhthoai      Apply Pagination (Pageable)
+ * 08-06-2026 lhthoai      Support soft delete natively
  */
 @Repository
 public interface KhuyenMaiRepository extends JpaRepository<KhuyenMai, Integer> {

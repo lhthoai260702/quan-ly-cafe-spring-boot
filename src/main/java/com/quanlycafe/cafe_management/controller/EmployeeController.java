@@ -29,7 +29,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 06-06-2026 lhthoai      Create and update logic
- * 07-06-2026 Quản Lý      Update Dynamic Role Filter
+ * 07-06-2026 lhthoai      Update Dynamic Role Filter
  */
 @Controller
 @RequiredArgsConstructor

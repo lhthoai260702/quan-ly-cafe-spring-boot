@@ -20,8 +20,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lthoai       Create
- * 30-05-2026 lthoai       Check validation
+ * 29-05-2026 lhthoai       Create
+ * 30-05-2026 lhthoai       Check validation
  */
 @Controller
 public class ProfileController {

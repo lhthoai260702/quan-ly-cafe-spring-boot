@@ -15,8 +15,8 @@ import java.math.BigDecimal;
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lthoai       Create
- * 07-06-2026 lthoai       Update DB schema (Add flag_delete, anh, SQLRestriction)
+ * 29-05-2026 lhthoai       Create
+ * 07-06-2026 lhthoai       Update DB schema (Add flag_delete, anh, SQLRestriction)
  */
 @Entity
 @Table(name = "thucdon")

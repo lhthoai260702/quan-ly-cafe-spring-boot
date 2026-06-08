@@ -15,7 +15,7 @@ import java.security.Principal;
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lthoai       Create
+ * 29-05-2026 lhthoai       Create
  */
 @ControllerAdvice
 public class GlobalControllerAdvice {

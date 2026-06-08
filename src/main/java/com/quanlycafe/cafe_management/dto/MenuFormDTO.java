@@ -19,7 +19,7 @@ import java.util.List;
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 30-05-2026 lhthoai      Create DTO cho form Thêm/Sửa thực đơn
- * 07-06-2026 Quản Lý      Add IngredientDTO list for ChiTietThucDon
+ * 07-06-2026 lhthoai      Add IngredientDTO list for ChiTietThucDon
  */
 @Data
 public class MenuFormDTO {

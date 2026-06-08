@@ -24,8 +24,8 @@ import java.util.List;
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026 lhthoai      Create
- * 30-05-2026 Quản Lý      Apply MenuFormDTO & format convention
- * 07-06-2026 Quản Lý      Add logic to save Ingredients & Auto-fetch DonViTinh
+ * 30-05-2026 lhthoai      Apply MenuFormDTO & format convention
+ * 07-06-2026 lhthoai      Add logic to save Ingredients & Auto-fetch DonViTinh
  */
 @Service
 @RequiredArgsConstructor
@@ -116,6 +116,7 @@ public class MenuService {
     }
 
     /**
+     * Cập nhật món (Kèm theo cập nhật công thức nguyên liệu và tự động lấy Đơn vị tính)
      *
      * @param form
      */

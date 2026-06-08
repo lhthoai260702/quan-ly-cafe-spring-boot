@@ -21,9 +21,9 @@ import java.util.Collections;
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lthoai       Create
- * 07-06-2026 lthoai      Check flag_delete during login
- * 07-06-2026 lthoai      Standardize Java Coding Convention
+ * 29-05-2026 lhthoai       Create
+ * 07-06-2026 lhthoai      Check flag_delete during login
+ * 07-06-2026 lhthoai      Standardize Java Coding Convention
  */
 @Service
 public class CustomUserDetailsService implements UserDetailsService {

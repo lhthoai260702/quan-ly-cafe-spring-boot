@@ -13,9 +13,9 @@ import org.springframework.stereotype.Repository;
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lthoai       Create
- * 30-05-2026 Quản Lý      Apply Pagination (Pageable)
- * 08-06-2026 Quản Lý      Remove hardcoded OrderBy to allow dynamic sorting
+ * 29-05-2026 lhthoai       Create
+ * 30-05-2026 lhthoai      Apply Pagination (Pageable)
+ * 08-06-2026 lhthoai      Remove hardcoded OrderBy to allow dynamic sorting
  */
 @Repository
 public interface HangHoaRepository extends JpaRepository<HangHoa, Integer> {

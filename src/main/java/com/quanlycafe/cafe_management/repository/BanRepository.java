@@ -15,8 +15,8 @@ import java.util.List;
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lthoai       Create
- * 30-05-2026 Quản Lý      Add Pagination and Count queries
+ * 29-05-2026 lhthoai       Create
+ * 30-05-2026 lhthoai      Add Pagination and Count queries
  */
 @Repository
 public interface BanRepository extends JpaRepository<Ban, Integer> {

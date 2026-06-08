@@ -18,7 +18,7 @@ import org.hibernate.annotations.SQLRestriction;
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 07-06-2026 Quản Lý      Create Entity
+ * 07-06-2026 lhthoai      Create Entity
  */
 @Entity
 @Table(name = "donvitinh")

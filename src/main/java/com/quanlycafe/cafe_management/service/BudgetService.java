@@ -24,8 +24,8 @@ import java.util.*;
  * * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lthoai       Create
- * 30-05-2026 Quản Lý      Apply ExpenseFormDTO & format convention
+ * 29-05-2026 lhthoai       Create
+ * 30-05-2026 lhthoai      Apply ExpenseFormDTO & format convention
  */
 @Service
 @RequiredArgsConstructor

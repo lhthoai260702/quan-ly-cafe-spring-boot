@@ -18,10 +18,10 @@ import java.math.BigDecimal;
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lthoai       Create
- * 30-05-2026 Quản Lý      Apply EquipmentFormDTO & format convention
- * 06-06-2026 Quản Lý      Apply Pagination and Sorting
- * 07-06-2026 Quản Lý      Update match new DB, add Status filter, apply soft delete
+ * 29-05-2026 lhthoai       Create
+ * 30-05-2026 lhthoai      Apply EquipmentFormDTO & format convention
+ * 06-06-2026 lhthoai      Apply Pagination and Sorting
+ * 07-06-2026 lhthoai      Update match new DB, add Status filter, apply soft delete
  */
 @Service
 @RequiredArgsConstructor

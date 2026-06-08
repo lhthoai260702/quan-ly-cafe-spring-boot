@@ -25,9 +25,9 @@ import java.util.List;
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lthoai       Create
- * 30-05-2026 Quản Lý      Apply DTOs, format convention & Pagination
- * 08-06-2026 Quản Lý      Remove Export logic, Integrate DonNhap, Add Filter, Fix Sorting
+ * 29-05-2026 lhthoai       Create
+ * 30-05-2026 lhthoai      Apply DTOs, format convention & Pagination
+ * 08-06-2026 lhthoai      Remove Export logic, Integrate DonNhap, Add Filter, Fix Sorting
  */
 @Service
 @RequiredArgsConstructor
