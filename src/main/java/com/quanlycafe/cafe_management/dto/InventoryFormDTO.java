@@ -2,6 +2,9 @@ package com.quanlycafe.cafe_management.dto;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDate;
 
 /**
  * InventoryFormDTO
@@ -29,7 +32,9 @@ public class InventoryFormDTO {
     private Double soLuong;
 
     @NotNull(message = "Đơn giá không được để trống")
-    @Min(value = 0, message = "Đơn giá không được là số âm")
-    @Max(value = 99999999, message = "Đơn giá không được vượt quá 99.999.999 VNĐ")
     private Double donGia;
+
+    @NotNull(message = "Vui lòng chọn ngày nhập")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate ngayNhap;
 }

@@ -40,9 +40,6 @@ public class ThucDon {
     @Column(name = "loaimon", length = 50)
     private String loaiMon;
 
-    @Column(name = "anh", columnDefinition = "TEXT")
-    private String anh;
-
     @Column(name = "flag_delete", columnDefinition = "INT DEFAULT 0")
     private Integer flagDelete = 0;
 }
