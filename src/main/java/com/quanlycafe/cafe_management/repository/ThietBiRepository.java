@@ -6,6 +6,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.util.List;
+
 /**
  * ThietBiRepository
  * Version 1.3
@@ -40,4 +43,6 @@ public interface ThietBiRepository extends JpaRepository<ThietBi, Integer> {
      * @return Page<ThietBi>
      */
     Page<ThietBi> findByTenThietBiContainingIgnoreCaseAndTinhTrangAndFlagDelete(String keyword, String tinhTrang, Integer flagDelete, Pageable pageable);
+
+    List<ThietBi> findByNgayMuaBetween(LocalDate start, LocalDate end);
 }

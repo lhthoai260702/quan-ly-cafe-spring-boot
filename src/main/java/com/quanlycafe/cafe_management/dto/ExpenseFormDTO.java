@@ -1,34 +1,27 @@
 package com.quanlycafe.cafe_management.dto;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
-/**
- * ExpenseFormDTO
- * * Version 1.0
- * * Date: 30-05-2026
- * * Copyright
- * * Modification Logs:
- * DATE       AUTHOR       DESCRIPTION
- * -----------------------------------------------------------------------
- * 30-05-2026 lhthoai      Create DTO cho form Thêm khoản chi
- */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ExpenseFormDTO {
+    private Integer id; // Phục vụ chức năng Edit
 
-    @NotBlank(message = "Mục đích chi không được để trống")
+    @NotBlank(message = "Vui lòng nhập tên khoản chi")
     private String tenKhoanChi;
 
-    @NotNull(message = "Số tiền chi không được để trống")
-    @Min(value = 1000, message = "Số tiền chi phải từ 1,000 VNĐ trở lên")
+    @NotNull(message = "Vui lòng nhập số tiền")
     private Double soTien;
 
-    @NotNull(message = "Ngày chi không được để trống")
+    @NotNull(message = "Vui lòng chọn ngày chi")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate ngayChi;
 }

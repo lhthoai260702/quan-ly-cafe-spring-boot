@@ -1,6 +1,5 @@
 package com.quanlycafe.cafe_management.dto;
 
-import com.quanlycafe.cafe_management.entity.ChiTieu;
 import com.quanlycafe.cafe_management.entity.HoaDon;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,15 +10,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * ThuChiDTO
- * Version 1.0
- * Date: 29-05-2026
- * Modification Logs:
- * DATE       AUTHOR       DESCRIPTION
- * -----------------------------------------------------------------------
- * 29-05-2026 lhthoai       Create
- */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -29,15 +19,8 @@ public class ThuChiDTO {
     private BigDecimal chi;
 
     private List<HoaDon> danhSachThu = new ArrayList<>();
-    private List<ChiTieu> danhSachChi = new ArrayList<>();
+    private List<KhoanChiDTO> danhSachChi = new ArrayList<>(); // Đã thay đổi
 
-    /**
-     * Khởi tạo ThuChiDTO
-     *
-     * @param ngay LocalDate
-     * @param thu  BigDecimal
-     * @param chi  BigDecimal
-     */
     public ThuChiDTO(LocalDate ngay, BigDecimal thu, BigDecimal chi) {
         this.ngay = ngay;
         this.thu = thu;

@@ -8,15 +8,6 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/**
- * ChiTieu
- * Version 1.0
- * Date: 29-05-2026
- * Modification Logs:
- * DATE       AUTHOR       DESCRIPTION
- * -----------------------------------------------------------------------
- * 29-05-2026 lhthoai       Create
- */
 @Entity
 @Table(name = "chitieu")
 @Data
@@ -41,4 +32,7 @@ public class ChiTieu {
 
     @Column(name = "ngaychi")
     private LocalDateTime ngayChi;
+
+    @Column(name = "flag_delete")
+    private Integer flagDelete = 0;
 }

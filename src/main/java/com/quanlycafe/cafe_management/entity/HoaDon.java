@@ -39,4 +39,7 @@ public class HoaDon {
 
     @Column(name = "makhuyenmai")
     private Integer maKhuyenMai;
+
+    @Column(name = "flag_delete")
+    private Integer flagDelete = 0;
 }

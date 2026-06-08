@@ -1,30 +1,23 @@
 package com.quanlycafe.cafe_management.repository;
 
 import com.quanlycafe.cafe_management.entity.ChiTieu;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
-/**
- * ChiTieuRepository
- * Version 1.0
- * Date: 29-05-2026
- * Modification Logs:
- * DATE       AUTHOR       DESCRIPTION
- * -----------------------------------------------------------------------
- * 29-05-2026 lhthoai       Create
- */
 @Repository
 public interface ChiTieuRepository extends JpaRepository<ChiTieu, Integer> {
-
-    /**
-     * Tìm danh sách chi tiêu trong khoảng thời gian
-     *
-     * @param start LocalDateTime
-     * @param end   LocalDateTime
-     * @return List<ChiTieu>
-     */
     List<ChiTieu> findByNgayChiBetween(LocalDateTime start, LocalDateTime end);
+
+    List<ChiTieu> findByFlagDeleteOrderByNgayChiDesc(Integer flagDelete);
+
+    // MỚI: Dành riêng cho phân trang danh sách khoản chi
+    Page<ChiTieu> findByFlagDeleteOrderByNgayChiDesc(Integer flagDelete, Pageable pageable);
+
+    Optional<ChiTieu> findByMaChiTieuAndFlagDelete(Integer id, Integer flagDelete);
 }
