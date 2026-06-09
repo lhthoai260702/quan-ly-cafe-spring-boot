@@ -29,7 +29,7 @@
                 <p class="text-[10px] md:text-[11px] text-gray-500 font-bold uppercase tracking-wider mb-0.5">Doanh thu
                     hôm nay</p>
                 <h3 class="text-base md:text-xl font-bold text-[#1a1c1b]"
-                    th:text="${#numbers.formatDecimal(doanhThuHomNay, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</h3>
+                    th:text="${#numbers.formatDecimal(doanhThuHomNay, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</h3>
             </div>
         </div>
 
@@ -101,7 +101,7 @@
                         <p class="text-sm font-semibold text-[#1a1c1b]"
                            th:text="'Thanh toán hóa đơn #' + ${hd.maHoaDon}"></p>
                         <p class="text-[11px] md:text-xs text-gray-500 mt-0.5"
-                           th:text="${#temporals.format(hd.ngayGioTao, 'HH:mm')} + ' • ' + ${#numbers.formatDecimal(hd.tongTien, 0, 'COMMA', 0, 'POINT')} + ' đ'">
+                           th:text="${#temporals.format(hd.ngayGioTao, 'HH:mm')} + ' • ' + ${#numbers.formatDecimal(hd.tongTien, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
                         </p>
                     </div>
                 </div>
@@ -146,7 +146,7 @@
                             callbacks: {
                                 label: function(context) {
                                     let value = context.raw || 0;
-                                    return value.toLocaleString('vi-VN') + ' đ';
+                                    return value.toLocaleString('vi-VN') + ' VNĐ';
                                 }
                             }
                         }

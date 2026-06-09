@@ -20,19 +20,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.sql.PreparedStatement;
 import java.time.LocalDateTime;
 import java.util.*;
 
 /**
  * TablesService
- * Version 1.1
- * Date: 29-05-2026
+ * Version 1.2
+ * Date: 09-06-2026
  * Modification Logs:
  * DATE         AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026   lhthoai      Create
- * 09-06-2026   lhthoai      Format code according to Java Coding Convention
+ * 09-06-2026   Quản Lý      Fix Booking Table Order Logic
  */
 @Service
 public class TablesService {
@@ -94,6 +93,8 @@ public class TablesService {
             case "Trống":
                 tinhTrangDb = "Trống";
                 break;
+            default:
+                break;
         }
 
         return banRepository.findByTinhTrangAndTenBanContainingIgnoreCase(tinhTrangDb, keyword, pageable);
@@ -135,7 +136,6 @@ public class TablesService {
      * @return ThongTinBanGoiMonDTO
      */
     public ThongTinBanGoiMonDTO getChiTietGoiMonTheoBan(Integer maBan) {
-        // 1. Lấy thông tin cơ bản của bàn
         Ban ban = banRepository.findById(maBan).orElse(null);
         if (ban == null) {
             return null;
@@ -146,14 +146,12 @@ public class TablesService {
         dto.setTenBan(ban.getTenBan());
         dto.setTinhTrang(ban.getTinhTrang());
 
-        // 2. Nếu bàn đang trống, không cần tìm hóa đơn
         if (!"Đang sử dụng".equalsIgnoreCase(ban.getTinhTrang())) {
             dto.setDanhSachMon(List.of());
             dto.setTongTien(0.0);
             return dto;
         }
 
-        // 3. Tìm hóa đơn chưa thanh toán
         String sqlHoaDon = "SELECT hd.mahoadon, hd.tongtien FROM hoadon hd " +
                 "JOIN chitietdatban ctdb ON hd.mahoadon = ctdb.mahoadon " +
                 "WHERE ctdb.maban = ? AND hd.trangthai = 'Chưa thanh toán' LIMIT 1";
@@ -163,7 +161,6 @@ public class TablesService {
             if (!rows.isEmpty()) {
                 Map<String, Object> row = rows.get(0);
 
-                // Dùng Number thay vì Integer/BigDecimal để tránh lỗi ClassCastException
                 Number maHoaDonDb = (Number) row.get("mahoadon");
                 Integer maHoaDon = maHoaDonDb != null ? maHoaDonDb.intValue() : null;
 
@@ -173,7 +170,6 @@ public class TablesService {
                 dto.setMaHoaDon(maHoaDon);
                 dto.setTongTien(tongTien);
 
-                // 4. Lấy danh sách món chi tiết từ hóa đơn này
                 String sqlChiTiet = "SELECT td.tenmon, cthd.soluong, cthd.giataithoidiemban, cthd.thanhtien " +
                         "FROM chitiethoadon cthd " +
                         "JOIN thucdon td ON cthd.mathucdon = td.mathucdon " +
@@ -183,18 +179,14 @@ public class TablesService {
                     ChiTietGoiMonDTO item = new ChiTietGoiMonDTO();
                     item.setTenMon(rs.getString("tenmon"));
                     item.setSoLuong(rs.getInt("soluong"));
-
-                    // Dùng trực tiếp getDouble sẽ an toàn hơn việc getBigDecimal rồi .doubleValue()
                     item.setGiaTaiThoiDiemBan(rs.getDouble("giataithoidiemban"));
                     item.setThanhTien(rs.getDouble("thanhtien"));
-
                     return item;
                 }, maHoaDon);
 
                 dto.setDanhSachMon(danhSachMon);
             }
         } catch (Exception e) {
-            e.printStackTrace();
             dto.setDanhSachMon(List.of());
             dto.setTongTien(0.0);
         }
@@ -211,7 +203,6 @@ public class TablesService {
      */
     @Transactional
     public boolean chuyenBan(Integer tuMaBan, Integer denMaBan) {
-        // 1. Kiểm tra bàn
         Ban tuBan = banRepository.findById(tuMaBan).orElse(null);
         Ban denBan = banRepository.findById(denMaBan).orElse(null);
 
@@ -221,12 +212,10 @@ public class TablesService {
             return false;
         }
 
-        // 2. Chuyển hóa đơn sang bàn mới
         String sqlChuyen = "UPDATE chitietdatban SET maban = ? WHERE maban = ? AND mahoadon IN (SELECT mahoadon FROM hoadon WHERE trangthai = 'Chưa thanh toán')";
         int updated = jdbcTemplate.update(sqlChuyen, denMaBan, tuMaBan);
 
         if (updated > 0) {
-            // 3. Đổi trạng thái 2 bàn
             tuBan.setTinhTrang("Trống");
             denBan.setTinhTrang("Đang sử dụng");
             banRepository.save(tuBan);
@@ -247,7 +236,6 @@ public class TablesService {
     @Transactional
     public boolean gopBan(List<Integer> tuMaBanList, Integer denMaBan) {
         try {
-            // 1. Lấy mã hóa đơn của bàn đích
             String sqlLayHoaDon = "SELECT mahoadon FROM chitietdatban WHERE maban = ? AND mahoadon IN (SELECT mahoadon FROM hoadon WHERE trangthai = 'Chưa thanh toán') LIMIT 1";
             Integer maHoaDonDich = jdbcTemplate.queryForObject(sqlLayHoaDon, Integer.class, denMaBan);
 
@@ -255,12 +243,10 @@ public class TablesService {
                 return false;
             }
 
-            // 2. Duyệt qua từng bàn cần gộp
             for (Integer tuMaBan : tuMaBanList) {
                 Integer maHoaDonNguon = jdbcTemplate.queryForObject(sqlLayHoaDon, Integer.class, tuMaBan);
 
                 if (maHoaDonNguon != null) {
-                    // Chuyển chi tiết hóa đơn (Cộng dồn nếu trùng món, Thêm mới nếu chưa có)
                     String sqlMergeChiTiet =
                             "INSERT INTO chitiethoadon (mathucdon, mahoadon, soluong, giataithoidiemban, thanhtien) " +
                                     "SELECT mathucdon, ?, soluong, giataithoidiemban, thanhtien FROM chitiethoadon WHERE mahoadon = ? " +
@@ -269,23 +255,18 @@ public class TablesService {
                                     "thanhtien = chitiethoadon.thanhtien + EXCLUDED.thanhtien";
 
                     jdbcTemplate.update(sqlMergeChiTiet, maHoaDonDich, maHoaDonNguon);
-
-                    // Xóa hóa đơn nguồn và chi tiết đặt bàn của bàn nguồn
                     jdbcTemplate.update("DELETE FROM chitietdatban WHERE mahoadon = ?", maHoaDonNguon);
                     jdbcTemplate.update("DELETE FROM hoadon WHERE mahoadon = ?", maHoaDonNguon);
                 }
 
-                // Cập nhật trạng thái bàn nguồn thành Trống
                 jdbcTemplate.update("UPDATE ban SET tinhtrang = 'Trống' WHERE maban = ?", tuMaBan);
             }
 
-            // Cập nhật lại tổng tiền cho hóa đơn đích
             String sqlUpdateTongTien = "UPDATE hoadon SET tongtien = (SELECT COALESCE(SUM(thanhtien), 0) FROM chitiethoadon WHERE mahoadon = ?) WHERE mahoadon = ?";
             jdbcTemplate.update(sqlUpdateTongTien, maHoaDonDich, maHoaDonDich);
 
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
             return false;
         }
     }
@@ -318,13 +299,12 @@ public class TablesService {
     @Transactional
     public boolean tachBan(Integer tuMaBan, Integer denMaBan, List<Integer> mathucdonList, List<Integer> soluongTachList) {
         try {
-            // 1. Tìm hóa đơn chưa thanh toán của bàn cũ
             String sqlLayThongTin = "SELECT mahoadon, manhanvien, tenkhachhang, sdtkhachhang, ngaygiodat " +
                     "FROM chitietdatban WHERE maban = ? AND mahoadon IN " +
                     "(SELECT mahoadon FROM hoadon WHERE trangthai = 'Chưa thanh toán') LIMIT 1";
             Map<String, Object> thongTinCu = jdbcTemplate.queryForMap(sqlLayThongTin, tuMaBan);
 
-            if (thongTinCu == null || thongTinCu.isEmpty()) {
+            if (thongTinCu.isEmpty()) {
                 return false;
             }
 
@@ -334,18 +314,14 @@ public class TablesService {
             String sdtKhachHang = (String) thongTinCu.get("sdtkhachhang");
             Object ngayGioDat = thongTinCu.get("ngaygiodat");
 
-            // 2. Tạo một Hóa Đơn Mới tinh cho bàn đích
             KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(connection -> {
-                // CHỈ ĐỊNH RÕ RÀNG chỉ trả về cột "mahoadon"
-                PreparedStatement ps = connection.prepareStatement(
+                return connection.prepareStatement(
                         "INSERT INTO hoadon (tongtien, trangthai) VALUES (0, 'Chưa thanh toán')",
                         new String[]{"mahoadon"}
                 );
-                return ps;
             }, keyHolder);
 
-            // Ép kiểu an toàn từ Map trả về
             Map<String, Object> keys = keyHolder.getKeys();
             Integer maHoaDonMoi = null;
             if (keys != null && keys.get("mahoadon") != null) {
@@ -355,13 +331,11 @@ public class TablesService {
                 return false;
             }
 
-            // 3. Đưa bàn mới vào bảng liên kết chi tiết đặt bàn
             jdbcTemplate.update(
                     "INSERT INTO chitietdatban (maban, mahoadon, manhanvien, tenkhachhang, sdtkhachhang, ngaygiodat) VALUES (?, ?, ?, ?, ?, ?)",
                     denMaBan, maHoaDonMoi, maNhanVien, tenKhachHang, sdtKhachHang, ngayGioDat
             );
 
-            // 4. Bắt đầu lặp qua danh sách món để tách số lượng dữ liệu gửi lên
             for (int i = 0; i < mathucdonList.size(); i++) {
                 Integer maThucDon = mathucdonList.get(i);
                 Integer slTach = soluongTachList.get(i);
@@ -370,7 +344,6 @@ public class TablesService {
                     continue;
                 }
 
-                // Lấy thông tin dòng hóa đơn hiện tại để kiểm tra tính hợp lệ
                 Map<String, Object> cthdCu = jdbcTemplate.queryForMap(
                         "SELECT soluong, giataithoidiemban FROM chitiethoadon WHERE mahoadon = ? AND mathucdon = ?",
                         maHoaDonCu, maThucDon
@@ -379,17 +352,15 @@ public class TablesService {
                 BigDecimal giaBan = (BigDecimal) cthdCu.get("giataithoidiemban");
 
                 if (slTach > slHienTai) {
-                    return false; // Ngăn chặn phá hoại dữ liệu
+                    return false;
                 }
 
-                // Thêm món được chọn tách sang hóa đơn mới
                 double thanhTienMoi = slTach * giaBan.doubleValue();
                 jdbcTemplate.update(
                         "INSERT INTO chitiethoadon (mathucdon, mahoadon, soluong, giataithoidiemban, thanhtien) VALUES (?, ?, ?, ?, ?)",
                         maThucDon, maHoaDonMoi, slTach, giaBan, thanhTienMoi
                 );
 
-                // Cập nhật lại số lượng ở hóa đơn cũ
                 int slConLai = slHienTai - slTach;
                 if (slConLai == 0) {
                     jdbcTemplate.update("DELETE FROM chitiethoadon WHERE mahoadon = ? AND mathucdon = ?", maHoaDonCu, maThucDon);
@@ -402,17 +373,14 @@ public class TablesService {
                 }
             }
 
-            // 5. Đồng bộ cập nhật lại Tổng Tiền cuối cùng cho cả 2 hóa đơn
             String sqlUpdateTongTien = "UPDATE hoadon SET tongtien = (SELECT COALESCE(SUM(thanhtien), 0) FROM chitiethoadon WHERE mahoadon = ?) WHERE mahoadon = ?";
             jdbcTemplate.update(sqlUpdateTongTien, maHoaDonCu, maHoaDonCu);
             jdbcTemplate.update(sqlUpdateTongTien, maHoaDonMoi, maHoaDonMoi);
 
-            // 6. Cập nhật bàn mới sang trạng thái 'Đang sử dụng'
             jdbcTemplate.update("UPDATE ban SET tinhtrang = 'Đang sử dụng' WHERE maban = ?", denMaBan);
 
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
             return false;
         }
     }
@@ -428,26 +396,21 @@ public class TablesService {
      */
     @Transactional
     public void datBanTruoc(Integer maBan, Integer maNhanVien, String tenKhachHang, String sdtKhachHang, LocalDateTime ngayGioDat) {
-        // 1. Tạo mới hóa đơn
         HoaDon hoaDonMoi = new HoaDon();
         hoaDonMoi.setTrangThai("Chưa thanh toán");
         hoaDonMoi.setTongTien(0.0);
         hoaDonMoi = hoaDonRepository.save(hoaDonMoi);
 
-        // 2. Tạo thông tin Chi Tiết Đặt Bàn
         ChiTietDatBan datBan = new ChiTietDatBan();
         datBan.setMaBan(maBan);
         datBan.setMaHoaDon(hoaDonMoi.getMaHoaDon());
         datBan.setTenKhachHang(tenKhachHang);
         datBan.setSdtKhachHang(sdtKhachHang);
         datBan.setNgayGioDat(ngayGioDat);
-
-        // SỬ DỤNG MÃ NHÂN VIÊN TỪ CONTROLLER TRUYỀN XUỐNG
         datBan.setMaNhanVien(maNhanVien);
 
         chiTietDatBanRepository.save(datBan);
 
-        // 3. Đổi trạng thái bàn
         Ban ban = banRepository.findById(maBan)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy bàn yêu cầu"));
         ban.setTinhTrang("Đã đặt trước");
@@ -464,8 +427,6 @@ public class TablesService {
      */
     @Transactional
     public void themMonVaoBan(Integer maBan, Integer maNhanVien, List<Integer> danhSachMaMon, List<Integer> danhSachSoLuong) {
-
-        // --- BƯỚC 1: KIỂM TRA TỔNG TỒN KHO TRƯỚC KHI CHO PHÉP ORDER ---
         if (danhSachMaMon != null && !danhSachMaMon.isEmpty()) {
             Map<Integer, Double> tongNguyenLieuCan = new HashMap<>();
             Map<Integer, String> tenNguyenLieuMap = new HashMap<>();
@@ -477,7 +438,6 @@ public class TablesService {
                 Integer soLuong = danhSachSoLuong.get(i);
 
                 if (soLuong != null && soLuong > 0) {
-                    // Lấy công thức của món này
                     String sqlCongThuc = "SELECT ct.mahanghoa, ct.khoiluong, td.tenmon, hh.tenhanghoa, hh.soluong " +
                             "FROM chitietthucdon ct " +
                             "JOIN thucdon td ON ct.mathucdon = td.mathucdon " +
@@ -492,20 +452,15 @@ public class TablesService {
                         String tenHangHoa = (String) row.get("tenhanghoa");
                         Double tonKhoHienTai = row.get("soluong") != null ? ((Number) row.get("soluong")).doubleValue() : 0.0;
 
-                        // Cộng dồn nguyên liệu nếu nhiều món dùng chung
                         double tongCan = khoiLuong1Phan * soLuong;
                         tongNguyenLieuCan.put(maHangHoa, tongNguyenLieuCan.getOrDefault(maHangHoa, 0.0) + tongCan);
-
                         tenNguyenLieuMap.put(maHangHoa, tenHangHoa);
                         tonKhoMap.put(maHangHoa, tonKhoHienTai);
-
-                        // Lưu lại danh sách các món bị ảnh hưởng bởi nguyên liệu này
                         nguyenLieuToMonMap.computeIfAbsent(maHangHoa, k -> new HashSet<>()).add(tenMon);
                     }
                 }
             }
 
-            // Đối chiếu tổng nguyên liệu cần với kho thực tế
             List<String> loiThieuHang = new ArrayList<>();
             for (Map.Entry<Integer, Double> entry : tongNguyenLieuCan.entrySet()) {
                 Integer maHangHoa = entry.getKey();
@@ -515,20 +470,16 @@ public class TablesService {
                 if (canDung > tonKho) {
                     String tenNguyenLieu = tenNguyenLieuMap.get(maHangHoa);
                     Set<String> cacMonAnhHuong = nguyenLieuToMonMap.get(maHangHoa);
-
                     loiThieuHang.add(String.format("Thiếu '%s' (Cần: %s, Kho còn: %s) cho món: [%s]",
                             tenNguyenLieu, canDung, tonKho, String.join(", ", cacMonAnhHuong)));
                 }
             }
 
-            // Nếu thiếu bất kỳ nguyên liệu nào, Throw Exception để hủy toàn bộ quá trình Order
             if (!loiThieuHang.isEmpty()) {
                 throw new RuntimeException(String.join(".  ", loiThieuHang));
             }
         }
-        // --- KẾT THÚC BƯỚC 1 ---
 
-        // --- BƯỚC 2: TIẾN HÀNH ORDER NẾU ĐỦ HÀNG ---
         Ban ban = banRepository.findById(maBan)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy bàn"));
 
@@ -544,6 +495,11 @@ public class TablesService {
             String sqlInsertDatBan = "INSERT INTO chitietdatban (maban, manhanvien, mahoadon, tenkhachhang, ngaygiodat) VALUES (?, ?, ?, 'Khách vãng lai', CURRENT_TIMESTAMP)";
             jdbcTemplate.update(sqlInsertDatBan, maBan, maNhanVien, maHoaDon);
         } else {
+            // NẾU BÀN ĐANG ĐƯỢC ĐẶT TRƯỚC -> CHUYỂN SANG ĐANG SỬ DỤNG
+            if ("Đã đặt trước".equalsIgnoreCase(ban.getTinhTrang())) {
+                ban.setTinhTrang("Đang sử dụng");
+                banRepository.save(ban);
+            }
             String sqlFindHoaDon = "SELECT hd.mahoadon FROM hoadon hd JOIN chitietdatban ctdb ON hd.mahoadon = ctdb.mahoadon WHERE ctdb.maban = ? AND hd.trangthai = 'Chưa thanh toán' LIMIT 1";
             maHoaDon = jdbcTemplate.queryForObject(sqlFindHoaDon, Integer.class, maBan);
         }
@@ -584,7 +540,6 @@ public class TablesService {
      */
     @Transactional
     public void thanhToanHoaDon(Integer maBan, Integer maKhuyenMai) {
-        // 1. Tìm mã hóa đơn
         String sqlFindHoaDon = "SELECT hd.mahoadon, hd.tongtien FROM hoadon hd " +
                 "JOIN chitietdatban ctdb ON hd.mahoadon = ctdb.mahoadon " +
                 "WHERE ctdb.maban = ? AND hd.trangthai = 'Chưa thanh toán' LIMIT 1";
@@ -600,7 +555,6 @@ public class TablesService {
         Double tongTienBanDau = ((Number) hoaDonMap.get("tongtien")).doubleValue();
         Double tongTienCuoiCung = tongTienBanDau;
 
-        // 2. Xử lý trừ nguyên liệu tồn kho (Inventory Deduction)
         String sqlChiTietHoaDon = "SELECT mathucdon, soluong FROM chitiethoadon WHERE mahoadon = ?";
         List<Map<String, Object>> listChiTiet = jdbcTemplate.queryForList(sqlChiTietHoaDon, maHoaDon);
 
@@ -608,24 +562,19 @@ public class TablesService {
             Integer maThucDon = ((Number) chiTiet.get("mathucdon")).intValue();
             Integer soLuongMon = ((Number) chiTiet.get("soluong")).intValue();
 
-            // Tìm công thức của món ăn này
             String sqlCongThuc = "SELECT mahanghoa, khoiluong FROM chitietthucdon WHERE mathucdon = ?";
             List<Map<String, Object>> listCongThuc = jdbcTemplate.queryForList(sqlCongThuc, maThucDon);
 
             for (Map<String, Object> nguyenLieu : listCongThuc) {
                 Integer maHangHoa = ((Number) nguyenLieu.get("mahanghoa")).intValue();
                 Double khoiLuong = ((Number) nguyenLieu.get("khoiluong")).doubleValue();
-
-                // Tính tổng nguyên liệu cần trừ = Số lượng món * Khối lượng công thức
                 Double tongTru = soLuongMon * khoiLuong;
 
-                // Cập nhật trừ kho
                 String sqlTruKho = "UPDATE hanghoa SET soluong = soluong - ? WHERE mahanghoa = ?";
                 jdbcTemplate.update(sqlTruKho, tongTru, maHangHoa);
             }
         }
 
-        // 3. Xử lý khuyến mãi (Nếu có)
         if (maKhuyenMai != null) {
             String sqlKm = "SELECT loaikhuyenmai, giatrigiam FROM khuyenmai WHERE makhuyenmai = ?";
             try {
@@ -634,28 +583,22 @@ public class TablesService {
                 Double giaTriGiam = ((Number) kmMap.get("giatrigiam")).doubleValue();
 
                 if (loaiKm != null && loaiKm.toLowerCase().contains("phần")) {
-                    // Khuyến mãi %
                     tongTienCuoiCung = tongTienBanDau - (tongTienBanDau * giaTriGiam / 100);
                 } else {
-                    // Khuyến mãi tiền mặt
                     tongTienCuoiCung = tongTienBanDau - giaTriGiam;
                 }
 
-                // Chống âm tiền nếu khuyến mãi lớn hơn cả tiền món
                 if (tongTienCuoiCung < 0) {
                     tongTienCuoiCung = 0.0;
                 }
             } catch (Exception e) {
-                // Khuyến mãi không hợp lệ, bỏ qua
                 maKhuyenMai = null;
             }
         }
 
-        // 4. Cập nhật hóa đơn
         String sqlUpdateHoaDon = "UPDATE hoadon SET trangthai = 'Đã thanh toán', tongtien = ?, makhuyenmai = ? WHERE mahoadon = ?";
         jdbcTemplate.update(sqlUpdateHoaDon, tongTienCuoiCung, maKhuyenMai, maHoaDon);
 
-        // 5. Giải phóng Bàn
         String sqlUpdateBan = "UPDATE ban SET tinhtrang = 'Trống' WHERE maban = ?";
         jdbcTemplate.update(sqlUpdateBan, maBan);
     }
@@ -674,7 +617,6 @@ public class TablesService {
 
     /**
      * Lấy danh sách thực đơn kèm trạng thái còn/hết nguyên liệu
-     * Sắp xếp A-Z không phân biệt hoa thường
      *
      * @return List<Map<String, Object>>
      */

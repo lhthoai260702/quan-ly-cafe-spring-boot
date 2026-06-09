@@ -173,8 +173,8 @@ function toggleHistoryRow(maHangHoa) {
                 const formattedQty = String(item.soLuong).replace('.', ',');
 
                 // Format tiền tệ chuẩn như bảng chính
-                const formattedDonGia = new Intl.NumberFormat('vi-VN').format(item.donGia) + ' đ';
-                const formattedTongTien = new Intl.NumberFormat('vi-VN').format(item.tongTien) + ' đ';
+                const formattedDonGia = new Intl.NumberFormat('vi-VN').format(item.donGia) + ' VNĐ';
+                const formattedTongTien = new Intl.NumberFormat('vi-VN').format(item.tongTien) + ' VNĐ';
 
                 html += `
                         <tr class="hover:bg-[#f9f9f7]/50 transition-colors">

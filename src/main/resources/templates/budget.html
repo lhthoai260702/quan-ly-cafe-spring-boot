@@ -84,12 +84,12 @@
                             <span th:text="${#temporals.format(row.ngay, 'dd/MM/yyyy')}"></span>
                         </td>
                         <td class="px-4 md:px-6 py-3 md:py-4 text-right font-semibold text-emerald-600"
-                            th:text="${#numbers.formatInteger(row.thu, 0, 'COMMA')} + ' đ'"></td>
+                            th:text="${#numbers.formatInteger(row.thu, 0, 'COMMA')} + ' VNĐ'"></td>
                         <td class="px-4 md:px-6 py-3 md:py-4 text-right font-semibold text-rose-600"
-                            th:text="${#numbers.formatInteger(row.chi, 0, 'COMMA')} + ' đ'"></td>
+                            th:text="${#numbers.formatInteger(row.chi, 0, 'COMMA')} + ' VNĐ'"></td>
                         <td class="px-4 md:px-6 py-3 md:py-4 text-right font-extrabold"
                             th:classappend="${(row.thu - row.chi) >= 0} ? 'text-emerald-700' : 'text-rose-700'"
-                            th:text="${#numbers.formatInteger(row.thu - row.chi, 0, 'COMMA')} + ' đ'"></td>
+                            th:text="${#numbers.formatInteger(row.thu - row.chi, 0, 'COMMA')} + ' VNĐ'"></td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(reportList)}">
                         <td colspan="4"
@@ -105,12 +105,12 @@
                             TỔNG CỘNG:
                         </td>
                         <td class="px-4 md:px-6 py-4 md:py-5 text-right font-extrabold text-emerald-600 text-sm md:text-base"
-                            th:text="${#numbers.formatInteger(totalThu, 0, 'COMMA')} + ' đ'"></td>
+                            th:text="${#numbers.formatInteger(totalThu, 0, 'COMMA')} + ' VNĐ'"></td>
                         <td class="px-4 md:px-6 py-4 md:py-5 text-right font-extrabold text-rose-600 text-sm md:text-base"
-                            th:text="${#numbers.formatInteger(totalChi, 0, 'COMMA')} + ' đ'"></td>
+                            th:text="${#numbers.formatInteger(totalChi, 0, 'COMMA')} + ' VNĐ'"></td>
                         <td class="px-4 md:px-6 py-4 md:py-5 text-right font-extrabold text-base md:text-lg"
                             th:classappend="${totalNet >= 0} ? 'text-emerald-700' : 'text-rose-700'"
-                            th:text="${#numbers.formatInteger(totalNet, 0, 'COMMA')} + ' đ'"></td>
+                            th:text="${#numbers.formatInteger(totalNet, 0, 'COMMA')} + ' VNĐ'"></td>
                     </tr>
                     </tfoot>
                 </table>
@@ -129,7 +129,7 @@
                                 class="text-xs md:text-sm bg-white p-2.5 rounded-lg border border-emerald-100 shadow-sm flex flex-col gap-1">
                                 <div class="flex justify-between items-center">
                                     <span class="font-bold text-gray-700">HĐ #[[${hd.maHoaDon}]]</span>
-                                    <span class="font-bold text-emerald-600">[[${#numbers.formatInteger(hd.tongTien, 0, 'COMMA')}]] đ</span>
+                                    <span class="font-bold text-emerald-600">[[${#numbers.formatInteger(hd.tongTien, 0, 'COMMA')}]] VNĐ</span>
                                 </div>
                                 <span class="text-[9px] md:text-[10px] text-gray-500 flex items-center gap-1"><i
                                         data-lucide="clock" class="w-3 h-3"></i> Lập lúc: [[${#temporals.format(hd.ngayGioTao, 'HH:mm - dd/MM')}]]</span>
@@ -145,7 +145,7 @@
                                 class="text-xs md:text-sm bg-white p-2.5 rounded-lg border border-rose-100 shadow-sm flex flex-col gap-1">
                                 <div class="flex justify-between items-start">
                                     <span class="font-bold text-gray-700 whitespace-normal pr-2">[[${ct.tenKhoanChi}]]</span>
-                                    <span class="font-bold text-rose-600 shrink-0">[[${#numbers.formatInteger(ct.soTien, 0, 'COMMA')}]] đ</span>
+                                    <span class="font-bold text-rose-600 shrink-0">[[${#numbers.formatInteger(ct.soTien, 0, 'COMMA')}]] VNĐ</span>
                                 </div>
                                 <span class="text-[9px] md:text-[10px] text-gray-500 flex items-center gap-1"><i
                                         data-lucide="clock" class="w-3 h-3"></i> Chi lúc: [[${#temporals.format(ct.ngayChi, 'HH:mm - dd/MM')}]]</span>
@@ -202,7 +202,7 @@
                         </td>
 
                         <td class="px-4 md:px-6 py-4 text-right font-bold text-amber-600 whitespace-nowrap"
-                            th:text="${#numbers.formatInteger(expense.soTien, 0, 'COMMA')} + ' đ'"></td>
+                            th:text="${#numbers.formatInteger(expense.soTien, 0, 'COMMA')} + ' VNĐ'"></td>
 
                         <td class="px-4 md:px-6 py-4 whitespace-nowrap text-center">
                             <div class="flex items-center justify-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150">

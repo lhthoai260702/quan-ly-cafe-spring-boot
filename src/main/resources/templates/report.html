@@ -106,7 +106,7 @@
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => (c.raw || 0).toLocaleString('vi-VN') + ' đ' } } },
+                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => (c.raw || 0).toLocaleString('vi-VN') + ' VNĐ' } } },
                     scales: { y: { beginAtZero: true, ticks: { callback: (v) => v===0 ? '0' : (v/1000)+'k' } }, x: { ticks: { maxRotation: 45, minRotation: 0 } } }
                 }
             });
@@ -169,7 +169,7 @@
                             position: 'bottom',
                             labels: { usePointStyle: true, padding: 15, font: { size: isMobile ? 11 : 12 } }
                         },
-                        tooltip: { callbacks: { label: (c) => ' ' + (c.raw || 0).toLocaleString('vi-VN') + ' đ' } }
+                        tooltip: { callbacks: { label: (c) => ' ' + (c.raw || 0).toLocaleString('vi-VN') + ' VNĐ' } }
                     }
                 }
             });

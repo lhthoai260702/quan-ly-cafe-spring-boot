@@ -51,11 +51,12 @@
                         th:text="${mon.soLuong}">2
                     </td>
                     <td class="py-2.5 md:py-3.5 px-3 md:px-4 text-right hidden sm:table-cell"
-                        th:text="${#numbers.formatDecimal(mon.giaTaiThoiDiemBan, 0, 'COMMA', 0, 'POINT')} + ' đ'">25,000
-                        đ
+                        th:text="${#numbers.formatDecimal(mon.giaTaiThoiDiemBan, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
+                        25,000
+                        VNĐ
                     </td>
                     <td class="py-2.5 md:py-3.5 px-3 md:px-4 text-right font-extrabold text-gray-950"
-                        th:text="${#numbers.formatDecimal(mon.thanhTien, 0, 'COMMA', 0, 'POINT')} + ' đ'">50,000 đ
+                        th:text="${#numbers.formatDecimal(mon.thanhTien, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">50,000 VNĐ
                     </td>
                 </tr>
                 </tbody>
@@ -71,7 +72,7 @@
                         th:value="${km.makhuyenmai}"
                         th:data-loai="${km.loaikhuyenmai}"
                         th:data-giatri="${km.giatrigiam}"
-                        th:text="${km.tenkhuyenmai} + ' (' + (${#strings.containsIgnoreCase(km.loaikhuyenmai, 'phần')} ? ${km.giatrigiam} + '%' : ${#numbers.formatDecimal(km.giatrigiam, 0, 'COMMA', 0, 'POINT')} + 'đ') + ')'">
+                        th:text="${km.tenkhuyenmai} + ' (' + (${#strings.containsIgnoreCase(km.loaikhuyenmai, 'phần')} ? ${km.giatrigiam} + '%' : ${#numbers.formatDecimal(km.giatrigiam, 0, 'COMMA', 0, 'POINT')} + 'VNĐ') + ')'">
                 </option>
             </select>
         </div>
@@ -79,14 +80,14 @@
         <div class="bg-[#553722]/5 p-3 md:p-4 rounded-xl flex justify-between items-center border border-[#553722]/10 shrink-0">
             <div class="flex flex-col">
                 <span class="text-[10px] md:text-xs font-bold text-[#553722] uppercase tracking-wider">Tổng thanh toán:</span>
-                <span id="giamGiaText" class="text-[10px] md:text-xs text-emerald-600 font-bold hidden mt-1">Đã giảm: 0 đ</span>
+                <span id="giamGiaText" class="text-[10px] md:text-xs text-emerald-600 font-bold hidden mt-1">Đã giảm: 0 VNĐ</span>
             </div>
             <div class="text-right">
                 <span id="tongTienGoc" class="text-[10px] md:text-xs text-gray-400 line-through mr-2 hidden"
                       th:data-goc="${order.tongTien}"
-                      th:text="${#numbers.formatDecimal(order.tongTien, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                      th:text="${#numbers.formatDecimal(order.tongTien, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span>
                 <span id="tongTienCuoi" class="text-base md:text-xl font-black text-[#553722]"
-                      th:text="${#numbers.formatDecimal(order.tongTien, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</span>
+                      th:text="${#numbers.formatDecimal(order.tongTien, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</span>
             </div>
         </div>
 

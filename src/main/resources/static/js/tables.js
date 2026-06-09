@@ -312,7 +312,7 @@ document.addEventListener('change', function (e) {
 
         if (selectedOption.value === '') {
             // Khôi phục hiển thị ban đầu nếu không chọn KM
-            tongTienCuoiElem.innerText = new Intl.NumberFormat('vi-VN').format(tongGoc) + ' đ';
+            tongTienCuoiElem.innerText = new Intl.NumberFormat('vi-VN').format(tongGoc) + ' VNĐ';
             tongTienGocElem.classList.add('hidden');
             giamGiaTextElem.classList.add('hidden');
         } else {
@@ -333,8 +333,8 @@ document.addEventListener('change', function (e) {
             // Cập nhật giao diện thanh toán
             tongTienGocElem.classList.remove('hidden');
             giamGiaTextElem.classList.remove('hidden');
-            giamGiaTextElem.innerText = 'Đã giảm: -' + new Intl.NumberFormat('vi-VN').format(tienGiam) + ' đ';
-            tongTienCuoiElem.innerText = new Intl.NumberFormat('vi-VN').format(tongCuoi) + ' đ';
+            giamGiaTextElem.innerText = 'Đã giảm: -' + new Intl.NumberFormat('vi-VN').format(tienGiam) + ' VNĐ';
+            tongTienCuoiElem.innerText = new Intl.NumberFormat('vi-VN').format(tongCuoi) + ' VNĐ';
         }
     }
 });
@@ -348,4 +348,19 @@ document.addEventListener('DOMContentLoaded', function () {
         showCustomError(errorMsg);
     }
 });
+
+/**
+ * Định dạng tự động số điện thoại có khoảng trắng (VD: 0901 234 567)
+ * @param {HTMLElement} input - Thẻ input SĐT
+ */
+function formatPhoneNumber(input) {
+    let val = input.value.replace(/\D/g, ''); // Bỏ các ký tự không phải số
+    if (val.length > 7) {
+        input.value = val.replace(/(\d{4})(\d{3})(\d+)/, '$1 $2 $3').trim();
+    } else if (val.length > 4) {
+        input.value = val.replace(/(\d{4})(\d+)/, '$1 $2').trim();
+    } else {
+        input.value = val;
+    }
+}
 /*]]>*/
