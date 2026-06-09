@@ -1,5 +1,10 @@
+/*<![CDATA[*/
 let currentSelectedTableId = null;
 
+/**
+ * Xử lý sự kiện khi người dùng nhấp (click) vào một bàn cụ thể trên sơ đồ
+ * @param {HTMLElement} element - Thẻ chứa dữ liệu của bàn được click
+ */
 function handleTableClick(element) {
     const maBan = element.getAttribute('data-id');
     const tenBan = element.getAttribute('data-ten');
@@ -7,25 +12,27 @@ function handleTableClick(element) {
 
     currentSelectedTableId = maBan;
 
-    // Reset style các card khác
+    // Reset kiểu dáng của các thẻ bàn khác
     const cards = document.getElementsByClassName('table-card');
-    for (let card of cards) {
-        card.classList.remove('border-[#553722]', 'ring-2', 'ring-[#553722]/50');
+    for (let i = 0; i < cards.length; i++) {
+        cards[i].classList.remove('border-[#553722]', 'ring-2', 'ring-[#553722]/50');
     }
+
+    // Nổi bật thẻ bàn đang được chọn
     element.classList.add('border-[#553722]', 'ring-2', 'ring-[#553722]/50');
 
-    // Cập nhật thông tin lên thanh công cụ
+    // Cập nhật thông tin lên thanh công cụ bên dưới
     document.getElementById('selectedTableId').innerText = maBan;
     document.getElementById('selectedTableName').innerText = tenBan.toUpperCase();
 
     const badge = document.getElementById('selectedTableBadge');
     badge.innerText = tinhTrang;
-    badge.className = "text-[9px] px-1.5 py-0.5 font-bold uppercase tracking-wider rounded-md text-white";
+    badge.className = 'text-[9px] px-1.5 py-0.5 font-bold uppercase tracking-wider rounded-md text-white';
 
     const iconBox = document.getElementById('barIconBox');
-    iconBox.className = "p-3 rounded-xl text-white flex items-center justify-center ";
+    iconBox.className = 'p-3 rounded-xl text-white flex items-center justify-center ';
 
-    // 1. Cập nhật màu sắc Icon dựa trên tình trạng
+    // 1. Cập nhật màu sắc Icon dựa trên tình trạng của bàn
     if (tinhTrang === 'Đang sử dụng') {
         badge.classList.add('bg-amber-500');
         iconBox.classList.add('bg-amber-500');
@@ -37,24 +44,28 @@ function handleTableClick(element) {
         iconBox.classList.add('bg-gray-400');
     }
 
-    // 2. Kích hoạt đúng nút theo nghiệp vụ từng loại bàn
+    // 2. Kích hoạt đúng các nút chức năng theo nghiệp vụ từng loại bàn
     updateActionButtons(tinhTrang);
 
     document.getElementById('bottomActionBar').classList.remove('hidden');
 }
 
-// Thay thế hoàn toàn hàm toggleActionButtons cũ bằng hàm này
+/**
+ * Cập nhật trạng thái bật/tắt (Enable/Disable) của các nút chức năng theo logic nghiệp vụ
+ * @param {string} tinhTrang - Tình trạng hiện tại của bàn
+ */
 function updateActionButtons(tinhTrang) {
-    // Lấy các nút cần vô hiệu hoá/kích hoạt
     const btnThanhToan = document.getElementById('btnThanhToan');
     const btnGop = document.getElementById('btnGop');
     const btnTach = document.getElementById('btnTach');
     const btnChuyen = document.getElementById('btnChuyen');
     const btnDatBan = document.getElementById('btnDatBan');
 
-    // Cấu trúc hàm con giúp làm mờ và vô hiệu hoá nút
-    const setButtonDisabled = (btn, isDisabled) => {
-        if (!btn) return;
+    // Hàm phụ trợ giúp làm mờ và vô hiệu hoá nút bấm
+    const setButtonDisabled = function (btn, isDisabled) {
+        if (!btn) {
+            return;
+        }
         if (isDisabled) {
             btn.classList.add('opacity-40', 'pointer-events-none', 'cursor-not-allowed');
         } else {
@@ -62,13 +73,13 @@ function updateActionButtons(tinhTrang) {
         }
     };
 
-    // Áp dụng Logic nghiệp vụ
+    // Áp dụng Logic nghiệp vụ bán hàng
     if (tinhTrang === 'Trống') {
         setButtonDisabled(btnThanhToan, true); // Trống thì không thể thanh toán
         setButtonDisabled(btnGop, true);       // Không thể gộp
         setButtonDisabled(btnTach, true);      // Không thể tách
         setButtonDisabled(btnChuyen, true);    // Không thể chuyển đi
-        setButtonDisabled(btnDatBan, false);   // SÁNG: Có thể đặt bàn
+        setButtonDisabled(btnDatBan, false);   // Có thể đặt bàn
     } else if (tinhTrang === 'Đã đặt trước') {
         setButtonDisabled(btnThanhToan, true); // Chưa gọi món nên chưa thanh toán
         setButtonDisabled(btnGop, true);
@@ -76,39 +87,56 @@ function updateActionButtons(tinhTrang) {
         setButtonDisabled(btnChuyen, true);
         setButtonDisabled(btnDatBan, true);    // Đã đặt rồi không đặt đè lên nữa
     } else if (tinhTrang === 'Đang sử dụng') {
-        setButtonDisabled(btnThanhToan, false); // SÁNG: Đã có bill thì được thanh toán
-        setButtonDisabled(btnGop, false);       // SÁNG: Được phép gộp
-        setButtonDisabled(btnTach, false);      // SÁNG: Được phép tách
-        setButtonDisabled(btnChuyen, false);    // SÁNG: Được phép chuyển
+        setButtonDisabled(btnThanhToan, false); // Đã có bill thì được thanh toán
+        setButtonDisabled(btnGop, false);       // Được phép gộp
+        setButtonDisabled(btnTach, false);      // Được phép tách
+        setButtonDisabled(btnChuyen, false);    // Được phép chuyển
         setButtonDisabled(btnDatBan, true);     // Đang ngồi không thể đặt giữ chỗ
     }
 }
 
+/**
+ * Đóng thanh công cụ hành động phía dưới màn hình
+ */
 function closeBottomBar() {
     document.getElementById('bottomActionBar').classList.add('hidden');
     const cards = document.getElementsByClassName('table-card');
-    for (let card of cards) {
-        card.classList.remove('border-[#553722]', 'ring-2', 'ring-[#553722]/50');
+
+    for (let i = 0; i < cards.length; i++) {
+        cards[i].classList.remove('border-[#553722]', 'ring-2', 'ring-[#553722]/50');
     }
     currentSelectedTableId = null;
 }
 
+/**
+ * Điều hướng xử lý khi người dùng chọn một hành động từ thanh công cụ
+ * @param {string} actionType - Loại hành động (ví dụ: 'xem', 'chuyen', 'gop'...)
+ */
 function executeAction(actionType) {
-    if (!currentSelectedTableId) return;
+    if (!currentSelectedTableId) {
+        return;
+    }
+
     const tableName = document.getElementById('selectedTableName').innerText;
     const tableStatus = document.getElementById('selectedTableBadge').innerText;
 
-    switch(actionType) {
+    switch (actionType) {
         case 'xem':
         case 'thanhtoan':
             fetch(`/tables/${currentSelectedTableId}/order-details`)
-                .then(response => response.text())
-                .then(html => {
+                .then(function (response) {
+                return response.text();
+            })
+                .then(function (html) {
                 document.getElementById('orderModalContainer').innerHTML = html;
                 document.getElementById('orderModalOverlay').classList.remove('hidden');
-                setTimeout(() => document.getElementById('orderModalBox').classList.remove('scale-95', 'opacity-0'), 20);
+                setTimeout(function () {
+                    document.getElementById('orderModalBox').classList.remove('scale-95', 'opacity-0');
+                }, 20);
             })
-                .catch(() => showCustomError("Không thể kết nối đến máy chủ!"));
+                .catch(function () {
+                showCustomError('Không thể kết nối đến máy chủ!');
+            });
             break;
 
         case 'chuyen':
@@ -136,12 +164,16 @@ function executeAction(actionType) {
             }
             document.getElementById('splitFromTableId').value = currentSelectedTableId;
             document.getElementById('splitFromTableName').innerText = tableName;
+
             fetch(`/tables/${currentSelectedTableId}/items`)
-                .then(response => response.json())
-                .then(items => {
+                .then(function (response) {
+                return response.json();
+            })
+                .then(function (items) {
                 const tbody = document.getElementById('splitItemsTableBody');
-                tbody.innerHTML = items.length === 0 ? `<tr><td colspan="3" class="p-4 text-center text-gray-400 italic">Bàn trống!</td></tr>` : '';
-                items.forEach(item => {
+                tbody.innerHTML = items.length === 0 ? '<tr><td colspan="3" class="p-4 text-center text-gray-400 italic">Bàn trống!</td></tr>' : '';
+
+                items.forEach(function (item) {
                     const row = document.createElement('tr');
                     row.innerHTML = `<td class="p-3 font-semibold">${item.tenmon}<input type="hidden" name="mathucdonList" value="${item.mathucdon}"></td>
                                          <td class="p-3 text-center">${item.soluong}</td>
@@ -154,43 +186,59 @@ function executeAction(actionType) {
 
         case 'datban':
             if (tableStatus !== 'TRỐNG') {
-                showCustomError("Lỗi", "Bàn này không thể đặt trước!");
+                showCustomError('Lỗi', 'Bàn này không thể đặt trước!');
                 return;
             }
             openBookingModal(currentSelectedTableId, tableName);
             break;
 
         case 'chonmon':
-            // Lấy mã bàn và tên bàn hiện tại truyền vào form ẩn
             document.getElementById('orderTableId').value = currentSelectedTableId;
             document.getElementById('orderTableNameDisplay').innerText = document.getElementById('selectedTableName').innerText;
-            // Hiển thị modal lên
             document.getElementById('addOrderModal').classList.remove('hidden');
             break;
 
         case 'inan':
-            // Hiển thị modal cài đặt in ấn
             document.getElementById('printSettingsModal').classList.remove('hidden');
             break;
     }
 }
 
+/**
+ * Các hàm tiện ích để đóng/mở Modal giao diện
+ */
 function showCustomError(message) {
     document.getElementById('customErrorMessage').innerText = message;
     document.getElementById('customErrorModal').classList.remove('hidden');
 }
-function closeCustomError() { document.getElementById('customErrorModal').classList.add('hidden'); }
-function closeTransferModal() { document.getElementById('transferModal').classList.add('hidden'); }
-function closeMergeModal() { document.getElementById('mergeModal').classList.add('hidden'); }
-function closeSplitModal() { document.getElementById('splitModal').classList.add('hidden'); }
-function closeBookingModal() { document.getElementById('bookingModal').classList.add('hidden'); }
+
+function closeCustomError() {
+    document.getElementById('customErrorModal').classList.add('hidden');
+}
+
+function closeTransferModal() {
+    document.getElementById('transferModal').classList.add('hidden');
+}
+
+function closeMergeModal() {
+    document.getElementById('mergeModal').classList.add('hidden');
+}
+
+function closeSplitModal() {
+    document.getElementById('splitModal').classList.add('hidden');
+}
+
+function closeBookingModal() {
+    document.getElementById('bookingModal').classList.add('hidden');
+}
 
 function openBookingModal(tableId, tableName) {
     document.getElementById('bookingTableId').value = tableId;
     document.getElementById('bookingTableName').innerText = tableName;
+
     const now = new Date();
     document.getElementById('bookingDate').value = now.toISOString().split('T')[0];
-    document.getElementById('bookingTime').value = now.toTimeString().slice(0,5);
+    document.getElementById('bookingTime').value = now.toTimeString().slice(0, 5);
     document.getElementById('bookingModal').classList.remove('hidden');
 }
 
@@ -198,67 +246,80 @@ function closeOrderModal() {
     document.getElementById('addOrderModal').classList.add('hidden');
 }
 
+/**
+ * Tăng số lượng món ăn khi gọi món
+ * @param {HTMLElement} btn - Nút '+' được bấm
+ */
 function tangSoLuong(btn) {
-    let input = btn.previousElementSibling;
-    input.value = parseInt(input.value) + 1;
+    const input = btn.previousElementSibling;
+    input.value = parseInt(input.value, 10) + 1;
 }
 
+/**
+ * Giảm số lượng món ăn khi gọi món
+ * @param {HTMLElement} btn - Nút '-' được bấm
+ */
 function giamSoLuong(btn) {
-    let input = btn.nextElementSibling;
-    if (parseInt(input.value) > 0) {
-        input.value = parseInt(input.value) - 1;
+    const input = btn.nextElementSibling;
+    if (parseInt(input.value, 10) > 0) {
+        input.value = parseInt(input.value, 10) - 1;
     }
 }
 
+/**
+ * Đóng Modal xem chi tiết hóa đơn
+ */
 function closeViewOrderModal() {
     const modalBox = document.getElementById('orderModalBox');
     modalBox.classList.add('scale-95', 'opacity-0');
 
-    setTimeout(() => {
+    setTimeout(function () {
         document.getElementById('orderModalOverlay').classList.add('hidden');
     }, 300);
 }
 
-document.getElementById('orderModalOverlay').addEventListener('click', function(e) {
+// Lắng nghe sự kiện click ra bên ngoài để đóng Modal xem hóa đơn
+document.getElementById('orderModalOverlay').addEventListener('click', function (e) {
     if (e.target === this) {
         closeViewOrderModal();
     }
 });
 
-// Hàm đóng Modal In ấn
 function closePrintSettingsModal() {
     document.getElementById('printSettingsModal').classList.add('hidden');
 }
 
-// Hàm xử lý lưu cấu hình (Mô phỏng lưu thành công)
 function savePrintSettings() {
-    alert("Đã lưu cấu hình thiết bị in ấn của quầy thành công!");
+    alert('Đã lưu cấu hình thiết bị in ấn của quầy thành công!');
     closePrintSettingsModal();
 }
 
-document.addEventListener('change', function(e) {
-    // Kiểm tra xem phần tử vừa thay đổi có phải là combobox Khuyến mãi không
+/**
+ * Xử lý tính toán động hiển thị Tiền khi người dùng thay đổi lựa chọn Khuyến Mãi
+ */
+document.addEventListener('change', function (e) {
     if (e.target && e.target.id === 'khuyenMaiSelect') {
-        var selectedOption = e.target.options[e.target.selectedIndex];
-        var tongTienGocElem = document.getElementById('tongTienGoc');
-        var tongTienCuoiElem = document.getElementById('tongTienCuoi');
-        var giamGiaTextElem = document.getElementById('giamGiaText');
+        const selectedOption = e.target.options[e.target.selectedIndex];
+        const tongTienGocElem = document.getElementById('tongTienGoc');
+        const tongTienCuoiElem = document.getElementById('tongTienCuoi');
+        const giamGiaTextElem = document.getElementById('giamGiaText');
 
-        if (!tongTienGocElem || !tongTienCuoiElem || !giamGiaTextElem) return;
+        if (!tongTienGocElem || !tongTienCuoiElem || !giamGiaTextElem) {
+            return;
+        }
 
-        // Lấy tổng tiền chưa giảm từ thuộc tính data-goc
-        var tongGoc = parseFloat(tongTienGocElem.getAttribute('data-goc')) || 0;
+        const tongGoc = parseFloat(tongTienGocElem.getAttribute('data-goc')) || 0;
 
-        if (selectedOption.value === "") {
-            // Nếu không chọn KM: Khôi phục lại hiển thị ban đầu
+        if (selectedOption.value === '') {
+            // Khôi phục hiển thị ban đầu nếu không chọn KM
             tongTienCuoiElem.innerText = new Intl.NumberFormat('vi-VN').format(tongGoc) + ' đ';
             tongTienGocElem.classList.add('hidden');
             giamGiaTextElem.classList.add('hidden');
         } else {
-            // Nếu có chọn KM: Lấy giá trị và tính toán
-            var loaiKm = selectedOption.getAttribute('data-loai').toLowerCase();
-            var giaTriGiam = parseFloat(selectedOption.getAttribute('data-giatri'));
-            var tienGiam = 0;
+            // Lấy giá trị khuyến mãi và tính toán
+            const loaiKm = selectedOption.getAttribute('data-loai').toLowerCase();
+            const giaTriGiam = parseFloat(selectedOption.getAttribute('data-giatri'));
+            let tienGiam = 0;
 
             if (loaiKm.includes('phần')) {
                 tienGiam = tongGoc * (giaTriGiam / 100);
@@ -266,10 +327,10 @@ document.addEventListener('change', function(e) {
                 tienGiam = giaTriGiam;
             }
 
-            // ÉP VỀ 0 NẾU SỐ TIỀN GIẢM VƯỢT QUÁ TỔNG TIỀN
-            var tongCuoi = Math.max(tongGoc - tienGiam, 0);
+            // Ép tổng tiền về 0 nếu tiền giảm lớn hơn tiền gốc
+            const tongCuoi = Math.max(tongGoc - tienGiam, 0);
 
-            // Cập nhật giao diện
+            // Cập nhật giao diện thanh toán
             tongTienGocElem.classList.remove('hidden');
             giamGiaTextElem.classList.remove('hidden');
             giamGiaTextElem.innerText = 'Đã giảm: -' + new Intl.NumberFormat('vi-VN').format(tienGiam) + ' đ';
@@ -278,10 +339,13 @@ document.addEventListener('change', function(e) {
     }
 });
 
-document.addEventListener("DOMContentLoaded", function() {
-    var errorMsg = /*[[${errorMsg}]]*/ null;
+/**
+ * Bắt lỗi từ server và hiển thị bằng Modal thân thiện khi trang tải xong
+ */
+document.addEventListener('DOMContentLoaded', function () {
+    const errorMsg = /*[[${errorMsg}]]*/ null;
     if (errorMsg) {
-        // Tận dụng hàm showCustomError có sẵn trong tables.js của bạn
         showCustomError(errorMsg);
     }
 });
+/*]]>*/
