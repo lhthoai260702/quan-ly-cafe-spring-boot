@@ -26,7 +26,8 @@
         <div class="grid grid-cols-1 md:grid-cols-12 gap-0">
             <div class="md:col-span-4 bg-[#f4f4f2]/30 p-6 md:p-8 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-[#e2e3e1]/50">
                 <div class="w-24 h-24 md:w-32 md:h-32 rounded-full ring-4 ring-white shadow-lg overflow-hidden mb-4 md:mb-6 bg-white">
-                    <img th:src="@{'/images/' + ${currentUser.anh != null and currentUser.anh != '' ? currentUser.anh : 'user.png'}}"
+                    <img id="avatarPreview"
+                         th:src="@{'/images/avatar/' + ${currentUser.anh != null and currentUser.anh != '' ? currentUser.anh : 'user.png'}}"
                          alt="Avatar" class="w-full h-full object-cover"
                          onerror="this.src='/images/user.png'"/>
                 </div>
@@ -34,7 +35,9 @@
                     Họ và Tên</h3>
                 <p class="text-[10px] md:text-xs font-medium text-[#553722] uppercase tracking-wider bg-[#ffdcc6]/50 px-3 py-1 rounded-full mt-2"
                    th:text="${currentUser.tenChucVu}">Chức vụ</p>
-                <button class="mt-4 md:mt-6 text-[10px] md:text-[11px] font-bold text-[#50453e] hover:text-[#553722] transition-colors uppercase border-b border-[#e2e3e1]">
+
+                <button type="button" onclick="document.getElementById('fileAnh').click()"
+                        class="mt-4 md:mt-6 text-[10px] md:text-[11px] font-bold text-[#50453e] hover:text-[#553722] transition-colors uppercase border-b border-[#e2e3e1] pb-1">
                     Thay đổi ảnh
                 </button>
             </div>
@@ -43,7 +46,11 @@
                 <form id="logoutForm" th:action="@{/logout}" method="post"></form>
 
                 <form id="updateForm" th:action="@{/profile/update}" th:object="${currentUser}" method="post"
+                      enctype="multipart/form-data"
                       class="space-y-4 md:space-y-6 custom-validate-form" novalidate>
+
+                    <input type="file" id="fileAnh" th:field="*{fileAnh}" accept="image/png, image/jpeg, image/jpg"
+                           class="hidden" onchange="previewAvatar(event)"/>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                         <div class="space-y-1.5 relative">
@@ -124,6 +131,18 @@
     </div>
 
     <script th:inline="javascript">
+        // BẮT BUỘC: Thêm hàm này để hiển thị ảnh ngay lập tức khi vừa chọn file xong
+        function previewAvatar(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('avatarPreview').src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
         document.addEventListener("DOMContentLoaded", function () {
             const forms = document.querySelectorAll(".custom-validate-form");
             forms.forEach(form => {

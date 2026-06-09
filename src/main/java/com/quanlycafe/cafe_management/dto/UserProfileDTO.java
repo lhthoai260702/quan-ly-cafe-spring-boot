@@ -2,20 +2,23 @@ package com.quanlycafe.cafe_management.dto;
 
 import com.quanlycafe.cafe_management.validation.ValidPhoneNumber;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 
 /**
  * UserProfileDTO
- * Version 1.1
- * Date: 29-05-2026
+ * Version 1.2
+ * Date: 08-06-2026
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026 lhthoai       Create
  * 30-05-2026 lhthoai       Check validation
+ * 08-06-2026 lhthoai       Add fileAnh for Avatar Upload
  */
 @Data
 public class UserProfileDTO {
@@ -34,9 +37,13 @@ public class UserProfileDTO {
     private Integer maChucVu;
     private String tenDangNhap;
     private String anh;
+
+    // Thêm trường này để hứng file ảnh từ form HTML
+    private MultipartFile fileAnh;
+
     private Integer quyenHan;
 
-    @Size(min = 6, message = "Mật khẩu mới (nếu có) phải từ 6 ký tự trở lên")
+    @Pattern(regexp = "^$|.{6,}", message = "Mật khẩu mới (nếu có) phải từ 6 ký tự trở lên")
     private String matKhauMoi;
 
     public String getQuyenHanString() {
