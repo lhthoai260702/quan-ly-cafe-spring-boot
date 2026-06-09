@@ -20,12 +20,30 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * BudgetController
+ * Version 1.0
+ * Date: 09-06-2026
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * 09-06-2026   lthoai      Create and Format Convention
+ */
 @Controller
 @RequiredArgsConstructor
 public class BudgetController {
 
     private final BudgetService budgetService;
 
+    /**
+     * Hiển thị trang quản lý ngân sách (Thu/Chi)
+     *
+     * @param tab      String
+     * @param fromDate String
+     * @param toDate   String
+     * @param page     int
+     * @param model    Model
+     * @return String
+     */
     @GetMapping("/budget")
     public String showBudget(
             @RequestParam(required = false, defaultValue = "overview") String tab,
@@ -38,9 +56,10 @@ public class BudgetController {
         model.addAttribute("activeTab", "budget");
 
         if ("overview".equals(tab)) {
-            // ... (Giữ nguyên logic cũ phần overview)
-            LocalDate start = (fromDate != null && !fromDate.isEmpty()) ? LocalDate.parse(fromDate) : LocalDate.now().minusDays(30);
-            LocalDate end = (toDate != null && !toDate.isEmpty()) ? LocalDate.parse(toDate) : LocalDate.now();
+            LocalDate start = (fromDate != null && !fromDate.isEmpty())
+                    ? LocalDate.parse(fromDate) : LocalDate.now().minusDays(30);
+            LocalDate end = (toDate != null && !toDate.isEmpty())
+                    ? LocalDate.parse(toDate) : LocalDate.now();
 
             List<ThuChiDTO> reportList = budgetService.getThuChiReport(start, end);
             BigDecimal totalThu = BigDecimal.ZERO;
@@ -58,7 +77,6 @@ public class BudgetController {
             model.addAttribute("fromDate", start);
             model.addAttribute("toDate", end);
         } else if ("expenses".equals(tab)) {
-            // LOGIC MỚI: Phân trang 10 dòng/trang
             int pageSize = 10;
             Page<ChiTieu> expensesPage = budgetService.getActiveExpensesPaged(page - 1, pageSize);
 
@@ -68,7 +86,6 @@ public class BudgetController {
             model.addAttribute("totalItems", expensesPage.getTotalElements());
         }
 
-        // Khởi tạo form
         if (!model.containsAttribute("expenseForm")) {
             ExpenseFormDTO defaultForm = new ExpenseFormDTO();
             defaultForm.setNgayChi(LocalDate.now());
@@ -78,6 +95,14 @@ public class BudgetController {
         return "budget";
     }
 
+    /**
+     * Thêm mới một khoản chi
+     *
+     * @param form               ExpenseFormDTO
+     * @param bindingResult      BindingResult
+     * @param redirectAttributes RedirectAttributes
+     * @return String
+     */
     @PostMapping("/budget/add-expense")
     public String addExpense(@Valid @ModelAttribute("expenseForm") ExpenseFormDTO form,
                              BindingResult bindingResult, RedirectAttributes redirectAttributes) {
@@ -96,6 +121,14 @@ public class BudgetController {
         return "redirect:/budget?tab=expenses";
     }
 
+    /**
+     * Cập nhật thông tin khoản chi
+     *
+     * @param form               ExpenseFormDTO
+     * @param bindingResult      BindingResult
+     * @param redirectAttributes RedirectAttributes
+     * @return String
+     */
     @PostMapping("/budget/edit-expense")
     public String editExpense(@Valid @ModelAttribute("expenseForm") ExpenseFormDTO form,
                               BindingResult bindingResult, RedirectAttributes redirectAttributes) {
@@ -112,6 +145,13 @@ public class BudgetController {
         return "redirect:/budget?tab=expenses";
     }
 
+    /**
+     * Xóa khoản chi
+     *
+     * @param id                 Integer
+     * @param redirectAttributes RedirectAttributes
+     * @return String
+     */
     @PostMapping("/budget/delete-expense")
     public String deleteExpense(@RequestParam("id") Integer id, RedirectAttributes redirectAttributes) {
         try {

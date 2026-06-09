@@ -5,19 +5,24 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
 
 /**
  * EmployeeFormDTO
- * * Version 1.0
- * * Date: 30-05-2026
- * * Copyright
- * * Modification Logs:
- * DATE       AUTHOR       DESCRIPTION
- * -----------------------------------------------------------------------
- * 30-05-2026 lhthoai      Create DTO cho form Thêm/Sửa nhân viên
+ * Version 1.1
+ * Date: 09-06-2026
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * 30-05-2026   lhthoai     Create DTO cho form Thêm/Sửa nhân viên
+ * 09-06-2026   lhthoai     Apply Java Coding Convention
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class EmployeeFormDTO {
 
     private Integer maNhanVien;
@@ -44,5 +49,6 @@ public class EmployeeFormDTO {
     @Pattern(regexp = "^[\\x20-\\x7E]+$", message = "Mật khẩu không được chứa ký tự tiếng Việt có dấu")
     private String matKhau;
 
-    private java.math.BigDecimal luong;
+    private BigDecimal luong;
+
 }

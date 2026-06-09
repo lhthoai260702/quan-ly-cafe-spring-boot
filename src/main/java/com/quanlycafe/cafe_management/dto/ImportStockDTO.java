@@ -3,22 +3,27 @@ package com.quanlycafe.cafe_management.dto;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
 /**
  * ImportStockDTO
- * Version 1.1
- * Date: 08-06-2026
+ * Version 1.2
+ * Date: 09-06-2026
  * Modification Logs:
- * DATE       AUTHOR       DESCRIPTION
- * -----------------------------------------------------------------------
- * 08-06-2026 lhthoai      Rename from StockActionDTO, remove export logic
+ * DATE         AUTHOR      DESCRIPTION
+ * 08-06-2026   lhthoai     Rename from StockActionDTO, remove export logic
+ * 09-06-2026   Quản Lý     Apply Java Coding Convention
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ImportStockDTO {
+
     @NotNull(message = "Vui lòng chọn mặt hàng")
     private Integer maHangHoa;
 
@@ -34,4 +39,5 @@ public class ImportStockDTO {
     @NotNull(message = "Đơn giá không được để trống")
     @Min(value = 0, message = "Đơn giá không được âm")
     private Double donGia;
+
 }

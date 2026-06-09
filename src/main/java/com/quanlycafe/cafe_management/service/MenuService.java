@@ -17,15 +17,14 @@ import java.util.List;
 
 /**
  * MenuService
- * <p>
- * Version 1.4
- * <p>
+ * Version 1.5
+ * Date: 09-06-2026
  * Modification Logs:
- * DATE       AUTHOR       DESCRIPTION
- * -----------------------------------------------------------------------
- * 29-05-2026 lhthoai      Create
- * 30-05-2026 lhthoai      Apply MenuFormDTO & format convention
- * 07-06-2026 lhthoai      Add logic to save Ingredients & Auto-fetch DonViTinh
+ * DATE         AUTHOR      DESCRIPTION
+ * 29-05-2026   lhthoai     Create
+ * 30-05-2026   lhthoai     Apply MenuFormDTO & format convention
+ * 07-06-2026   lhthoai     Add logic to save Ingredients & Auto-fetch DonViTinh
+ * 09-06-2026   lhthoai     Apply Java Coding Convention & Javadoc
  */
 @Service
 @RequiredArgsConstructor
@@ -33,24 +32,24 @@ public class MenuService {
 
     private final ThucDonRepository thucDonRepository;
     private final ChiTietThucDonRepository chiTietThucDonRepository;
-    private final HangHoaRepository hangHoaRepository; // Bổ sung kho Hàng Hóa
+    private final HangHoaRepository hangHoaRepository;
 
     /**
-     * Lấy tất cả các món (Có phân trang)
+     * Lấy danh sách tất cả các món trong thực đơn (có phân trang).
      *
-     * @param pageable
-     * @return
+     * @param pageable Đối tượng phân trang
+     * @return Trang chứa danh sách ThucDon
      */
     public Page<ThucDon> getAllMenuItems(Pageable pageable) {
         return thucDonRepository.findAll(pageable);
     }
 
     /**
-     * Lấy các món theo loại (Có phân trang)
+     * Lấy các món theo loại (có phân trang).
      *
-     * @param category
-     * @param pageable
-     * @return
+     * @param category Loại món cần lọc
+     * @param pageable Đối tượng phân trang
+     * @return Trang chứa danh sách ThucDon theo loại
      */
     public Page<ThucDon> getMenuItemsByCategory(String category, Pageable pageable) {
         if (category == null || category.trim().isEmpty() || category.equalsIgnoreCase("all")) {
@@ -60,29 +59,29 @@ public class MenuService {
     }
 
     /**
-     * Tìm kiếm các món theo từ khóa (Có phân trang)
+     * Tìm kiếm các món theo từ khóa (có phân trang).
      *
-     * @param keyword
-     * @param pageable
-     * @return
+     * @param keyword  Từ khóa tìm kiếm
+     * @param pageable Đối tượng phân trang
+     * @return Trang chứa danh sách ThucDon tìm được
      */
     public Page<ThucDon> searchMenuItems(String keyword, Pageable pageable) {
         return thucDonRepository.findByTenMonContainingIgnoreCase(keyword, pageable);
     }
 
     /**
-     * Lấy danh sách các loại món
+     * Lấy danh sách các loại món hiện có.
      *
-     * @return
+     * @return Danh sách tên các loại món
      */
     public List<String> getAllCategories() {
         return thucDonRepository.findDistinctLoaiMon();
     }
 
     /**
-     * Tạo món mới (Kèm theo lưu công thức nguyên liệu và tự động lấy Đơn vị tính)
+     * Tạo món mới (kèm theo lưu công thức nguyên liệu và tự động lấy Đơn vị tính).
      *
-     * @param form
+     * @param form Form chứa dữ liệu thực đơn
      */
     @Transactional
     public void createMenuItem(MenuFormDTO form) {
@@ -102,7 +101,6 @@ public class MenuService {
                     detail.setMaHangHoa(ing.getMaHangHoa());
                     detail.setKhoiLuong(BigDecimal.valueOf(ing.getKhoiLuong()));
 
-                    // Logic thông minh: Tự động lấy tên Đơn vị tính từ Hàng Hóa
                     hangHoaRepository.findById(ing.getMaHangHoa()).ifPresent(hh -> {
                         if (hh.getDonViTinh() != null) {
                             detail.setDonViTinh(hh.getDonViTinh().getTenDonVi());
@@ -116,9 +114,9 @@ public class MenuService {
     }
 
     /**
-     * Cập nhật món (Kèm theo cập nhật công thức nguyên liệu và tự động lấy Đơn vị tính)
+     * Cập nhật món (kèm theo cập nhật công thức nguyên liệu và tự động lấy Đơn vị tính).
      *
-     * @param form
+     * @param form Form chứa dữ liệu thực đơn
      */
     @Transactional
     public void updateMenuItem(MenuFormDTO form) {
@@ -141,7 +139,6 @@ public class MenuService {
                     detail.setMaHangHoa(ing.getMaHangHoa());
                     detail.setKhoiLuong(BigDecimal.valueOf(ing.getKhoiLuong()));
 
-                    // Logic thông minh: Tự động lấy tên Đơn vị tính từ Hàng Hóa
                     hangHoaRepository.findById(ing.getMaHangHoa()).ifPresent(hh -> {
                         if (hh.getDonViTinh() != null) {
                             detail.setDonViTinh(hh.getDonViTinh().getTenDonVi());
@@ -155,9 +152,9 @@ public class MenuService {
     }
 
     /**
-     * Xoá
+     * Xóa món khỏi thực đơn (xóa mềm).
      *
-     * @param maThucDon
+     * @param maThucDon Mã món cần xóa
      */
     @Transactional
     public void deleteMenuItem(Integer maThucDon) {

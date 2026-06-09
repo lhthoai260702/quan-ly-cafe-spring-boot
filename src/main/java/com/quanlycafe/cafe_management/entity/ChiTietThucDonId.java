@@ -8,13 +8,8 @@ import java.io.Serializable;
 
 /**
  * ChiTietThucDonId
- * <p>
  * Version 1.0
- * <p>
  * Date: 07-06-2026
- * <p>
- * Copyright
- * <p>
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------

@@ -22,17 +22,17 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * TablesService
- * Version 1.0
+ * Version 1.1
  * Date: 29-05-2026
  * Modification Logs:
- * DATE       AUTHOR       DESCRIPTION
+ * DATE         AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lhthoai       Create
+ * 29-05-2026   lhthoai      Create
+ * 09-06-2026   lhthoai      Format code according to Java Coding Convention
  */
 @Service
 public class TablesService {
@@ -137,7 +137,9 @@ public class TablesService {
     public ThongTinBanGoiMonDTO getChiTietGoiMonTheoBan(Integer maBan) {
         // 1. Lấy thông tin cơ bản của bàn
         Ban ban = banRepository.findById(maBan).orElse(null);
-        if (ban == null) return null;
+        if (ban == null) {
+            return null;
+        }
 
         ThongTinBanGoiMonDTO dto = new ThongTinBanGoiMonDTO();
         dto.setMaBan(ban.getMaBan());
@@ -249,7 +251,9 @@ public class TablesService {
             String sqlLayHoaDon = "SELECT mahoadon FROM chitietdatban WHERE maban = ? AND mahoadon IN (SELECT mahoadon FROM hoadon WHERE trangthai = 'Chưa thanh toán') LIMIT 1";
             Integer maHoaDonDich = jdbcTemplate.queryForObject(sqlLayHoaDon, Integer.class, denMaBan);
 
-            if (maHoaDonDich == null) return false;
+            if (maHoaDonDich == null) {
+                return false;
+            }
 
             // 2. Duyệt qua từng bàn cần gộp
             for (Integer tuMaBan : tuMaBanList) {
@@ -320,7 +324,9 @@ public class TablesService {
                     "(SELECT mahoadon FROM hoadon WHERE trangthai = 'Chưa thanh toán') LIMIT 1";
             Map<String, Object> thongTinCu = jdbcTemplate.queryForMap(sqlLayThongTin, tuMaBan);
 
-            if (thongTinCu == null || thongTinCu.isEmpty()) return false;
+            if (thongTinCu == null || thongTinCu.isEmpty()) {
+                return false;
+            }
 
             Integer maHoaDonCu = (Integer) thongTinCu.get("mahoadon");
             Integer maNhanVien = (Integer) thongTinCu.get("manhanvien");
@@ -345,7 +351,9 @@ public class TablesService {
             if (keys != null && keys.get("mahoadon") != null) {
                 maHoaDonMoi = ((Number) keys.get("mahoadon")).intValue();
             }
-            if (maHoaDonMoi == null) return false;
+            if (maHoaDonMoi == null) {
+                return false;
+            }
 
             // 3. Đưa bàn mới vào bảng liên kết chi tiết đặt bàn
             jdbcTemplate.update(
@@ -358,7 +366,9 @@ public class TablesService {
                 Integer maThucDon = mathucdonList.get(i);
                 Integer slTach = soluongTachList.get(i);
 
-                if (slTach == null || slTach <= 0) continue;
+                if (slTach == null || slTach <= 0) {
+                    continue;
+                }
 
                 // Lấy thông tin dòng hóa đơn hiện tại để kiểm tra tính hợp lệ
                 Map<String, Object> cthdCu = jdbcTemplate.queryForMap(
@@ -368,7 +378,9 @@ public class TablesService {
                 int slHienTai = (int) cthdCu.get("soluong");
                 BigDecimal giaBan = (BigDecimal) cthdCu.get("giataithoidiemban");
 
-                if (slTach > slHienTai) return false; // Ngăn chặn phá hoại dữ liệu
+                if (slTach > slHienTai) {
+                    return false; // Ngăn chặn phá hoại dữ liệu
+                }
 
                 // Thêm món được chọn tách sang hóa đơn mới
                 double thanhTienMoi = slTach * giaBan.doubleValue();
@@ -455,10 +467,10 @@ public class TablesService {
 
         // --- BƯỚC 1: KIỂM TRA TỔNG TỒN KHO TRƯỚC KHI CHO PHÉP ORDER ---
         if (danhSachMaMon != null && !danhSachMaMon.isEmpty()) {
-            java.util.Map<Integer, Double> tongNguyenLieuCan = new java.util.HashMap<>();
-            java.util.Map<Integer, String> tenNguyenLieuMap = new java.util.HashMap<>();
-            java.util.Map<Integer, Double> tonKhoMap = new java.util.HashMap<>();
-            java.util.Map<Integer, java.util.Set<String>> nguyenLieuToMonMap = new java.util.HashMap<>();
+            Map<Integer, Double> tongNguyenLieuCan = new HashMap<>();
+            Map<Integer, String> tenNguyenLieuMap = new HashMap<>();
+            Map<Integer, Double> tonKhoMap = new HashMap<>();
+            Map<Integer, Set<String>> nguyenLieuToMonMap = new HashMap<>();
 
             for (int i = 0; i < danhSachMaMon.size(); i++) {
                 Integer maMon = danhSachMaMon.get(i);
@@ -488,21 +500,21 @@ public class TablesService {
                         tonKhoMap.put(maHangHoa, tonKhoHienTai);
 
                         // Lưu lại danh sách các món bị ảnh hưởng bởi nguyên liệu này
-                        nguyenLieuToMonMap.computeIfAbsent(maHangHoa, k -> new java.util.HashSet<>()).add(tenMon);
+                        nguyenLieuToMonMap.computeIfAbsent(maHangHoa, k -> new HashSet<>()).add(tenMon);
                     }
                 }
             }
 
             // Đối chiếu tổng nguyên liệu cần với kho thực tế
-            List<String> loiThieuHang = new java.util.ArrayList<>();
-            for (java.util.Map.Entry<Integer, Double> entry : tongNguyenLieuCan.entrySet()) {
+            List<String> loiThieuHang = new ArrayList<>();
+            for (Map.Entry<Integer, Double> entry : tongNguyenLieuCan.entrySet()) {
                 Integer maHangHoa = entry.getKey();
                 Double canDung = entry.getValue();
                 Double tonKho = tonKhoMap.get(maHangHoa);
 
                 if (canDung > tonKho) {
                     String tenNguyenLieu = tenNguyenLieuMap.get(maHangHoa);
-                    java.util.Set<String> cacMonAnhHuong = nguyenLieuToMonMap.get(maHangHoa);
+                    Set<String> cacMonAnhHuong = nguyenLieuToMonMap.get(maHangHoa);
 
                     loiThieuHang.add(String.format("Thiếu '%s' (Cần: %s, Kho còn: %s) cho món: [%s]",
                             tenNguyenLieu, canDung, tonKho, String.join(", ", cacMonAnhHuong)));
@@ -515,7 +527,6 @@ public class TablesService {
             }
         }
         // --- KẾT THÚC BƯỚC 1 ---
-
 
         // --- BƯỚC 2: TIẾN HÀNH ORDER NẾU ĐỦ HÀNG ---
         Ban ban = banRepository.findById(maBan)
@@ -631,7 +642,9 @@ public class TablesService {
                 }
 
                 // Chống âm tiền nếu khuyến mãi lớn hơn cả tiền món
-                if (tongTienCuoiCung < 0) tongTienCuoiCung = 0.0;
+                if (tongTienCuoiCung < 0) {
+                    tongTienCuoiCung = 0.0;
+                }
             } catch (Exception e) {
                 // Khuyến mãi không hợp lệ, bỏ qua
                 maKhuyenMai = null;

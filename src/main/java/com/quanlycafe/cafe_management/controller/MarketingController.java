@@ -21,13 +21,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 /**
  * MarketingController
  * Version 1.3
- * Date: 06-06-2026
- * Copyright
+ * Date: 09-06-2026
  * Modification Logs:
- * DATE       AUTHOR       DESCRIPTION
- * -----------------------------------------------------------------------
- * 29-05-2026 lhthoai       Create
- * 06-06-2026 lhthoai      Refactor: Sort by StartDate, Add TotalItems, Pagination 10
+ * DATE         AUTHOR      DESCRIPTION
+ * 29-05-2026   lhthoai     Create
+ * 06-06-2026   lhthoai     Refactor: Sort by StartDate, Add TotalItems, Pagination 10
+ * 09-06-2026   lhthoai     Apply Java Coding Convention
  */
 @Controller
 @RequiredArgsConstructor
@@ -36,7 +35,7 @@ public class MarketingController {
     private final MarketingService marketingService;
 
     /**
-     * Hiển thị trang quản lý marketing
+     * Hiển thị trang quản lý marketing (có phân trang và tìm kiếm)
      *
      * @param keyword String
      * @param page    int
@@ -49,7 +48,6 @@ public class MarketingController {
             @RequestParam(defaultValue = "1") int page,
             Model model) {
 
-        // Giới hạn 10 record/trang, sắp xếp theo ngày bắt đầu giảm dần (mới nhất)
         Pageable pageable = PageRequest.of(page - 1, 10, Sort.by(Sort.Direction.DESC, "ngayBatDau"));
         Page<KhuyenMai> promoPage;
 
@@ -76,7 +74,14 @@ public class MarketingController {
         return "marketing";
     }
 
-    // Các hàm PostMapping giữ nguyên như cũ, chỉ cần ensure đã có try-catch
+    /**
+     * Thêm mới chương trình khuyến mãi
+     *
+     * @param form               PromotionFormDTO
+     * @param bindingResult      BindingResult
+     * @param redirectAttributes RedirectAttributes
+     * @return String
+     */
     @PostMapping("/marketing/add")
     public String addPromotion(@Valid @ModelAttribute("addForm") PromotionFormDTO form,
                                BindingResult bindingResult,
@@ -94,6 +99,14 @@ public class MarketingController {
         return "redirect:/marketing";
     }
 
+    /**
+     * Cập nhật chương trình khuyến mãi
+     *
+     * @param form               PromotionFormDTO
+     * @param bindingResult      BindingResult
+     * @param redirectAttributes RedirectAttributes
+     * @return String
+     */
     @PostMapping("/marketing/edit")
     public String editPromotion(@Valid @ModelAttribute("editForm") PromotionFormDTO form,
                                 BindingResult bindingResult,
@@ -111,8 +124,16 @@ public class MarketingController {
         return "redirect:/marketing";
     }
 
+    /**
+     * Xóa chương trình khuyến mãi
+     *
+     * @param maKhuyenMai        Integer
+     * @param redirectAttributes RedirectAttributes
+     * @return String
+     */
     @PostMapping("/marketing/delete")
-    public String deletePromotion(@RequestParam Integer maKhuyenMai, RedirectAttributes redirectAttributes) {
+    public String deletePromotion(@RequestParam Integer maKhuyenMai,
+                                  RedirectAttributes redirectAttributes) {
         try {
             marketingService.deletePromotion(maKhuyenMai);
             redirectAttributes.addFlashAttribute("successMsg", "Đã xóa chương trình!");

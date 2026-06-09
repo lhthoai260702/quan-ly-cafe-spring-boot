@@ -9,11 +9,20 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
+/**
+ * ExpenseFormDTO
+ * Version 1.1
+ * Date: 09-06-2026
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * 09-06-2026   lhthoai     Apply Java Coding Convention
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class ExpenseFormDTO {
-    private Integer id; // Phục vụ chức năng Edit
+
+    private Integer id;
 
     @NotBlank(message = "Vui lòng nhập tên khoản chi")
     private String tenKhoanChi;
@@ -24,4 +33,5 @@ public class ExpenseFormDTO {
     @NotNull(message = "Vui lòng chọn ngày chi")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate ngayChi;
+
 }

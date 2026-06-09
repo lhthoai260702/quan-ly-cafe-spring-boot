@@ -14,20 +14,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
 /**
  * InventoryService
- * Version 1.4
- * Date: 08-06-2026
+ * Version 1.5
+ * Date: 09-06-2026
  * Modification Logs:
- * DATE       AUTHOR       DESCRIPTION
- * -----------------------------------------------------------------------
- * 29-05-2026 lhthoai       Create
- * 30-05-2026 lhthoai      Apply DTOs, format convention & Pagination
- * 08-06-2026 lhthoai      Remove Export logic, Integrate DonNhap, Add Filter, Fix Sorting
+ * DATE         AUTHOR      DESCRIPTION
+ * 29-05-2026   lhthoai     Create
+ * 30-05-2026   lhthoai     Apply DTOs, format convention & Pagination
+ * 08-06-2026   lhthoai     Remove Export logic, Integrate DonNhap, Add Filter, Fix Sorting
+ * 09-06-2026   lhthoai     Apply Java Coding Convention & Add Javadoc
  */
 @Service
 @RequiredArgsConstructor
@@ -38,12 +39,12 @@ public class InventoryService {
     private final DonNhapRepository donNhapRepository;
 
     /**
-     * Tìm kiếm và lọc hàng hóa theo tên và đơn vị tính
+     * Tìm kiếm và lọc hàng hóa theo tên và đơn vị tính.
      *
      * @param keyword  Từ khóa tìm kiếm
      * @param unitId   Mã đơn vị tính (0 = Tất cả)
-     * @param pageable Phân trang
-     * @return Page<HangHoa>
+     * @param pageable Đối tượng phân trang
+     * @return Trang chứa danh sách InventoryItemDTO
      */
     public Page<InventoryItemDTO> searchAndFilterItems(String keyword, Integer unitId, Pageable pageable) {
         Page<HangHoa> page;
@@ -61,7 +62,6 @@ public class InventoryService {
             dto.setDonGia(hh.getDonGia());
             dto.setDonViTinh(hh.getDonViTinh());
 
-            // Tính tổng giá trị từ lịch sử nhập kho (chỉ tính các đơn chưa xóa)
             List<DonNhap> listDonNhap = donNhapRepository.findByHangHoa_MaHangHoaAndFlagDeleteOrderByNgayNhapDesc(hh.getMaHangHoa(), 0);
             BigDecimal tongGiaTri = listDonNhap.stream()
                     .map(DonNhap::getTongTien)
@@ -72,10 +72,20 @@ public class InventoryService {
         });
     }
 
+    /**
+     * Lấy danh sách tất cả các đơn vị tính.
+     *
+     * @return Danh sách Đơn vị tính
+     */
     public List<DonViTinh> getAllUnits() {
         return donViTinhRepository.findAll();
     }
 
+    /**
+     * Tạo mới một mặt hàng trong kho.
+     *
+     * @param form Dữ liệu form nhập hàng
+     */
     @Transactional
     public void createItem(InventoryFormDTO form) {
         DonViTinh unit = donViTinhRepository.findById(form.getMaDonViTinh()).orElse(null);
@@ -97,6 +107,11 @@ public class InventoryService {
         }
     }
 
+    /**
+     * Cập nhật thông tin mặt hàng.
+     *
+     * @param form Dữ liệu form cập nhật
+     */
     @Transactional
     public void updateItem(InventoryFormDTO form) {
         HangHoa item = hangHoaRepository.findById(form.getMaHangHoa()).orElseThrow();
@@ -104,10 +119,14 @@ public class InventoryService {
 
         item.setTenHangHoa(form.getTenHangHoa());
         item.setDonViTinh(unit);
-        // Đã bỏ cập nhật DonGia theo yêu cầu
         hangHoaRepository.save(item);
     }
 
+    /**
+     * Xóa mềm một mặt hàng trong kho (Đổi cờ flag_delete = 1).
+     *
+     * @param maHangHoa Mã hàng hóa cần xóa
+     */
     @Transactional
     public void deleteItem(Integer maHangHoa) {
         HangHoa item = hangHoaRepository.findById(maHangHoa)
@@ -118,6 +137,11 @@ public class InventoryService {
         hangHoaRepository.save(item);
     }
 
+    /**
+     * Thực hiện nhập thêm hàng vào kho.
+     *
+     * @param form Dữ liệu form nhập hàng
+     */
     @Transactional
     public void importStock(ImportStockDTO form) {
         HangHoa item = hangHoaRepository.findById(form.getMaHangHoa()).orElseThrow();
@@ -127,7 +151,7 @@ public class InventoryService {
         BigDecimal currentQty = item.getSoLuong() != null ? item.getSoLuong() : BigDecimal.ZERO;
 
         item.setSoLuong(currentQty.add(qtyToAdd));
-        item.setDonGia(donGiaNhap); // Cập nhật lại giá tham khảo mới nhất
+        item.setDonGia(donGiaNhap);
         hangHoaRepository.save(item);
 
         DonNhap donNhap = new DonNhap();
@@ -138,6 +162,12 @@ public class InventoryService {
         donNhapRepository.save(donNhap);
     }
 
+    /**
+     * Lấy lịch sử nhập hàng của một mặt hàng.
+     *
+     * @param maHangHoa Mã hàng hóa
+     * @return Danh sách lịch sử nhập hàng
+     */
     public List<DonNhapHistoryDTO> getImportHistory(Integer maHangHoa) {
         List<DonNhap> list = donNhapRepository.findByHangHoa_MaHangHoaAndFlagDeleteOrderByNgayNhapDesc(maHangHoa, 0);
         return list.stream().map(dn -> {
@@ -147,9 +177,8 @@ public class InventoryService {
             dto.setSoLuong(dn.getSoLuong());
             dto.setTongTien(dn.getTongTien());
 
-            // Tính toán lại giá nhập của đợt đó (Đơn giá = Tổng tiền / Số lượng)
             if (dn.getSoLuong() != null && dn.getSoLuong().compareTo(BigDecimal.ZERO) > 0) {
-                dto.setDonGia(dn.getTongTien().divide(dn.getSoLuong(), 2, java.math.RoundingMode.HALF_UP));
+                dto.setDonGia(dn.getTongTien().divide(dn.getSoLuong(), 2, RoundingMode.HALF_UP));
             } else {
                 dto.setDonGia(BigDecimal.ZERO);
             }
@@ -157,13 +186,17 @@ public class InventoryService {
         }).toList();
     }
 
+    /**
+     * Cập nhật thông tin lịch sử đơn nhập.
+     *
+     * @param form Dữ liệu đơn nhập cần chỉnh sửa
+     */
     @Transactional
     public void updateDonNhapHistory(DonNhapEditDTO form) {
         DonNhap dn = donNhapRepository.findById(form.getMaDonNhap())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn nhập"));
         HangHoa hh = dn.getHangHoa();
 
-        // 1. Tính toán độ chênh lệch số lượng để bù trừ vào Kho tổng
         BigDecimal oldQty = dn.getSoLuong();
         BigDecimal newQty = BigDecimal.valueOf(form.getSoLuong());
         BigDecimal diff = newQty.subtract(oldQty);
@@ -171,13 +204,17 @@ public class InventoryService {
         hh.setSoLuong(hh.getSoLuong().add(diff));
         hangHoaRepository.save(hh);
 
-        // 2. Cập nhật lại phiếu nhập
         dn.setNgayNhap(form.getNgayNhap().atTime(dn.getNgayNhap().toLocalTime()));
         dn.setSoLuong(newQty);
         dn.setTongTien(newQty.multiply(BigDecimal.valueOf(form.getDonGia())));
         donNhapRepository.save(dn);
     }
 
+    /**
+     * Xóa mềm lịch sử đơn nhập.
+     *
+     * @param maDonNhap Mã đơn nhập cần xóa
+     */
     @Transactional
     public void deleteDonNhapHistory(Integer maDonNhap) {
         DonNhap dn = donNhapRepository.findById(maDonNhap)
@@ -185,12 +222,10 @@ public class InventoryService {
 
         HangHoa hh = dn.getHangHoa();
 
-        // Trừ đi số lượng đã nhập của đơn này khỏi tổng tồn kho
         BigDecimal currentQty = hh.getSoLuong() != null ? hh.getSoLuong() : BigDecimal.ZERO;
         hh.setSoLuong(currentQty.subtract(dn.getSoLuong()));
         hangHoaRepository.save(hh);
 
-        // Đánh dấu xóa mềm
         dn.setFlagDelete(1);
         donNhapRepository.save(dn);
     }

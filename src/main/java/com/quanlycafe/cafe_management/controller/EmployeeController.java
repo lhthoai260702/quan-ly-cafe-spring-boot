@@ -22,14 +22,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
  * EmployeeController
- * * Version 1.1
- * * Date: 07-06-2026
- * * Copyright
- * * Modification Logs:
- * DATE       AUTHOR       DESCRIPTION
- * -----------------------------------------------------------------------
- * 06-06-2026 lhthoai      Create and update logic
- * 07-06-2026 lhthoai      Update Dynamic Role Filter
+ * Version 1.1
+ * Date: 07-06-2026
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * 06-06-2026   lhthoai     Create and update logic
+ * 07-06-2026   lhthoai     Update Dynamic Role Filter and Convention
  */
 @Controller
 @RequiredArgsConstructor
@@ -73,7 +71,7 @@ public class EmployeeController {
         model.addAttribute("totalEmployees", employeePage.getTotalElements());
         model.addAttribute("activeTab", "employee");
         model.addAttribute("keyword", keyword);
-        model.addAttribute("selectedRole", roleId); // Trả lại ID được chọn để view highlight
+        model.addAttribute("selectedRole", roleId);
 
         // Load danh sách chức vụ động từ DB ra giao diện
         model.addAttribute("listRoles", employeeService.getAllChucVu());
@@ -128,7 +126,6 @@ public class EmployeeController {
             redirectAttributes.addFlashAttribute("successMsg", "Tuyển nhân sự thành công!");
         } catch (IllegalArgumentException ex) {
             bindingResult.addError(new FieldError("addForm", "tenDangNhap", ex.getMessage()));
-
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.addForm", bindingResult);
             redirectAttributes.addFlashAttribute("addForm", form);
             redirectAttributes.addFlashAttribute("hasAddError", true);
@@ -190,10 +187,10 @@ public class EmployeeController {
     /**
      * Xoá nhân viên
      *
-     * @param maNhanVien
-     * @param redirectAttributes
-     * @param request
-     * @return
+     * @param maNhanVien         Integer
+     * @param redirectAttributes RedirectAttributes
+     * @param request            HttpServletRequest
+     * @return String
      */
     @PostMapping("/employees/delete")
     public String deleteEmployee(@RequestParam Integer maNhanVien,
@@ -204,7 +201,6 @@ public class EmployeeController {
             boolean isSelfDeleted = employeeService.deleteEmployee(maNhanVien);
 
             if (isSelfDeleted) {
-                // Hủy session hiện tại và đăng xuất
                 request.getSession().invalidate();
                 return "redirect:/login?logout";
             }

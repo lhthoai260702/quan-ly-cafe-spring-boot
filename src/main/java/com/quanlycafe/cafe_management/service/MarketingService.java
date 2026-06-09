@@ -14,20 +14,15 @@ import java.time.LocalDate;
 
 /**
  * MarketingService
- * <p>
- * Version 1.3
- * <p>
- * Date: 08-06-2026
- * <p>
- * Copyright
- * <p>
+ * Version 1.4
+ * Date: 09-06-2026
  * Modification Logs:
- * DATE       AUTHOR       DESCRIPTION
- * -----------------------------------------------------------------------
- * 29-05-2026 lhthoai       Create
- * 30-05-2026 lhthoai       Apply PromotionFormDTO & format convention
- * 30-05-2026 lhthoai       Apply Pagination
- * 08-06-2026 lhthoai      Implement soft delete logic
+ * DATE         AUTHOR      DESCRIPTION
+ * 29-05-2026   lhthoai     Create
+ * 30-05-2026   lhthoai     Apply PromotionFormDTO & format convention
+ * 30-05-2026   lhthoai     Apply Pagination
+ * 08-06-2026   lhthoai     Implement soft delete logic
+ * 09-06-2026   lhthoai     Apply Java Coding Convention & Javadoc
  */
 @Service
 @RequiredArgsConstructor
@@ -36,32 +31,32 @@ public class MarketingService {
     private final KhuyenMaiRepository khuyenMaiRepository;
 
     /**
-     * Lấy tất cả các khuyến mãi (Có phân trang)
+     * Lấy tất cả các khuyến mãi có phân trang.
      *
-     * @param pageable Pageable
-     * @return Page<KhuyenMai>
+     * @param pageable Đối tượng phân trang
+     * @return Trang chứa danh sách KhuyenMai
      */
     public Page<KhuyenMai> getAllPromotions(Pageable pageable) {
         return khuyenMaiRepository.findAll(pageable);
     }
 
     /**
-     * Tìm kiếm khuyến mãi (Có phân trang)
+     * Tìm kiếm khuyến mãi theo từ khóa có phân trang.
      *
-     * @param keyword  String
-     * @param pageable Pageable
-     * @return Page<KhuyenMai>
+     * @param keyword  Từ khóa tìm kiếm theo tên
+     * @param pageable Đối tượng phân trang
+     * @return Trang chứa danh sách KhuyenMai tìm được
      */
     public Page<KhuyenMai> searchPromotions(String keyword, Pageable pageable) {
         return khuyenMaiRepository.findByTenKhuyenMaiContainingIgnoreCaseOrderByMaKhuyenMaiDesc(keyword, pageable);
     }
 
     /**
-     * Tự động tính trạng thái dựa vào ngày hiện tại
+     * Tự động xác định trạng thái của khuyến mãi dựa vào ngày hiện tại.
      *
-     * @param startDate LocalDate
-     * @param endDate   LocalDate
-     * @return String
+     * @param startDate Ngày bắt đầu
+     * @param endDate   Ngày kết thúc
+     * @return Chuỗi trạng thái (Sắp diễn ra, Đang diễn ra, Đã kết thúc)
      */
     private String determineStatus(LocalDate startDate, LocalDate endDate) {
         LocalDate today = LocalDate.now();
@@ -75,9 +70,9 @@ public class MarketingService {
     }
 
     /**
-     * Tạo khuyến mãi
+     * Tạo mới khuyến mãi vào hệ thống.
      *
-     * @param form PromotionFormDTO
+     * @param form Dữ liệu khuyến mãi từ Form
      */
     @Transactional
     public void createPromotion(PromotionFormDTO form) {
@@ -89,17 +84,15 @@ public class MarketingService {
         km.setGiaTriGiam(BigDecimal.valueOf(form.getGiaTriGiam()));
         km.setMoTa(form.getMoTa());
         km.setTrangThai(determineStatus(form.getNgayBatDau(), form.getNgayKetThuc()));
-
-        // Mặc định gán cờ 0 (hiển thị) khi tạo mới
         km.setFlagDelete(0);
 
         khuyenMaiRepository.save(km);
     }
 
     /**
-     * Sửa khuyến mãi
+     * Cập nhật thông tin khuyến mãi.
      *
-     * @param form PromotionFormDTO
+     * @param form Dữ liệu khuyến mãi từ Form
      */
     @Transactional
     public void updatePromotion(PromotionFormDTO form) {
@@ -118,9 +111,9 @@ public class MarketingService {
     }
 
     /**
-     * Xóa khuyến mãi (Xóa mềm - Chuyển cờ)
+     * Xóa mềm khuyến mãi (chuyển trạng thái flag_delete = 1).
      *
-     * @param maKhuyenMai Integer
+     * @param maKhuyenMai Mã khuyến mãi cần xóa
      */
     @Transactional
     public void deletePromotion(Integer maKhuyenMai) {
@@ -128,7 +121,7 @@ public class MarketingService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Khuyến mãi"));
 
         km.setFlagDelete(1);
-
         khuyenMaiRepository.save(km);
     }
+
 }

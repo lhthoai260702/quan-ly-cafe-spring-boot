@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,23 +21,21 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * MenuController
- * <p>
  * Version 1.4
- * <p>
- * Date: 30-05-2026
- * <p>
- * Copyright
- * <p>
+ * Date: 09-06-2026
  * Modification Logs:
- * DATE       AUTHOR       DESCRIPTION
- * -----------------------------------------------------------------------
- * 29-05-2026 lhthoai      Create
- * 30-05-2026 lhthoai      Add Pagination, Sort by name ignore case, Java Convention
- * 07-06-2026 lhthoai      Integrate HangHoa for recipe/ingredients selection
+ * DATE         AUTHOR      DESCRIPTION
+ * 29-05-2026   lhthoai     Create
+ * 30-05-2026   lhthoai     Add Pagination, Sort by name ignore case, Java Convention
+ * 07-06-2026   lhthoai     Integrate HangHoa for recipe/ingredients selection
+ * 09-06-2026   lhthoai     Apply Java Coding Convention
  */
 @Controller
 @RequiredArgsConstructor
@@ -48,7 +47,7 @@ public class MenuController {
     private final JdbcTemplate jdbcTemplate;
 
     /**
-     * Hiển thị trang quản lý thực đơn (có phân trang, sắp xếp theo tên, hiển thị tổng số lượng)
+     * Hiển thị trang quản lý thực đơn (có phân trang, sắp xếp theo tên)
      *
      * @param category String
      * @param keyword  String
@@ -85,7 +84,6 @@ public class MenuController {
         model.addAttribute("keyword", keyword);
         model.addAttribute("activeTab", "menu");
 
-        // Truyền danh sách Hàng Hóa vào Model để hiển thị dropdown nguyên liệu
         model.addAttribute("listHangHoa", hangHoaRepository.findAll(Sort.by(Sort.Order.asc("tenHangHoa").ignoreCase())));
 
         if (!model.containsAttribute("addForm")) {
@@ -99,30 +97,26 @@ public class MenuController {
     }
 
     /**
-     * Lấy danh sách nguyên liệu
+     * Lấy danh sách nguyên liệu của món ăn qua API
      *
-     * @param maThucDon
-     * @return
+     * @param maThucDon Integer
+     * @return ResponseEntity
      */
     @GetMapping("/api/menu/ingredients/{maThucDon}")
     @ResponseBody
-    public org.springframework.http.ResponseEntity<java.util.List<java.util.Map<String, Object>>> getIngredientsByThucDon(@PathVariable Integer maThucDon) {
+    public ResponseEntity<List<Map<String, Object>>> getIngredientsByThucDon(@PathVariable Integer maThucDon) {
         List<ChiTietThucDon> list = chiTietThucDonRepository.findByMaThucDon(maThucDon);
-        java.util.List<java.util.Map<String, Object>> result = new java.util.ArrayList<>();
+        List<Map<String, Object>> result = new ArrayList<>();
 
         for (ChiTietThucDon c : list) {
-            java.util.Map<String, Object> map = new java.util.HashMap<>();
+            Map<String, Object> map = new HashMap<>();
             map.put("maHangHoa", c.getMaHangHoa());
             map.put("khoiLuong", c.getKhoiLuong());
             map.put("donViTinh", c.getDonViTinh());
 
-            // Thay vì dùng hangHoaRepository.findById (bị chặn bởi cờ flag_delete = 0)
-            // Ta dùng Native SQL để ép lấy tên hàng hóa dù nó đã bị xóa
             try {
                 String sql = "SELECT tenhanghoa FROM hanghoa WHERE mahanghoa = ?";
                 String tenHangHoa = jdbcTemplate.queryForObject(sql, String.class, c.getMaHangHoa());
-
-                // Đánh dấu thêm "(Đã ngưng)" để Quản lý dễ nhận biết nguyên liệu này không còn dùng nữa
                 map.put("tenHangHoa", tenHangHoa);
             } catch (Exception e) {
                 map.put("tenHangHoa", "Nguyên liệu không xác định");
@@ -130,15 +124,16 @@ public class MenuController {
 
             result.add(map);
         }
-        return org.springframework.http.ResponseEntity.ok(result);
+        return ResponseEntity.ok(result);
     }
 
     /**
-     * Thêm món mới vào thực đơn kèm thành phần
+     * Thêm món mới vào thực đơn
      *
      * @param form               MenuFormDTO
      * @param bindingResult      BindingResult
      * @param redirectAttributes RedirectAttributes
+     * @param request            HttpServletRequest
      * @return String
      */
     @PostMapping("/menu/add")
@@ -168,11 +163,12 @@ public class MenuController {
     }
 
     /**
-     * Cập nhật thông tin món trong thực đơn
+     * Cập nhật thông tin món
      *
      * @param form               MenuFormDTO
      * @param bindingResult      BindingResult
      * @param redirectAttributes RedirectAttributes
+     * @param request            HttpServletRequest
      * @return String
      */
     @PostMapping("/menu/edit")
@@ -206,6 +202,7 @@ public class MenuController {
      *
      * @param maThucDon          Integer
      * @param redirectAttributes RedirectAttributes
+     * @param request            HttpServletRequest
      * @return String
      */
     @PostMapping("/menu/delete")

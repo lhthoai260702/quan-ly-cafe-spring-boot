@@ -1,23 +1,27 @@
 package com.quanlycafe.cafe_management.dto;
 
 import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
 /**
  * InventoryFormDTO
- * * Version 1.0
- * * Date: 30-05-2026
- * * Copyright
- * * Modification Logs:
- * DATE       AUTHOR       DESCRIPTION
- * -----------------------------------------------------------------------
- * 30-05-2026 lhthoai      Create DTO cho form Thêm/Sửa Hàng hóa
+ * Version 1.1
+ * Date: 09-06-2026
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * 30-05-2026   lhthoai     Create DTO cho form Thêm/Sửa Hàng hóa
+ * 09-06-2026   lhthoai     Apply Java Coding Convention
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class InventoryFormDTO {
+
     private Integer maHangHoa;
 
     @NotBlank(message = "Tên hàng hóa không được để trống")
@@ -37,4 +41,5 @@ public class InventoryFormDTO {
     @NotNull(message = "Vui lòng chọn ngày nhập")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate ngayNhap;
+
 }

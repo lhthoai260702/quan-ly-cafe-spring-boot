@@ -13,11 +13,8 @@ import java.util.List;
 
 /**
  * ChiTietThucDonRepository
- * <p>
  * Version 1.1
- * <p>
  * Date: 07-06-2026
- * <p>
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------

@@ -20,12 +20,12 @@ import java.util.List;
 /**
  * InventoryController
  * Version 1.5
- * Date: 08-06-2026
+ * Date: 09-06-2026
  * Modification Logs:
- * DATE       AUTHOR       DESCRIPTION
- * -----------------------------------------------------------------------
- * 29-05-2026 lhthoai       Create
- * 08-06-2026 lhthoai      Add Unit Filter, Retain URL params on Redirects
+ * DATE         AUTHOR      DESCRIPTION
+ * 29-05-2026   lhthoai     Create
+ * 08-06-2026   lhthoai     Add Unit Filter, Retain URL params on Redirects
+ * 09-06-2026   lhthoai     Apply Java Coding Convention
  */
 @Controller
 @RequiredArgsConstructor
@@ -33,6 +33,16 @@ public class InventoryController {
 
     private final InventoryService inventoryService;
 
+    /**
+     * Hiển thị danh sách hàng hóa trong kho
+     *
+     * @param keyword String
+     * @param unit    Integer
+     * @param page    int
+     * @param size    int
+     * @param model   Model
+     * @return String
+     */
     @GetMapping("/inventory")
     public String showInventory(
             @RequestParam(required = false, defaultValue = "") String keyword,
@@ -42,8 +52,6 @@ public class InventoryController {
             Model model) {
 
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Order.asc("tenHangHoa").ignoreCase()));
-
-        // Đã đổi Page<HangHoa> thành Page<InventoryItemDTO>
         Page<InventoryItemDTO> itemPage = inventoryService.searchAndFilterItems(keyword.trim(), unit, pageable);
 
         model.addAttribute("items", itemPage.getContent());
@@ -71,6 +79,29 @@ public class InventoryController {
         return "inventory";
     }
 
+    /**
+     * Lấy lịch sử nhập hàng qua API
+     *
+     * @param id Integer
+     * @return ResponseEntity
+     */
+    @GetMapping("/inventory/api/history/{id}")
+    @ResponseBody
+    public ResponseEntity<List<DonNhapHistoryDTO>> getHistory(@PathVariable Integer id) {
+        return ResponseEntity.ok(inventoryService.getImportHistory(id));
+    }
+
+    /**
+     * Thêm hàng hóa mới
+     *
+     * @param form               InventoryFormDTO
+     * @param bindingResult      BindingResult
+     * @param keyword            String
+     * @param unit               Integer
+     * @param page               int
+     * @param redirectAttributes RedirectAttributes
+     * @return String
+     */
     @PostMapping("/inventory/add")
     public String addItem(@Valid @ModelAttribute("addForm") InventoryFormDTO form,
                           BindingResult bindingResult,
@@ -79,7 +110,6 @@ public class InventoryController {
                           @RequestParam(defaultValue = "1") int page,
                           RedirectAttributes redirectAttributes) {
 
-        // Giữ lại URL params
         redirectAttributes.addAttribute("keyword", keyword);
         redirectAttributes.addAttribute("unit", unit);
         redirectAttributes.addAttribute("page", page);
@@ -100,6 +130,17 @@ public class InventoryController {
         return "redirect:/inventory";
     }
 
+    /**
+     * Chỉnh sửa thông tin hàng hóa
+     *
+     * @param form               InventoryFormDTO
+     * @param bindingResult      BindingResult
+     * @param keyword            String
+     * @param unit               Integer
+     * @param page               int
+     * @param redirectAttributes RedirectAttributes
+     * @return String
+     */
     @PostMapping("/inventory/edit")
     public String editItem(@Valid @ModelAttribute("editForm") InventoryFormDTO form,
                            BindingResult bindingResult,
@@ -128,6 +169,16 @@ public class InventoryController {
         return "redirect:/inventory";
     }
 
+    /**
+     * Xóa hàng hóa
+     *
+     * @param maHangHoa          Integer
+     * @param keyword            String
+     * @param unit               Integer
+     * @param page               int
+     * @param redirectAttributes RedirectAttributes
+     * @return String
+     */
     @PostMapping("/inventory/delete")
     public String deleteItem(@RequestParam Integer maHangHoa,
                              @RequestParam(defaultValue = "") String keyword,
@@ -148,6 +199,17 @@ public class InventoryController {
         return "redirect:/inventory";
     }
 
+    /**
+     * Nhập thêm số lượng hàng hóa
+     *
+     * @param form               ImportStockDTO
+     * @param bindingResult      BindingResult
+     * @param keyword            String
+     * @param unit               Integer
+     * @param page               int
+     * @param redirectAttributes RedirectAttributes
+     * @return String
+     */
     @PostMapping("/inventory/import")
     public String importStock(@Valid @ModelAttribute("importForm") ImportStockDTO form,
                               BindingResult bindingResult,
@@ -176,12 +238,14 @@ public class InventoryController {
         return "redirect:/inventory";
     }
 
-    @GetMapping("/inventory/api/history/{id}")
-    @ResponseBody
-    public ResponseEntity<List<DonNhapHistoryDTO>> getHistory(@PathVariable Integer id) {
-        return ResponseEntity.ok(inventoryService.getImportHistory(id));
-    }
-
+    /**
+     * Chỉnh sửa lịch sử nhập hàng
+     *
+     * @param form               DonNhapEditDTO
+     * @param bindingResult      BindingResult
+     * @param redirectAttributes RedirectAttributes
+     * @return String
+     */
     @PostMapping("/inventory/history/edit")
     public String editHistory(@Valid @ModelAttribute("editHistoryForm") DonNhapEditDTO form,
                               BindingResult bindingResult,
@@ -199,6 +263,13 @@ public class InventoryController {
         return "redirect:/inventory";
     }
 
+    /**
+     * Xóa lịch sử nhập hàng
+     *
+     * @param maDonNhap          Integer
+     * @param redirectAttributes RedirectAttributes
+     * @return String
+     */
     @PostMapping("/inventory/history/delete")
     public String deleteHistory(@RequestParam Integer maDonNhap, RedirectAttributes redirectAttributes) {
         try {

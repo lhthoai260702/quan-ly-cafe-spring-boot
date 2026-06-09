@@ -11,11 +11,8 @@ import java.time.LocalDate;
 
 /**
  * KhuyenMai
- * <p>
  * Version 1.1
- * <p>
  * Date: 08-06-2026
- * <p>
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------

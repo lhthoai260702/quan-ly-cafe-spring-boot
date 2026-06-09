@@ -1,5 +1,6 @@
 package com.quanlycafe.cafe_management.security;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -10,19 +11,23 @@ import org.springframework.security.web.SecurityFilterChain;
 
 /**
  * WebSecurityConfig
- * Version 1.0
- * Date: 29-05-2026
+ * Version 1.2
+ * Date: 09-06-2026
  * Modification Logs:
- * DATE       AUTHOR       DESCRIPTION
- * -----------------------------------------------------------------------
- * 29-05-2026 lhthoai       Create
+ * DATE         AUTHOR      DESCRIPTION
+ * 29-05-2026   lhthoai     Create
+ * 09-06-2026   lhthoai     Thêm cấu hình Ghi nhớ đăng nhập (Remember Me)
+ * 09-06-2026   lhthoai     Apply Java Coding Convention
  */
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class WebSecurityConfig {
 
+    private final CustomUserDetailsService customUserDetailsService;
+
     /**
-     * Mã hóa mật khẩu
+     * Khai báo Bean mã hóa mật khẩu sử dụng BCrypt
      *
      * @return PasswordEncoder
      */
@@ -32,24 +37,24 @@ public class WebSecurityConfig {
     }
 
     /**
-     * Cấu hình chuỗi lọc bảo mật
+     * Cấu hình chuỗi lọc bảo mật cho ứng dụng
      *
      * @param http HttpSecurity
      * @return SecurityFilterChain
-     * @throws Exception
+     * @throws Exception lỗi cấu hình bảo mật
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/css/**", "/js/**", "/images/**").permitAll() // Cho phép tải tài nguyên tĩnh
+                        .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
 
                         // CÁC TRANG DÀNH RIÊNG CHO QUẢN LÝ (ROLE_ADMIN)
                         .requestMatchers("/employee/**", "/equipment/**", "/inventory/**",
                                 "/menu/**", "/marketing/**", "/budget/**",
                                 "/data/**", "/report/**", "/settings/**").hasRole("ADMIN")
 
-                        // CÁC TRANG CÒN LẠI - THÌ ADMIN VÀ USER ĐỀU VÀO ĐƯỢC
+                        // CÁC TRANG CÒN LẠI - YÊU CẦU ĐĂNG NHẬP
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -59,14 +64,22 @@ public class WebSecurityConfig {
                         .failureUrl("/login?error=true")
                         .permitAll()
                 )
+                // CẤU HÌNH TÍNH NĂNG GHI NHỚ ĐĂNG NHẬP
+                .rememberMe(remember -> remember
+                        .key("CafeHarmonySecretKey2026")
+                        .tokenValiditySeconds(7 * 24 * 60 * 60)
+                        .userDetailsService(customUserDetailsService)
+                        .rememberMeParameter("remember-me")
+                )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout")
                         .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID")
+                        .deleteCookies("JSESSIONID", "remember-me")
                         .permitAll()
                 );
 
         return http.build();
     }
+
 }

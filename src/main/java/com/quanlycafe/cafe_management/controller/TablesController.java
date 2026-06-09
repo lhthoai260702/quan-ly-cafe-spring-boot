@@ -5,7 +5,12 @@ import com.quanlycafe.cafe_management.dto.UserProfileDTO;
 import com.quanlycafe.cafe_management.entity.Ban;
 import com.quanlycafe.cafe_management.repository.ThucDonRepository;
 import com.quanlycafe.cafe_management.service.TablesService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,22 +25,25 @@ import java.util.Map;
 
 /**
  * TablesController
- * Version 1.0
- * Date: 29-05-2026
+ * <p>
+ * Version 1.1
+ * <p>
+ * Date: 09-06-2026
+ * <p>
+ * Copyright
+ * <p>
  * Modification Logs:
- * DATE       AUTHOR       DESCRIPTION
- * -----------------------------------------------------------------------
- * 29-05-2026 lhthoai       Create
- * 30-05-2026 lhthoai      Add Pagination
+ * DATE         AUTHOR      DESCRIPTION
+ * 29-05-2026   lhthoai     Create
+ * 30-05-2026   lhthoai     Add Pagination
+ * 09-06-2026   Quản Lý     Apply Java Coding Convention & Referer Redirection
  */
 @Controller
+@RequiredArgsConstructor
 public class TablesController {
 
-    @Autowired
-    private TablesService tablesService;
-
-    @Autowired
-    private ThucDonRepository thucDonRepository;
+    private final TablesService tablesService;
+    private final ThucDonRepository thucDonRepository;
 
     /**
      * Hiển thị danh sách bàn (Có phân trang)
@@ -55,24 +63,17 @@ public class TablesController {
             @RequestParam(defaultValue = "15") int size,
             Model model) {
 
-        // 1. Xử lý phân trang (Sắp xếp theo tên bàn mặc định - Không phân biệt hoa/thường)
-        org.springframework.data.domain.Pageable pageable =
-                org.springframework.data.domain.PageRequest.of(page - 1, size,
-                        org.springframework.data.domain.Sort.by(
-                                org.springframework.data.domain.Sort.Order.asc("tenBan").ignoreCase()
-                        )
-                );
+        Pageable pageable = PageRequest.of(page - 1, size,
+                Sort.by(Sort.Order.asc("tenBan").ignoreCase()));
 
-        org.springframework.data.domain.Page<Ban> banPage = tablesService.getTablesWithPagination(status, search, pageable);
+        Page<Ban> banPage = tablesService.getTablesWithPagination(status, search, pageable);
         List<Map<String, Object>> danhSachThucDon = tablesService.getDanhSachThucDonVoiTrangThai();
 
-        // 2. Lấy số lượng thống kê (Tối ưu hóa: Dùng Count SQL thay vì tải toàn bộ DB lên RAM)
         model.addAttribute("tongSoBan", tablesService.countTongSoBan());
         model.addAttribute("soBanTrong", tablesService.countBanByTinhTrang("Trống"));
         model.addAttribute("soBanCoKhach", tablesService.countBanByTinhTrang("Đang sử dụng"));
         model.addAttribute("soBanDaDat", tablesService.countBanByTinhTrang("Đã đặt trước"));
 
-        // 3. Trả dữ liệu hiển thị (Current Page)
         model.addAttribute("danhSachBan", banPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", banPage.getTotalPages());
@@ -81,7 +82,6 @@ public class TablesController {
         model.addAttribute("currentStatus", status != null ? status : "Tất cả");
         model.addAttribute("currentSearch", search != null ? search : "");
 
-        // 4. Lấy Toàn bộ dữ liệu bàn để phục vụ Modal Gộp/Chuyển/Tách (Bắt buộc không phân trang)
         model.addAttribute("danhSachBanTrong", tablesService.getBanByTinhTrang("Trống"));
         model.addAttribute("danhSachBanCoKhach", tablesService.getBanByTinhTrang("Đang sử dụng"));
         model.addAttribute("danhSachThucDon", danhSachThucDon);
@@ -90,7 +90,7 @@ public class TablesController {
     }
 
     /**
-     * Hiển thị chi tiết order của bàn (danh sách món)
+     * Hiển thị chi tiết order của bàn (Fragment)
      *
      * @param maBan Integer
      * @param model Model
@@ -100,10 +100,7 @@ public class TablesController {
     public String getOrderDetailsFragment(@PathVariable("maBan") Integer maBan, Model model) {
         ThongTinBanGoiMonDTO thongTinGoiMon = tablesService.getChiTietGoiMonTheoBan(maBan);
         model.addAttribute("order", thongTinGoiMon);
-
-        // Lấy danh sách Khuyến mãi đang mở để thu ngân lựa chọn
-        List<Map<String, Object>> danhSachKhuyenMai = tablesService.getKhuyenMaiHopLe();
-        model.addAttribute("danhSachKhuyenMai", danhSachKhuyenMai);
+        model.addAttribute("danhSachKhuyenMai", tablesService.getKhuyenMaiHopLe());
 
         return "fragments/hoadon :: nội_dung_hóa_đơn";
     }
@@ -128,42 +125,44 @@ public class TablesController {
      * @param tuMaBanList        List<Integer>
      * @param denMaBan           Integer
      * @param redirectAttributes RedirectAttributes
+     * @param request            HttpServletRequest
      * @return String
      */
     @PostMapping("/tables/merge")
     public String mergeTables(@RequestParam(value = "tuMaBanList", required = false) List<Integer> tuMaBanList,
-                              @RequestParam(value = "denMaBan", required = true) Integer denMaBan,
-                              RedirectAttributes redirectAttributes) {
+                              @RequestParam(value = "denMaBan") Integer denMaBan,
+                              RedirectAttributes redirectAttributes,
+                              HttpServletRequest request) {
+
+        String referer = request.getHeader("Referer");
+        String redirectUrl = referer != null ? referer : "/tables";
 
         if (tuMaBanList == null || tuMaBanList.isEmpty()) {
             redirectAttributes.addFlashAttribute("errorMsg", "Vui lòng chọn ít nhất 1 bàn để gộp!");
-            return "redirect:/tables";
+            return "redirect:" + redirectUrl;
         }
 
-        // Loại bỏ bàn đích khỏi danh sách nguồn
         tuMaBanList.remove(denMaBan);
-
         if (tuMaBanList.isEmpty()) {
             redirectAttributes.addFlashAttribute("errorMsg", "Bàn cần gộp không hợp lệ!");
-            return "redirect:/tables";
+            return "redirect:" + redirectUrl;
         }
 
         boolean success = tablesService.gopBan(tuMaBanList, denMaBan);
-
         if (success) {
             redirectAttributes.addFlashAttribute("successMsg", "Gộp bàn thành công!");
         } else {
             redirectAttributes.addFlashAttribute("errorMsg", "Có lỗi xảy ra khi gộp bàn!");
         }
 
-        return "redirect:/tables";
+        return "redirect:" + redirectUrl;
     }
 
     /**
-     * Lấy danh sách món của bàn (định dạng JSON dùng cho tách bàn)
+     * Lấy danh sách món theo bàn (JSON)
      *
      * @param maBan Integer
-     * @return List<Map<String, Object>>
+     * @return List
      */
     @GetMapping("/tables/{maBan}/items")
     @ResponseBody
@@ -172,13 +171,14 @@ public class TablesController {
     }
 
     /**
-     * Tách bàn (tách hóa đơn)
+     * Tách hóa đơn bàn
      *
      * @param tuMaBan            Integer
      * @param denMaBan           Integer
      * @param mathucdonList      List<Integer>
      * @param soluongTachList    List<Integer>
      * @param redirectAttributes RedirectAttributes
+     * @param request            HttpServletRequest
      * @return String
      */
     @PostMapping("/tables/split")
@@ -186,17 +186,20 @@ public class TablesController {
                              @RequestParam("denMaBan") Integer denMaBan,
                              @RequestParam("mathucdonList") List<Integer> mathucdonList,
                              @RequestParam("soluongTachList") List<Integer> soluongTachList,
-                             RedirectAttributes redirectAttributes) {
+                             RedirectAttributes redirectAttributes,
+                             HttpServletRequest request) {
+
+        String referer = request.getHeader("Referer");
+        String redirectUrl = referer != null ? referer : "/tables";
 
         boolean success = tablesService.tachBan(tuMaBan, denMaBan, mathucdonList, soluongTachList);
-
         if (success) {
             redirectAttributes.addFlashAttribute("successMsg", "Tách hóa đơn thành công!");
         } else {
-            redirectAttributes.addFlashAttribute("errorMsg", "Tách hóa đơn thất bại hoặc số lượng không hợp lệ!");
+            redirectAttributes.addFlashAttribute("errorMsg", "Tách hóa đơn thất bại!");
         }
 
-        return "redirect:/tables";
+        return "redirect:" + redirectUrl;
     }
 
     /**
@@ -222,26 +225,22 @@ public class TablesController {
             RedirectAttributes redirectAttributes) {
 
         try {
-            // Kiểm tra an toàn phòng trường hợp mất session
             if (currentUser == null || currentUser.getMaNhanVien() == null) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại!");
                 return "redirect:/login";
             }
 
             LocalDateTime ngayGioDat = LocalDateTime.of(ngayDat, gioDat);
-
             Ban ban = tablesService.findById(maBan);
-            if (ban == null || !ban.getTinhTrang().equals("Trống")) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Bàn này không còn trống để đặt!");
+
+            if (ban == null || !"Trống".equals(ban.getTinhTrang())) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Bàn không sẵn sàng để đặt!");
                 return "redirect:/tables";
             }
 
-            // Truyền mã nhân viên thực tế vào service
             tablesService.datBanTruoc(maBan, currentUser.getMaNhanVien(), tenKhachHang, sdtKhachHang, ngayGioDat);
-
-            redirectAttributes.addFlashAttribute("successMessage", "Đã đặt bàn thành công!");
+            redirectAttributes.addFlashAttribute("successMessage", "Đặt bàn thành công!");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi khi đặt bàn: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
         }
 
         return "redirect:/tables";
@@ -255,6 +254,7 @@ public class TablesController {
      * @param danhSachMaMon      List<Integer>
      * @param danhSachSoLuong    List<Integer>
      * @param redirectAttributes RedirectAttributes
+     * @param request            HttpServletRequest
      * @return String
      */
     @PostMapping("/tables/order")
@@ -263,42 +263,49 @@ public class TablesController {
             @RequestParam("maBan") Integer maBan,
             @RequestParam(value = "maThucDon", required = false) List<Integer> danhSachMaMon,
             @RequestParam(value = "soLuong", required = false) List<Integer> danhSachSoLuong,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes,
+            HttpServletRequest request) {
+
+        String referer = request.getHeader("Referer");
+        String redirectUrl = referer != null ? referer : "/tables";
 
         try {
-            Integer maNhanVien = currentUser.getMaNhanVien();
-
             if (danhSachMaMon != null && !danhSachMaMon.isEmpty()) {
-                tablesService.themMonVaoBan(maBan, maNhanVien, danhSachMaMon, danhSachSoLuong);
-                redirectAttributes.addFlashAttribute("successMsg", "Đã thêm món thành công!");
+                tablesService.themMonVaoBan(maBan, currentUser.getMaNhanVien(), danhSachMaMon, danhSachSoLuong);
+                redirectAttributes.addFlashAttribute("successMsg", "Đã thêm món!");
             }
         } catch (Exception e) {
-            // Khi bị lỗi hết nguyên liệu, Service sẽ quăng lỗi và hứng ở đây để báo ra giao diện
-            redirectAttributes.addFlashAttribute("errorMsg", "Không thể order: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMsg", "Lỗi: " + e.getMessage());
         }
 
-        return "redirect:/tables";
+        return "redirect:" + redirectUrl;
     }
 
     /**
-     * Xử lý thanh toán hóa đơn
+     * Xử lý thanh toán
      *
      * @param maBan              Integer
-     * @param maKhuyenMai        Integer (Thu ngân chọn từ giao diện)
+     * @param maKhuyenMai        Integer
      * @param redirectAttributes RedirectAttributes
+     * @param request            HttpServletRequest
      * @return String
      */
     @PostMapping("/tables/checkout")
     public String xuLyThanhToan(@RequestParam("maBan") Integer maBan,
                                 @RequestParam(value = "maKhuyenMai", required = false) Integer maKhuyenMai,
-                                RedirectAttributes redirectAttributes) {
+                                RedirectAttributes redirectAttributes,
+                                HttpServletRequest request) {
+
+        String referer = request.getHeader("Referer");
+        String redirectUrl = referer != null ? referer : "/tables";
+
         try {
             tablesService.thanhToanHoaDon(maBan, maKhuyenMai);
-            redirectAttributes.addFlashAttribute("successMessage", "Thanh toán thành công! Bàn đã được dọn, kho đã được trừ.");
+            redirectAttributes.addFlashAttribute("successMessage", "Thanh toán thành công!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Lỗi thanh toán: " + e.getMessage());
         }
 
-        return "redirect:/tables";
+        return "redirect:" + redirectUrl;
     }
 }

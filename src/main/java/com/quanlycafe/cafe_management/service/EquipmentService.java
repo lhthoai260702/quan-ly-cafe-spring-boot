@@ -13,15 +13,15 @@ import java.math.BigDecimal;
 
 /**
  * EquipmentService
- * Version 1.3
- * Date: 07-06-2026
+ * Version 1.4
+ * Date: 09-06-2026
  * Modification Logs:
- * DATE       AUTHOR       DESCRIPTION
- * -----------------------------------------------------------------------
- * 29-05-2026 lhthoai       Create
- * 30-05-2026 lhthoai      Apply EquipmentFormDTO & format convention
- * 06-06-2026 lhthoai      Apply Pagination and Sorting
- * 07-06-2026 lhthoai      Update match new DB, add Status filter, apply soft delete
+ * DATE         AUTHOR      DESCRIPTION
+ * 29-05-2026   lhthoai     Create
+ * 30-05-2026   lhthoai     Apply EquipmentFormDTO & format convention
+ * 06-06-2026   lhthoai     Apply Pagination and Sorting
+ * 07-06-2026   lhthoai     Update match new DB, add Status filter, apply soft delete
+ * 09-06-2026   lhthoai     Apply Java Coding Convention & Add Javadoc
  */
 @Service
 @RequiredArgsConstructor
@@ -30,12 +30,12 @@ public class EquipmentService {
     private final ThietBiRepository thietBiRepository;
 
     /**
-     * Tìm kiếm thiết bị theo tên và trạng thái có phân trang
+     * Tìm kiếm thiết bị theo tên và trạng thái có phân trang.
      *
-     * @param keyword  String
-     * @param status   String
-     * @param pageable Pageable
-     * @return Page<ThietBi>
+     * @param keyword  Từ khóa tìm kiếm theo tên
+     * @param status   Trạng thái thiết bị cần lọc
+     * @param pageable Đối tượng phân trang
+     * @return Trang chứa danh sách thiết bị thỏa mãn điều kiện
      */
     public Page<ThietBi> searchEquipment(String keyword, String status, Pageable pageable) {
         if ("Tất cả".equalsIgnoreCase(status) || status.isEmpty()) {
@@ -46,9 +46,9 @@ public class EquipmentService {
     }
 
     /**
-     * Tạo mới thiết bị
+     * Tạo mới thiết bị trong hệ thống.
      *
-     * @param form EquipmentFormDTO
+     * @param form Form dữ liệu thiết bị từ View
      */
     @Transactional
     public void createEquipment(EquipmentFormDTO form) {
@@ -64,9 +64,9 @@ public class EquipmentService {
     }
 
     /**
-     * Cập nhật thiết bị
+     * Cập nhật thông tin thiết bị.
      *
-     * @param form EquipmentFormDTO
+     * @param form Form dữ liệu thiết bị từ View
      */
     @Transactional
     public void updateEquipment(EquipmentFormDTO form) {
@@ -83,9 +83,9 @@ public class EquipmentService {
     }
 
     /**
-     * Xóa mềm thiết bị (Đổi cờ flag_delete = 1)
+     * Xóa mềm thiết bị (Đổi cờ flag_delete = 1).
      *
-     * @param maThietBi Integer
+     * @param maThietBi Mã thiết bị cần xóa
      */
     @Transactional
     public void deleteEquipment(Integer maThietBi) {

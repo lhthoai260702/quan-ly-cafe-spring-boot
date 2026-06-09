@@ -11,14 +11,14 @@ import java.util.List;
 
 /**
  * ThietBiRepository
- * Version 1.3
- * Date: 07-06-2026
+ * Version 1.2
+ * Date: 09-06-2026
  * Modification Logs:
- * DATE       AUTHOR       DESCRIPTION
- * -----------------------------------------------------------------------
- * 29-05-2026 lhthoai       Create
- * 06-06-2026 lhthoai      Add Pagination
- * 07-06-2026 lhthoai      Add filters for TinhTrang and flagDelete
+ * DATE         AUTHOR      DESCRIPTION
+ * 29-05-2026   lhthoai     Create
+ * 06-06-2026   lhthoai     Add Pagination
+ * 07-06-2026   lhthoai     Add filters for TinhTrang and flagDelete
+ * 09-06-2026   lhthoai     Apply Java Coding Convention
  */
 @Repository
 public interface ThietBiRepository extends JpaRepository<ThietBi, Integer> {
@@ -42,7 +42,16 @@ public interface ThietBiRepository extends JpaRepository<ThietBi, Integer> {
      * @param pageable   Pageable
      * @return Page<ThietBi>
      */
-    Page<ThietBi> findByTenThietBiContainingIgnoreCaseAndTinhTrangAndFlagDelete(String keyword, String tinhTrang, Integer flagDelete, Pageable pageable);
+    Page<ThietBi> findByTenThietBiContainingIgnoreCaseAndTinhTrangAndFlagDelete(
+            String keyword, String tinhTrang, Integer flagDelete, Pageable pageable);
 
+    /**
+     * Tìm kiếm thiết bị theo khoảng thời gian mua
+     *
+     * @param start LocalDate
+     * @param end   LocalDate
+     * @return List<ThietBi>
+     */
     List<ThietBi> findByNgayMuaBetween(LocalDate start, LocalDate end);
+
 }

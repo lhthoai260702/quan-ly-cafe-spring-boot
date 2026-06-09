@@ -21,18 +21,13 @@ import java.util.List;
 
 /**
  * EmployeeService
- * <p>
  * Version 1.8
- * <p>
  * Date: 07-06-2026
- * <p>
- * Copyright
- * <p>
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lhthoai       Create
- * 04-06-2026 lhthoai       Standardize Java Convention & Dynamic Roles
+ * 29-05-2026 lhthoai      Create
+ * 04-06-2026 lhthoai      Standardize Java Convention & Dynamic Roles
  * 07-06-2026 lhthoai      Dynamic database role filtering, map and save NhanVien Luong
  * 07-06-2026 lhthoai      Standardize imports and Javadoc comments
  * 07-06-2026 lhthoai      Apply Soft Delete for TaiKhoan
@@ -47,19 +42,19 @@ public class EmployeeService {
     private final PasswordEncoder passwordEncoder;
 
     /**
-     * Lấy danh sách tất cả chức vụ từ Database để đổ ra dropdown
+     * Lấy danh sách tất cả chức vụ từ Database để đổ ra dropdown.
      *
-     * @return List<ChucVu>
+     * @return Danh sách các đối tượng ChucVu
      */
     public List<ChucVu> getAllChucVu() {
         return chucVuRepository.findAll();
     }
 
     /**
-     * Lấy danh sách tất cả nhân viên có phân trang
+     * Lấy danh sách tất cả nhân viên có phân trang.
      *
-     * @param pageable Pageable
-     * @return Page<UserProfileDTO>
+     * @param pageable Đối tượng phân trang
+     * @return Trang chứa danh sách UserProfileDTO
      */
     public Page<UserProfileDTO> getAllEmployees(Pageable pageable) {
         Page<NhanVien> pageNhanVien = nhanVienRepository.findAll(pageable);
@@ -67,11 +62,11 @@ public class EmployeeService {
     }
 
     /**
-     * Lọc danh sách nhân viên theo mã chức vụ
+     * Lọc danh sách nhân viên theo mã chức vụ.
      *
-     * @param roleId   Integer
-     * @param pageable Pageable
-     * @return Page<UserProfileDTO>
+     * @param roleId   Mã chức vụ cần lọc
+     * @param pageable Đối tượng phân trang
+     * @return Trang chứa danh sách UserProfileDTO đã lọc
      */
     public Page<UserProfileDTO> getEmployeesByRoleId(Integer roleId, Pageable pageable) {
         Page<NhanVien> pageNhanVien = nhanVienRepository.findByChucVu_MaChucVu(roleId, pageable);
@@ -79,11 +74,11 @@ public class EmployeeService {
     }
 
     /**
-     * Tìm kiếm nhân viên theo họ tên hoặc tên đăng nhập
+     * Tìm kiếm nhân viên theo họ tên hoặc tên đăng nhập.
      *
-     * @param keyword  String
-     * @param pageable Pageable
-     * @return Page<UserProfileDTO>
+     * @param keyword  Từ khóa tìm kiếm
+     * @param pageable Đối tượng phân trang
+     * @return Trang chứa danh sách UserProfileDTO tìm được
      */
     public Page<UserProfileDTO> searchEmployees(String keyword, Pageable pageable) {
         Page<NhanVien> pageNhanVien = nhanVienRepository
@@ -92,9 +87,9 @@ public class EmployeeService {
     }
 
     /**
-     * Tạo mới nhân viên và cấp tài khoản tương ứng
+     * Tạo mới nhân viên và cấp tài khoản tương ứng.
      *
-     * @param form EmployeeFormDTO
+     * @param form Form chứa dữ liệu nhân viên từ View
      */
     @Transactional
     public void createEmployee(EmployeeFormDTO form) {
@@ -114,7 +109,7 @@ public class EmployeeService {
                 cv.getTenChucVu().toLowerCase().contains("quản lý");
         tk.setQuyenHan(isAdmin ? 1 : 2);
 
-        // Gán cờ bằng 0 cho tài khoản mới
+        // Gán cờ bằng 0 cho tài khoản mới (Chưa xóa)
         tk.setFlagDelete(0);
 
         taiKhoanRepository.save(tk);
@@ -127,16 +122,16 @@ public class EmployeeService {
         nv.setTaiKhoan(tk);
         nv.setChucVu(cv);
 
-        // Gán cờ bằng 0 cho nhân viên mới
+        // Gán cờ bằng 0 cho nhân viên mới (Chưa xóa)
         nv.setFlagDelete(0);
 
         nhanVienRepository.save(nv);
     }
 
     /**
-     * Cập nhật thông tin nhân viên và phân quyền lại nếu chức vụ thay đổi
+     * Cập nhật thông tin nhân viên và phân quyền lại nếu chức vụ thay đổi.
      *
-     * @param form EmployeeFormDTO
+     * @param form Form chứa dữ liệu nhân viên từ View
      */
     @Transactional
     public void updateEmployee(EmployeeFormDTO form) {
@@ -166,9 +161,10 @@ public class EmployeeService {
     }
 
     /**
+     * Xóa nhân viên theo mã nhân viên (Xóa mềm).
      *
-     * @param maNhanVien
-     * @return
+     * @param maNhanVien Mã nhân viên cần xóa
+     * @return true nếu người dùng tự xóa chính mình, ngược lại false
      */
     @Transactional
     public boolean deleteEmployee(Integer maNhanVien) {
@@ -200,10 +196,10 @@ public class EmployeeService {
     }
 
     /**
-     * Chuyển đổi đối tượng NhanVien sang UserProfileDTO để hiển thị
+     * Chuyển đổi đối tượng NhanVien sang UserProfileDTO để hiển thị.
      *
-     * @param nv NhanVien
-     * @return UserProfileDTO
+     * @param nv Đối tượng NhanVien
+     * @return Đối tượng UserProfileDTO tương ứng
      */
     private UserProfileDTO mapToDTO(NhanVien nv) {
         UserProfileDTO dto = new UserProfileDTO();
@@ -226,5 +222,4 @@ public class EmployeeService {
 
         return dto;
     }
-
 }

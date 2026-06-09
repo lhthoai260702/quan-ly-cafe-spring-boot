@@ -28,7 +28,8 @@
             <div>
                 <p class="text-[10px] md:text-[11px] text-gray-500 font-bold uppercase tracking-wider mb-0.5">Doanh thu
                     hôm nay</p>
-                <h3 class="text-base md:text-xl font-bold text-[#1a1c1b]">2,450k đ</h3>
+                <h3 class="text-base md:text-xl font-bold text-[#1a1c1b]"
+                    th:text="${#numbers.formatDecimal(doanhThuHomNay, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</h3>
             </div>
         </div>
 
@@ -39,7 +40,8 @@
             <div>
                 <p class="text-[10px] md:text-[11px] text-gray-500 font-bold uppercase tracking-wider mb-0.5">Đơn hàng
                     mới</p>
-                <h3 class="text-base md:text-xl font-bold text-[#1a1c1b]">42 đơn</h3>
+                <h3 class="text-base md:text-xl font-bold text-[#1a1c1b]"
+                    th:text="${donHangHomNay} + ' đơn'">0 đơn</h3>
             </div>
         </div>
 
@@ -48,9 +50,10 @@
                 <i data-lucide="users" class="w-5 h-5 md:w-6 md:h-6"></i>
             </div>
             <div>
-                <p class="text-[10px] md:text-[11px] text-gray-500 font-bold uppercase tracking-wider mb-0.5">Khách phục
-                    vụ</p>
-                <h3 class="text-base md:text-xl font-bold text-[#1a1c1b]">128 khách</h3>
+                <p class="text-[10px] md:text-[11px] text-gray-500 font-bold uppercase tracking-wider mb-0.5">Bàn đang
+                    phục vụ</p>
+                <h3 class="text-base md:text-xl font-bold text-[#1a1c1b]"
+                    th:text="${banDangSuDung} + ' bàn'">0 bàn</h3>
             </div>
         </div>
 
@@ -61,7 +64,8 @@
             <div>
                 <p class="text-[10px] md:text-[11px] text-gray-500 font-bold uppercase tracking-wider mb-0.5">Món bán
                     chạy</p>
-                <h3 class="text-base md:text-xl font-bold text-[#1a1c1b] truncate w-24 md:w-auto">Cà phê sữa</h3>
+                <h3 class="text-base md:text-xl font-bold text-[#1a1c1b] truncate w-24 md:w-auto"
+                    th:text="${monBanChay}">Đang tải...</h3>
             </div>
         </div>
     </div>
@@ -71,45 +75,102 @@
         <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-[#e2e3e1]/60 lg:col-span-2">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="font-bold text-[#1a1c1b] text-base md:text-lg">Tổng quan doanh thu tuần</h3>
-                <button class="text-[#553722] text-xs md:text-sm font-semibold hover:underline">Xem báo cáo</button>
+                <a th:href="@{/report}" class="text-[#553722] text-xs md:text-sm font-semibold hover:underline">Xem báo
+                    cáo</a>
             </div>
-            <div class="w-full h-56 md:h-64 bg-gray-50/50 rounded-xl border border-dashed border-gray-300 flex items-center justify-center flex-col text-gray-400">
-                <i data-lucide="bar-chart-2" class="w-8 h-8 md:w-10 md:h-10 mb-2 opacity-50"></i>
-                <p class="text-xs md:text-sm italic">Khu vực biểu đồ (Dữ liệu đang cập nhật...)</p>
+            <div class="w-full h-56 md:h-64 relative">
+                <canvas id="weeklyRevenueChart"></canvas>
             </div>
         </div>
 
         <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-[#e2e3e1]/60">
-            <h3 class="font-bold text-[#1a1c1b] text-base md:text-lg mb-5 md:mb-6">Hoạt động gần đây</h3>
+            <h3 class="font-bold text-[#1a1c1b] text-base md:text-lg mb-5 md:mb-6">Hóa đơn vừa xong</h3>
             <div class="space-y-4 md:space-y-5">
-                <div class="flex gap-3 relative">
-                    <div class="w-2 h-2 mt-1.5 rounded-full bg-emerald-500 shrink-0 z-10"></div>
-                    <div class="absolute left-1 top-3.5 bottom-[-16px] w-[1px] bg-gray-200"></div>
+
+                <div th:if="${#lists.isEmpty(hoatDongGanDay)}" class="text-center text-gray-500 text-sm mt-4">
+                    Chưa có giao dịch nào hôm nay.
+                </div>
+
+                <div th:each="hd, iterStat : ${hoatDongGanDay}" class="flex gap-3 relative">
+                    <div class="w-2 h-2 mt-1.5 rounded-full shrink-0 z-10"
+                         th:classappend="${iterStat.first ? 'bg-emerald-500' : 'bg-gray-400'}"></div>
+                    <div th:if="${!iterStat.last}"
+                         class="absolute left-1 top-3.5 bottom-[-16px] w-[1px] bg-gray-200"></div>
+
                     <div>
-                        <p class="text-sm font-semibold text-[#1a1c1b]">Thanh toán bàn số 5</p>
-                        <p class="text-[11px] md:text-xs text-gray-500 mt-0.5">Vừa xong • 125,000 đ</p>
+                        <p class="text-sm font-semibold text-[#1a1c1b]"
+                           th:text="'Thanh toán hóa đơn #' + ${hd.maHoaDon}"></p>
+                        <p class="text-[11px] md:text-xs text-gray-500 mt-0.5"
+                           th:text="${#temporals.format(hd.ngayGioTao, 'HH:mm')} + ' • ' + ${#numbers.formatDecimal(hd.tongTien, 0, 'COMMA', 0, 'POINT')} + ' đ'">
+                        </p>
                     </div>
                 </div>
-                <div class="flex gap-3 relative">
-                    <div class="w-2 h-2 mt-1.5 rounded-full bg-blue-500 shrink-0 z-10"></div>
-                    <div class="absolute left-1 top-3.5 bottom-[-16px] w-[1px] bg-gray-200"></div>
-                    <div>
-                        <p class="text-sm font-semibold text-[#1a1c1b]">Khách đặt bàn số 12</p>
-                        <p class="text-[11px] md:text-xs text-gray-500 mt-0.5">5 phút trước • Nhóm 4 người</p>
-                    </div>
-                </div>
-                <div class="flex gap-3 relative">
-                    <div class="w-2 h-2 mt-1.5 rounded-full bg-amber-500 shrink-0 z-10"></div>
-                    <div>
-                        <p class="text-sm font-semibold text-[#1a1c1b]">Nhập kho cà phê hạt</p>
-                        <p class="text-[11px] md:text-xs text-gray-500 mt-0.5">1 tiếng trước • 20 kg</p>
-                    </div>
-                </div>
+
             </div>
         </div>
 
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            // Nhận dữ liệu từ Backend Spring Boot thông qua Thymeleaf
+            const chartLabels = /*[[${chartLabels}]]*/ ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            const chartData = /*[[${chartData}]]*/ [0, 0, 0, 0, 0, 0, 0];
+
+            const ctx = document.getElementById('weeklyRevenueChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        label: 'Doanh thu (VNĐ)',
+                        data: chartData,
+                        borderColor: '#553722',
+                        backgroundColor: 'rgba(85, 55, 34, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4, // Tạo đường cong mềm mại
+                        fill: true,
+                        pointBackgroundColor: '#553722',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#553722'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let value = context.raw || 0;
+                                    return value.toLocaleString('vi-VN') + ' đ';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#f3f4f6', drawBorder: false },
+                            ticks: {
+                                callback: function(value) {
+                                    if (value >= 1000000) return (value / 1000000) + ' Tr';
+                                    if (value >= 1000) return (value / 1000) + ' K';
+                                    return value;
+                                }
+                            }
+                        },
+                        x: {
+                            grid: { display: false, drawBorder: false }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
 </section>
 </body>
 </html>

@@ -8,6 +8,15 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * ChiTieu
+ * Version 1.1
+ * Date: 09-06-2026
+ * Modification Logs:
+ * DATE         AUTHOR      DESCRIPTION
+ * 29-05-2026   lhthoai     Create
+ * 09-06-2026   Quản Lý     Apply Java Coding Convention
+ */
 @Entity
 @Table(name = "chitieu")
 @Data
@@ -35,4 +44,5 @@ public class ChiTieu {
 
     @Column(name = "flag_delete")
     private Integer flagDelete = 0;
+
 }

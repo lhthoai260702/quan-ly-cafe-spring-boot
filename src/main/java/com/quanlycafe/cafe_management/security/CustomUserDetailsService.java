@@ -13,11 +13,8 @@ import java.util.Collections;
 
 /**
  * CustomUserDetailsService
- * <p>
  * Version 1.2
- * <p>
  * Date: 29-05-2026
- * <p>
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------

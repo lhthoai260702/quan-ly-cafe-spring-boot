@@ -7,11 +7,11 @@ import lombok.NoArgsConstructor;
 /**
  * ChiTietGoiMonDTO
  * Version 1.0
- * Date: 29-05-2026
+ * Date: 09-06-2026
  * Modification Logs:
- * DATE       AUTHOR       DESCRIPTION
- * -----------------------------------------------------------------------
- * 29-05-2026 lhthoai       Create
+ * DATE         AUTHOR      DESCRIPTION
+ * 29-05-2026   lhthoai     Create
+ * 09-06-2026   lhthoai     Apply Java Coding Convention
  */
 @Data
 @AllArgsConstructor

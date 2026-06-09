@@ -8,11 +8,8 @@ import org.springframework.stereotype.Repository;
 
 /**
  * KhuyenMaiRepository
- * <p>
  * Version 1.3
- * <p>
  * Date: 08-06-2026
- * <p>
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
