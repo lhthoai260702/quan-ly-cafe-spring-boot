@@ -10,13 +10,14 @@ import java.math.BigDecimal;
 
 /**
  * HangHoa
- * Version 1.0
+ * Version 1.1
  * Date: 29-05-2026
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
  * 29-05-2026 lhthoai       Create
  * 07-06-2026 lhthoai       Update DB schema (Add flag_delete, SQLRestriction)
+ * 12-06-2026 lhthoai      Bổ sung trường donViSuDung theo schema mới
  */
 @Entity
 @Table(name = "hanghoa")
@@ -37,9 +38,15 @@ public class HangHoa {
     @Column(name = "soluong")
     private BigDecimal soLuong;
 
+    // Đơn vị tính cơ bản (nhập kho)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "madonvitinh")
     private DonViTinh donViTinh;
+
+    // Đơn vị dùng để quy đổi khi sử dụng/chế biến
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "madonvisudung")
+    private DonViTinh donViSuDung;
 
     @Column(name = "dongia", nullable = false, precision = 12, scale = 2)
     private BigDecimal donGia;

@@ -1,6 +1,8 @@
 package com.quanlycafe.cafe_management.service;
 
-import com.quanlycafe.cafe_management.dto.*;
+import com.quanlycafe.cafe_management.dto.DonNhapHistoryDTO;
+import com.quanlycafe.cafe_management.dto.InventoryFormDTO;
+import com.quanlycafe.cafe_management.dto.InventoryItemDTO;
 import com.quanlycafe.cafe_management.entity.DonNhap;
 import com.quanlycafe.cafe_management.entity.DonViTinh;
 import com.quanlycafe.cafe_management.entity.HangHoa;
@@ -21,14 +23,15 @@ import java.util.List;
 
 /**
  * InventoryService
- * Version 1.5
- * Date: 09-06-2026
+ * Version 2.0
+ * Date: 12-06-2026
  * Modification Logs:
  * DATE         AUTHOR      DESCRIPTION
  * 29-05-2026   lhthoai     Create
  * 30-05-2026   lhthoai     Apply DTOs, format convention & Pagination
- * 08-06-2026   lhthoai     Remove Export logic, Integrate DonNhap, Add Filter, Fix Sorting
+ * 08-06-2026   lhthoai     Remove Export logic, Integrate DonNhap, Add Filter
  * 09-06-2026   lhthoai     Apply Java Coding Convention & Add Javadoc
+ * 12-06-2026   Quản Lý     Gộp chung DTO, tinh chỉnh luồng Inventory theo chuẩn mới
  */
 @Service
 @RequiredArgsConstructor
@@ -61,6 +64,7 @@ public class InventoryService {
             dto.setSoLuong(hh.getSoLuong());
             dto.setDonGia(hh.getDonGia());
             dto.setDonViTinh(hh.getDonViTinh());
+            dto.setDonViSuDung(hh.getDonViSuDung());
 
             List<DonNhap> listDonNhap = donNhapRepository.findByHangHoa_MaHangHoaAndFlagDeleteOrderByNgayNhapDesc(hh.getMaHangHoa(), 0);
             BigDecimal tongGiaTri = listDonNhap.stream()
@@ -89,14 +93,22 @@ public class InventoryService {
     @Transactional
     public void createItem(InventoryFormDTO form) {
         DonViTinh unit = donViTinhRepository.findById(form.getMaDonViTinh()).orElse(null);
+
+        // TỰ ĐỘNG GÁN: Nếu không chọn ĐVT Sử Dụng thì lấy luôn ĐVT Nhập
+        DonViTinh useUnit = form.getMaDonViSuDung() != null
+                ? donViTinhRepository.findById(form.getMaDonViSuDung()).orElse(unit)
+                : unit;
+
         HangHoa item = new HangHoa();
         item.setTenHangHoa(form.getTenHangHoa());
         item.setSoLuong(form.getSoLuong() != null ? BigDecimal.valueOf(form.getSoLuong()) : BigDecimal.ZERO);
         item.setDonViTinh(unit);
+        item.setDonViSuDung(useUnit);
         item.setDonGia(BigDecimal.valueOf(form.getDonGia()));
 
         HangHoa savedItem = hangHoaRepository.save(item);
 
+        // Tự động tạo một phiếu nhập ban đầu nếu có khai báo số lượng > 0
         if (savedItem.getSoLuong().compareTo(BigDecimal.ZERO) > 0) {
             DonNhap donNhap = new DonNhap();
             donNhap.setHangHoa(savedItem);
@@ -114,11 +126,24 @@ public class InventoryService {
      */
     @Transactional
     public void updateItem(InventoryFormDTO form) {
-        HangHoa item = hangHoaRepository.findById(form.getMaHangHoa()).orElseThrow();
+        HangHoa item = hangHoaRepository.findById(form.getId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy hàng hóa cần sửa"));
         DonViTinh unit = donViTinhRepository.findById(form.getMaDonViTinh()).orElse(null);
+
+        // TỰ ĐỘNG GÁN: Nếu lúc sửa mà chuyển về "Không quy đổi" thì tự gán bằng ĐVT Nhập
+        DonViTinh useUnit = form.getMaDonViSuDung() != null
+                ? donViTinhRepository.findById(form.getMaDonViSuDung()).orElse(unit)
+                : unit;
 
         item.setTenHangHoa(form.getTenHangHoa());
         item.setDonViTinh(unit);
+        item.setDonViSuDung(useUnit);
+
+        // Cập nhật số lượng tồn kho trực tiếp nếu có chỉnh sửa
+        if (form.getSoLuong() != null) {
+            item.setSoLuong(BigDecimal.valueOf(form.getSoLuong()));
+        }
+
         hangHoaRepository.save(item);
     }
 
@@ -130,7 +155,7 @@ public class InventoryService {
     @Transactional
     public void deleteItem(Integer maHangHoa) {
         HangHoa item = hangHoaRepository.findById(maHangHoa)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy hàng hóa!"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy hàng hóa cần xóa!"));
 
         item.setFlagDelete(1);
         item.setSoLuong(BigDecimal.ZERO);
@@ -143,10 +168,11 @@ public class InventoryService {
      * @param form Dữ liệu form nhập hàng
      */
     @Transactional
-    public void importStock(ImportStockDTO form) {
-        HangHoa item = hangHoaRepository.findById(form.getMaHangHoa()).orElseThrow();
+    public void importStock(InventoryFormDTO form) {
+        HangHoa item = hangHoaRepository.findById(form.getId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy mặt hàng cần nhập"));
 
-        BigDecimal qtyToAdd = BigDecimal.valueOf(form.getSoLuongThaoTac());
+        BigDecimal qtyToAdd = BigDecimal.valueOf(form.getSoLuong());
         BigDecimal donGiaNhap = BigDecimal.valueOf(form.getDonGia());
         BigDecimal currentQty = item.getSoLuong() != null ? item.getSoLuong() : BigDecimal.ZERO;
 
@@ -192,8 +218,8 @@ public class InventoryService {
      * @param form Dữ liệu đơn nhập cần chỉnh sửa
      */
     @Transactional
-    public void updateDonNhapHistory(DonNhapEditDTO form) {
-        DonNhap dn = donNhapRepository.findById(form.getMaDonNhap())
+    public void updateDonNhapHistory(InventoryFormDTO form) {
+        DonNhap dn = donNhapRepository.findById(form.getId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn nhập"));
         HangHoa hh = dn.getHangHoa();
 

@@ -1,6 +1,5 @@
 package com.quanlycafe.cafe_management.dto;
 
-import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,36 +9,26 @@ import java.time.LocalDate;
 
 /**
  * InventoryFormDTO
- * Version 1.1
- * Date: 09-06-2026
+ * Version 2.0
+ * Date: 12-06-2026
  * Modification Logs:
  * DATE         AUTHOR      DESCRIPTION
  * 30-05-2026   lhthoai     Create DTO cho form Thêm/Sửa Hàng hóa
- * 09-06-2026   lhthoai     Apply Java Coding Convention
+ * 12-06-2026   Quản Lý     Gộp DTO, bổ sung đơn vị sử dụng và làm DTO đa năng
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class InventoryFormDTO {
 
-    private Integer maHangHoa;
+    private Integer id; // Dùng chung: Lúc là mã hàng hóa, lúc là mã đơn nhập
 
-    @NotBlank(message = "Tên hàng hóa không được để trống")
-    @Size(max = 100, message = "Tên hàng hóa không được vượt quá 100 ký tự")
     private String tenHangHoa;
-
-    @NotNull(message = "Vui lòng chọn đơn vị tính")
     private Integer maDonViTinh;
-
-    @Min(value = 0, message = "Số lượng không được là số âm")
-    @Max(value = 99999999, message = "Số lượng vượt quá giới hạn hệ thống")
+    private Integer maDonViSuDung;
     private Double soLuong;
-
-    @NotNull(message = "Đơn giá không được để trống")
     private Double donGia;
 
-    @NotNull(message = "Vui lòng chọn ngày nhập")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate ngayNhap;
-
 }

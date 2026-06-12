@@ -1,8 +1,9 @@
 package com.quanlycafe.cafe_management.controller;
 
-import com.quanlycafe.cafe_management.dto.*;
+import com.quanlycafe.cafe_management.dto.DonNhapHistoryDTO;
+import com.quanlycafe.cafe_management.dto.InventoryFormDTO;
+import com.quanlycafe.cafe_management.dto.InventoryItemDTO;
 import com.quanlycafe.cafe_management.service.InventoryService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -11,7 +12,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -19,13 +19,12 @@ import java.util.List;
 
 /**
  * InventoryController
- * Version 1.5
- * Date: 09-06-2026
+ * Version 1.6
+ * Date: 12-06-2026
  * Modification Logs:
  * DATE         AUTHOR      DESCRIPTION
- * 29-05-2026   lhthoai     Create
- * 08-06-2026   lhthoai     Add Unit Filter, Retain URL params on Redirects
  * 09-06-2026   lhthoai     Apply Java Coding Convention
+ * 12-06-2026   Quản Lý     Tối ưu hóa: Dùng DTO đa năng, bỏ @Valid để form động
  */
 @Controller
 @RequiredArgsConstructor
@@ -33,16 +32,6 @@ public class InventoryController {
 
     private final InventoryService inventoryService;
 
-    /**
-     * Hiển thị danh sách hàng hóa trong kho
-     *
-     * @param keyword String
-     * @param unit    Integer
-     * @param page    int
-     * @param size    int
-     * @param model   Model
-     * @return String
-     */
     @GetMapping("/inventory")
     public String showInventory(
             @RequestParam(required = false, defaultValue = "") String keyword,
@@ -63,197 +52,54 @@ public class InventoryController {
         model.addAttribute("unit", unit);
         model.addAttribute("activeTab", "inventory");
 
-        if (!model.containsAttribute("addForm")) {
-            model.addAttribute("addForm", new InventoryFormDTO());
-        }
-        if (!model.containsAttribute("editForm")) {
-            model.addAttribute("editForm", new InventoryFormDTO());
-        }
-        if (!model.containsAttribute("importForm")) {
-            model.addAttribute("importForm", new ImportStockDTO());
-        }
-        if (!model.containsAttribute("editHistoryForm")) {
-            model.addAttribute("editHistoryForm", new DonNhapEditDTO());
+        if (!model.containsAttribute("form")) {
+            model.addAttribute("form", new InventoryFormDTO()); // Chỉ dùng 1 Object duy nhất
         }
 
         return "inventory";
     }
 
-    /**
-     * Lấy lịch sử nhập hàng qua API
-     *
-     * @param id Integer
-     * @return ResponseEntity
-     */
     @GetMapping("/inventory/api/history/{id}")
     @ResponseBody
     public ResponseEntity<List<DonNhapHistoryDTO>> getHistory(@PathVariable Integer id) {
         return ResponseEntity.ok(inventoryService.getImportHistory(id));
     }
 
-    /**
-     * Thêm hàng hóa mới
-     *
-     * @param form               InventoryFormDTO
-     * @param bindingResult      BindingResult
-     * @param keyword            String
-     * @param unit               Integer
-     * @param page               int
-     * @param redirectAttributes RedirectAttributes
-     * @return String
-     */
     @PostMapping("/inventory/add")
-    public String addItem(@Valid @ModelAttribute("addForm") InventoryFormDTO form,
-                          BindingResult bindingResult,
-                          @RequestParam(defaultValue = "") String keyword,
-                          @RequestParam(defaultValue = "0") Integer unit,
-                          @RequestParam(defaultValue = "1") int page,
-                          RedirectAttributes redirectAttributes) {
-
-        redirectAttributes.addAttribute("keyword", keyword);
-        redirectAttributes.addAttribute("unit", unit);
-        redirectAttributes.addAttribute("page", page);
-
-        if (bindingResult.hasErrors()) {
-            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.addForm", bindingResult);
-            redirectAttributes.addFlashAttribute("addForm", form);
-            redirectAttributes.addFlashAttribute("hasAddError", true);
-            return "redirect:/inventory";
-        }
-
+    public String addItem(@ModelAttribute("form") InventoryFormDTO form, RedirectAttributes redirectAttributes) {
         try {
             inventoryService.createItem(form);
             redirectAttributes.addFlashAttribute("successMsg", "Nhập hàng hóa mới thành công!");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMsg", "Lỗi khi nhập hàng mới: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMsg", "Lỗi: " + e.getMessage());
         }
         return "redirect:/inventory";
     }
 
-    /**
-     * Chỉnh sửa thông tin hàng hóa
-     *
-     * @param form               InventoryFormDTO
-     * @param bindingResult      BindingResult
-     * @param keyword            String
-     * @param unit               Integer
-     * @param page               int
-     * @param redirectAttributes RedirectAttributes
-     * @return String
-     */
     @PostMapping("/inventory/edit")
-    public String editItem(@Valid @ModelAttribute("editForm") InventoryFormDTO form,
-                           BindingResult bindingResult,
-                           @RequestParam(defaultValue = "") String keyword,
-                           @RequestParam(defaultValue = "0") Integer unit,
-                           @RequestParam(defaultValue = "1") int page,
-                           RedirectAttributes redirectAttributes) {
-
-        redirectAttributes.addAttribute("keyword", keyword);
-        redirectAttributes.addAttribute("unit", unit);
-        redirectAttributes.addAttribute("page", page);
-
-        if (bindingResult.hasErrors()) {
-            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.editForm", bindingResult);
-            redirectAttributes.addFlashAttribute("editForm", form);
-            redirectAttributes.addFlashAttribute("hasEditError", true);
-            return "redirect:/inventory";
-        }
-
+    public String editItem(@ModelAttribute("form") InventoryFormDTO form, RedirectAttributes redirectAttributes) {
         try {
             inventoryService.updateItem(form);
             redirectAttributes.addFlashAttribute("successMsg", "Cập nhật thông tin thành công!");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMsg", "Lỗi khi cập nhật: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMsg", "Lỗi: " + e.getMessage());
         }
         return "redirect:/inventory";
     }
 
-    /**
-     * Xóa hàng hóa
-     *
-     * @param maHangHoa          Integer
-     * @param keyword            String
-     * @param unit               Integer
-     * @param page               int
-     * @param redirectAttributes RedirectAttributes
-     * @return String
-     */
-    @PostMapping("/inventory/delete")
-    public String deleteItem(@RequestParam Integer maHangHoa,
-                             @RequestParam(defaultValue = "") String keyword,
-                             @RequestParam(defaultValue = "0") Integer unit,
-                             @RequestParam(defaultValue = "1") int page,
-                             RedirectAttributes redirectAttributes) {
-
-        redirectAttributes.addAttribute("keyword", keyword);
-        redirectAttributes.addAttribute("unit", unit);
-        redirectAttributes.addAttribute("page", page);
-
-        try {
-            inventoryService.deleteItem(maHangHoa);
-            redirectAttributes.addFlashAttribute("successMsg", "Đã xóa hàng hóa khỏi kho!");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMsg", "Lỗi không thể xóa: " + e.getMessage());
-        }
-        return "redirect:/inventory";
-    }
-
-    /**
-     * Nhập thêm số lượng hàng hóa
-     *
-     * @param form               ImportStockDTO
-     * @param bindingResult      BindingResult
-     * @param keyword            String
-     * @param unit               Integer
-     * @param page               int
-     * @param redirectAttributes RedirectAttributes
-     * @return String
-     */
     @PostMapping("/inventory/import")
-    public String importStock(@Valid @ModelAttribute("importForm") ImportStockDTO form,
-                              BindingResult bindingResult,
-                              @RequestParam(defaultValue = "") String keyword,
-                              @RequestParam(defaultValue = "0") Integer unit,
-                              @RequestParam(defaultValue = "1") int page,
-                              RedirectAttributes redirectAttributes) {
-
-        redirectAttributes.addAttribute("keyword", keyword);
-        redirectAttributes.addAttribute("unit", unit);
-        redirectAttributes.addAttribute("page", page);
-
-        if (bindingResult.hasErrors()) {
-            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.importForm", bindingResult);
-            redirectAttributes.addFlashAttribute("importForm", form);
-            redirectAttributes.addFlashAttribute("hasImportError", true);
-            return "redirect:/inventory";
-        }
-
+    public String importStock(@ModelAttribute("form") InventoryFormDTO form, RedirectAttributes redirectAttributes) {
         try {
             inventoryService.importStock(form);
             redirectAttributes.addFlashAttribute("successMsg", "Đã cập nhật số lượng nhập kho!");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMsg", "Lỗi khi nhập kho: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMsg", "Lỗi: " + e.getMessage());
         }
         return "redirect:/inventory";
     }
 
-    /**
-     * Chỉnh sửa lịch sử nhập hàng
-     *
-     * @param form               DonNhapEditDTO
-     * @param bindingResult      BindingResult
-     * @param redirectAttributes RedirectAttributes
-     * @return String
-     */
     @PostMapping("/inventory/history/edit")
-    public String editHistory(@Valid @ModelAttribute("editHistoryForm") DonNhapEditDTO form,
-                              BindingResult bindingResult,
-                              RedirectAttributes redirectAttributes) {
-        if (bindingResult.hasErrors()) {
-            redirectAttributes.addFlashAttribute("errorMsg", "Dữ liệu sửa đơn nhập không hợp lệ.");
-            return "redirect:/inventory";
-        }
+    public String editHistory(@ModelAttribute("form") InventoryFormDTO form, RedirectAttributes redirectAttributes) {
         try {
             inventoryService.updateDonNhapHistory(form);
             redirectAttributes.addFlashAttribute("successMsg", "Đã cập nhật phiếu nhập hàng thành công!");
@@ -263,18 +109,22 @@ public class InventoryController {
         return "redirect:/inventory";
     }
 
-    /**
-     * Xóa lịch sử nhập hàng
-     *
-     * @param maDonNhap          Integer
-     * @param redirectAttributes RedirectAttributes
-     * @return String
-     */
+    @PostMapping("/inventory/delete")
+    public String deleteItem(@RequestParam Integer maHangHoa, RedirectAttributes redirectAttributes) {
+        try {
+            inventoryService.deleteItem(maHangHoa);
+            redirectAttributes.addFlashAttribute("successMsg", "Đã xóa hàng hóa khỏi kho!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMsg", "Lỗi: " + e.getMessage());
+        }
+        return "redirect:/inventory";
+    }
+
     @PostMapping("/inventory/history/delete")
     public String deleteHistory(@RequestParam Integer maDonNhap, RedirectAttributes redirectAttributes) {
         try {
             inventoryService.deleteDonNhapHistory(maDonNhap);
-            redirectAttributes.addFlashAttribute("successMsg", "Đã xóa phiếu nhập hàng thành công!");
+            redirectAttributes.addFlashAttribute("successMsg", "Đã xóa phiếu nhập hàng!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMsg", "Lỗi: " + e.getMessage());
         }

@@ -9,12 +9,12 @@ import java.math.BigDecimal;
 
 /**
  * InventoryItemDTO
- * Version 1.1
- * Date: 09-06-2026
+ * Version 1.2
+ * Date: 12-06-2026
  * Modification Logs:
  * DATE         AUTHOR      DESCRIPTION
  * 30-05-2026   lhthoai     Create
- * 09-06-2026   lhthoai     Apply Java Coding Convention
+ * 12-06-2026   Quản Lý     Thêm DonViSuDung
  */
 @Data
 @AllArgsConstructor
@@ -26,6 +26,7 @@ public class InventoryItemDTO {
     private BigDecimal soLuong;
     private BigDecimal donGia;
     private DonViTinh donViTinh;
+    private DonViTinh donViSuDung; // Cột mới hiển thị
     private BigDecimal tongGiaTri;
 
 }
