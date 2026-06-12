@@ -50,14 +50,14 @@
 
     <div class="bg-white rounded-2xl shadow-sm border border-[#e2e3e1]/40 overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse table-auto">
+            <table class="w-full text-left border-collapse table-fixed">
                 <thead>
                 <tr class="bg-[#f4f4f2] text-[#50453e] text-[10px] uppercase tracking-wider font-bold border-b border-[#e2e3e1]/60">
-                    <th class="px-2 md:px-4 py-4 text-center w-8 md:w-12 whitespace-nowrap">#</th>
-                    <th class="px-2 md:px-4 py-4 w-auto">Tên món</th>
-                    <th class="px-2 md:px-4 py-4 text-center w-28 md:w-40 whitespace-nowrap">Loại món</th>
-                    <th class="px-2 md:px-4 py-4 text-right w-28 md:w-40 whitespace-nowrap">Giá bán</th>
-                    <th class="px-2 md:px-4 py-4 text-center w-20 md:w-28 whitespace-nowrap">Thao tác</th>
+                    <th class="px-2 md:px-4 py-3 text-center w-[8%] whitespace-nowrap">#</th>
+                    <th class="px-2 md:px-4 py-3 w-[35%]">Tên món</th>
+                    <th class="px-2 md:px-4 py-3 text-center w-[20%] whitespace-nowrap">Loại món</th>
+                    <th class="px-2 md:px-4 py-3 text-right w-[22%] whitespace-nowrap">Giá bán</th>
+                    <th class="px-2 md:px-4 py-3 text-center w-[15%] whitespace-nowrap">Thao tác</th>
                 </tr>
                 </thead>
                 <tbody class="text-sm text-[#1a1c1b] divide-y divide-[#e2e3e1]/40">
@@ -71,13 +71,13 @@
                 <th:block th:each="mon, iterStat : ${menuItems}">
                     <tr class="hover:bg-[#f9f9f7]/50 transition-colors group align-middle cursor-pointer"
                         th:onclick="'toggleIngredientRow(' + ${mon.maThucDon} + ')'">
-                        <td class="px-2 md:px-4 py-4 text-center text-xs text-gray-400 font-medium whitespace-nowrap"
+                        <td class="px-2 md:px-4 py-3 text-center text-xs text-gray-400 font-medium whitespace-nowrap"
                             th:text="${(currentPage - 1) * 10 + iterStat.count}">1
                         </td>
-                        <td class="px-2 md:px-4 py-4">
+                        <td class="px-2 md:px-4 py-3">
                             <div class="flex items-center gap-2 md:gap-3 max-w-full">
-                                <div class="hidden md:flex w-10 h-10 rounded-xl bg-[#f3e2ac]/40 text-[#6a5e33] items-center justify-center shrink-0 border border-[#e2e3e1]/60">
-                                    <i data-lucide="coffee" class="w-5 h-5"></i>
+                                <div class="hidden md:flex w-8 h-8 rounded-lg bg-[#f3e2ac]/40 text-[#6a5e33] items-center justify-center shrink-0 border border-[#e2e3e1]/60">
+                                    <i data-lucide="coffee" class="w-4 h-4"></i>
                                 </div>
                                 <div class="min-w-0 flex-1">
                                     <div class="font-bold text-[#1a1c1b] whitespace-normal break-words leading-tight"
@@ -86,27 +86,27 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="px-2 md:px-4 py-4 text-center">
+                        <td class="px-2 md:px-4 py-3 text-center">
                             <span class="inline-block px-2.5 py-1 text-[9px] md:text-[10px] uppercase tracking-wider font-bold rounded-md border whitespace-normal break-words leading-relaxed mx-auto bg-amber-100 text-amber-700 border-amber-200"
                                   th:text="${mon.loaiMon != null ? mon.loaiMon : 'Khác'}">Loại món</span>
                         </td>
-                        <td class="px-2 md:px-4 py-4 text-right font-bold text-amber-600 whitespace-nowrap text-xs md:text-sm"
+                        <td class="px-2 md:px-4 py-3 text-right font-bold text-amber-600 whitespace-nowrap text-xs md:text-sm"
                             th:text="${#numbers.formatDecimal(mon.giaTienHienTai, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0
                             VNĐ
                         </td>
-                        <td class="px-2 md:px-4 py-4 whitespace-nowrap" onclick="event.stopPropagation()">
+                        <td class="px-2 md:px-4 py-3 whitespace-nowrap" onclick="event.stopPropagation()">
                             <div class="flex items-center justify-center gap-1">
                                 <button type="button"
                                         th:onclick="openUniversalModal('EDIT', [[${mon.maThucDon}]], [[${mon.tenMon}]], [[${#numbers.formatInteger(mon.giaTienHienTai, 0)}]], [[${mon.loaiMon}]])"
                                         class="p-1.5 text-[#553722] hover:bg-[#ffdcc6]/50 rounded-lg transition-colors"
                                         title="Sửa hồ sơ">
-                                    <i data-lucide="pen-line" class="w-4 h-4 md:w-5 md:h-5"></i>
+                                    <i data-lucide="pen-line" class="w-4 h-4"></i>
                                 </button>
                                 <button type="button"
                                         th:onclick="openDeleteModal([[${mon.maThucDon}]], [[${mon.tenMon}]])"
                                         class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-100 rounded-lg transition-colors"
                                         title="Xóa hồ sơ">
-                                    <i data-lucide="trash-2" class="w-4 h-4 md:w-5 md:h-5"></i>
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
                                 </button>
                             </div>
                         </td>
@@ -114,7 +114,7 @@
 
                     <tr th:id="'ingredient-view-' + ${mon.maThucDon}"
                         class="hidden bg-[#f4f4f2] border-t-0 shadow-inner">
-                        <td colspan="5" class="px-4 md:px-6 py-3 md:py-4">
+                        <td colspan="5" class="px-4 md:px-6 py-3">
                             <div class="text-xs text-[#50453e] font-medium"
                                  th:id="'ingredient-content-' + ${mon.maThucDon}">
                                 <span class="italic opacity-60">Đang tải công thức...</span>
@@ -139,9 +139,10 @@
                            oninput="handleInputCombobox(this)"
                            onfocus="openCombobox(this)"
                            onblur="closeCombobox(this)" autocomplete="off">
-                    <div class="absolute inset-y-0 right-0 flex items-center pr-2.5 pointer-events-none text-[#50453e] opacity-50 group-focus-within/input:opacity-100 group-focus-within/input:text-[#553722] transition-colors">
-                        <i data-lucide="search" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
-                    </div>
+                    <button type="button" tabindex="-1" onclick="clearCombobox(this)"
+                            class="absolute inset-y-0 right-0 flex items-center pr-2.5 text-[#50453e] opacity-50 hover:opacity-100 hover:text-rose-500 focus:outline-none transition-colors">
+                        <i data-lucide="x" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
+                    </button>
                 </div>
 
                 <ul class="combobox-list hidden absolute z-50 w-full bg-white border border-[#e2e3e1] rounded-xl mt-1 max-h-48 overflow-y-auto shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] py-1 custom-scrollbar">
@@ -371,6 +372,17 @@
             filterCombobox(input);
         }
 
+        function clearCombobox(btn) {
+            const combobox = btn.closest('.custom-combobox');
+            const searchInput = combobox.querySelector('.ingredient-search');
+
+            searchInput.value = '';
+            handleInputCombobox(searchInput);
+
+            openCombobox(searchInput);
+            searchInput.focus();
+        }
+
         function filterCombobox(input) {
             const filter = input.value.toLowerCase().trim();
             const combobox = input.closest('.custom-combobox');
@@ -571,13 +583,11 @@
                 form.addEventListener('submit', function (e) {
                     let isValid = true;
 
-                    // Quét và xóa thông báo lỗi cũ
                     form.querySelectorAll('.error-msg').forEach(msg => msg.remove());
                     form.querySelectorAll('.ingredient-row').forEach(row => {
                         row.style.paddingBottom = '';
                     });
 
-                    // 1. KIỂM TRA CÁC TRƯỜNG CƠ BẢN (Tên món, Giá bán, Loại món)
                     const basicInputs = form.querySelectorAll('input[required]:not([disabled]), select[required]:not([disabled])');
                     basicInputs.forEach(function (input) {
                         input.classList.remove('border-rose-500', 'bg-rose-50');
@@ -591,14 +601,12 @@
                         }
                     });
 
-                    // 2. KIỂM TRA CHÉO LOGIC NGUYÊN LIỆU (Chỉ bắt lỗi nếu điền 1 bỏ 1)
                     const ingredientRows = form.querySelectorAll('.ingredient-row');
                     ingredientRows.forEach(function (row) {
                         const hiddenIdInput = row.querySelector('.ingredient-hidden-id');
                         const searchInput = row.querySelector('.ingredient-search');
                         const qtyInput = row.querySelector('.ingredient-qty');
 
-                        // Reset viền
                         searchInput.classList.remove('border-rose-500', 'bg-rose-50');
                         qtyInput.classList.remove('border-rose-500', 'bg-rose-50');
 
@@ -606,32 +614,26 @@
                         let qtyVal = qtyInput.value ? qtyInput.value.trim() : '';
                         let searchVal = searchInput.value ? searchInput.value.trim() : '';
 
-                        // Tình huống 1: Bỏ trống hoàn toàn cả ID, Text tìm kiếm và Số lượng -> HỢP LỆ (Bỏ qua)
                         if (!idVal && !searchVal && !qtyVal) {
-                            // Do nothing, hợp lệ
                         }
-                        // Tình huống 2: Đã nhập tên nhưng chưa chọn từ danh sách -> LỖI
                         else if (!idVal && searchVal !== '') {
                             isValid = false;
                             searchInput.classList.remove('border-[#e2e3e1]');
                             searchInput.classList.add('border-rose-500', 'bg-rose-50');
                             showError(searchInput, 'Vui lòng chọn từ danh sách.');
                         }
-                        // Tình huống 3: CÓ chọn nguyên liệu, KHÔNG điền số lượng -> LỖI
                         else if (idVal && !qtyVal) {
                             isValid = false;
                             qtyInput.classList.remove('border-[#e2e3e1]', 'focus:border-[#553722]');
                             qtyInput.classList.add('border-rose-500', 'bg-rose-50');
                             showError(qtyInput, 'Vui lòng nhập số lượng.');
                         }
-                        // Tình huống 4: KHÔNG chọn nguyên liệu, CÓ điền số lượng -> LỖI
                         else if (!idVal && qtyVal) {
                             isValid = false;
                             searchInput.classList.remove('border-[#e2e3e1]');
                             searchInput.classList.add('border-rose-500', 'bg-rose-50');
                             showError(searchInput, 'Vui lòng chọn nguyên liệu.');
                         }
-                        // Tình huống 5: CÓ chọn nguyên liệu, CÓ số lượng nhưng số lượng sai định dạng hoặc <= 0 -> LỖI
                         else if (idVal && qtyVal) {
                             if (isNaN(qtyVal) || parseFloat(qtyVal) <= 0 || qtyVal === '.') {
                                 isValid = false;
@@ -646,7 +648,6 @@
                         e.preventDefault();
                         if (typeof lucide !== 'undefined') lucide.createIcons();
                     } else {
-                        // 🟢 TRƯỚC KHI GỬI LÊN SERVER: Xóa các dòng nguyên liệu rỗng để Backend không bị lỗi NULL
                         ingredientRows.forEach(function (row) {
                             const hiddenIdInput = row.querySelector('.ingredient-hidden-id');
                             const qtyInput = row.querySelector('.ingredient-qty');
@@ -654,7 +655,6 @@
                                 row.remove();
                             }
                         });
-                        // Cập nhật lại chỉ số mảng (index) trước khi submit
                         updateIngredientNames('univ_ingredients_container');
                     }
                 });

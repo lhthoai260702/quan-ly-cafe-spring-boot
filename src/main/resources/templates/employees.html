@@ -5,7 +5,7 @@
     <title>Quản lý nhân viên</title>
 </head>
 <body>
-<main class="flex-1 p-4 md:p-8 overflow-y-auto bg-[#f9f9f7]">
+<main class="flex-1 p-4 md:p-8 overflow-y-auto overflow-x-hidden bg-[#f9f9f7]">
 
     <div th:if="${successMsg}"
          class="mb-4 p-3 bg-green-100 text-green-700 rounded-lg text-sm font-medium flex items-center gap-2"
@@ -24,10 +24,9 @@
             <p class="text-sm text-[#50453e] opacity-80 mt-1">Quản lý sơ lược hồ sơ làm việc, chức vụ và thông tin liên
                 lạc.</p>
         </div>
-        <button onclick="document.getElementById('addModal').classList.remove('hidden')"
+        <button onclick="openUniversalModal('ADD')"
                 class="w-full md:w-auto justify-center flex items-center gap-2 bg-[#553722] hover:bg-[#6f4e37] text-white px-5 py-2.5 rounded-xl text-sm font-semibold uppercase tracking-wider transition-all duration-200 shadow-md">
-            <i data-lucide="user-plus" class="w-4 h-4"></i>
-            Tuyển nhân sự mới
+            <i data-lucide="user-plus" class="w-4 h-4"></i> Tuyển nhân sự mới
         </button>
     </div>
 
@@ -47,7 +46,7 @@
         </div>
 
         <form th:action="@{/employees}" method="GET"
-              class="ajax-form flex items-center bg-[#f4f4f2] rounded-full px-4 py-2 border border-[#e2e3e1]/20 w-full lg:max-w-md focus-within:ring-2 focus-within:ring-[#553722]/20 transition-all">
+              class="ajax-form flex items-center bg-[#f4f4f2] rounded-full px-4 py-2 border border-[#e2e3e1]/20 w-full lg:max-w-md focus-within:ring-2 focus-within:ring-[#553722]/20 transition-all shrink-0">
             <i data-lucide="search" class="w-4 h-4 text-[#50453e] opacity-70 mr-2 shrink-0"></i>
             <input type="hidden" name="role" th:if="${selectedRole != null}" th:value="${selectedRole}">
             <input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm kiếm theo họ tên, username..."
@@ -58,61 +57,56 @@
 
     <div class="bg-white rounded-2xl shadow-sm border border-[#e2e3e1]/40 overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse table-fixed min-w-[1024px]">
+            <table class="w-full text-left border-collapse table-fixed">
                 <thead>
                 <tr class="bg-[#f4f4f2] text-[#50453e] text-[10px] uppercase tracking-wider font-bold border-b border-[#e2e3e1]/60">
-                    <th class="px-4 py-4 text-center w-12 whitespace-nowrap">#</th>
-                    <th class="px-4 py-4 w-60">Hồ sơ nhân viên</th>
-                    <th class="px-4 py-4 w-36 whitespace-nowrap">Liên hệ</th>
-                    <th class="px-4 py-4">Địa chỉ</th>
-                    <th class="px-4 py-4 text-center w-36 whitespace-nowrap">Chức vụ</th>
-                    <th class="px-4 py-4 text-right w-40 whitespace-nowrap">Mức lương</th>
-                    <th class="px-4 py-4 text-center w-28 whitespace-nowrap">Thao tác</th>
+                    <th class="px-2 md:px-4 py-3 text-center w-[5%] whitespace-nowrap">#</th>
+                    <th class="px-2 md:px-4 py-3 w-[30%]">Hồ sơ nhân viên</th>
+                    <th class="px-2 md:px-4 py-3 w-[23%] whitespace-nowrap">Liên lạc</th>
+                    <th class="px-2 md:px-4 py-3 text-center w-[18%] whitespace-nowrap">Chức vụ</th>
+                    <th class="px-2 md:px-4 py-3 text-right w-[14%] whitespace-nowrap">Mức lương</th>
+                    <th class="px-2 md:px-4 py-3 text-center w-[10%] whitespace-nowrap">Thao tác</th>
                 </tr>
                 </thead>
                 <tbody class="text-sm text-[#1a1c1b] divide-y divide-[#e2e3e1]/40">
                 <tr th:if="${#lists.isEmpty(employees)}">
-                    <td colspan="7" class="px-4 py-10 text-center text-[#50453e] opacity-70">
+                    <td colspan="6" class="px-4 py-10 text-center text-[#50453e] opacity-70">
                         <i data-lucide="users" class="w-10 h-10 mx-auto mb-3 opacity-50"></i>
                         <p>Không tìm thấy dữ liệu nhân viên nào.</p>
                     </td>
                 </tr>
 
                 <tr th:each="emp, iterStat : ${employees}"
-                    class="hover:bg-[#f9f9f7]/50 transition-colors group align-top">
-                    <td class="px-4 py-4 text-center text-xs text-gray-400 font-medium whitespace-nowrap"
+                    class="hover:bg-[#f9f9f7]/50 transition-colors group align-middle">
+                    <td class="px-2 md:px-4 py-3 text-center text-xs text-gray-400 font-medium whitespace-nowrap"
                         th:text="${(currentPage - 1) * 10 + iterStat.count}">1
                     </td>
 
-                    <td class="px-4 py-4">
-                        <div class="flex items-start gap-3 max-w-full">
-                            <div class="w-9 h-9 rounded-full overflow-hidden bg-slate-100 border border-slate-200 shrink-0 mt-0.5">
+                    <td class="px-2 md:px-4 py-3">
+                        <div class="flex items-center gap-2 md:gap-3 max-w-full">
+                            <div class="w-8 h-8 rounded-full overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
                                 <img th:src="@{'/images/' + ${emp.anh}}" alt="Avatar" class="w-full h-full object-cover"
                                      onerror="this.src='/images/user.png'"/>
                             </div>
                             <div class="min-w-0 flex-1">
-                                <div class="font-bold text-[#1a1c1b] whitespace-normal break-all leading-tight"
-                                     th:text="${emp.hoTen}">Tên
+                                <div class="font-bold text-[#1a1c1b] truncate" th:text="${emp.hoTen}"
+                                     th:title="${emp.hoTen}">Tên
                                 </div>
-                                <div class="text-[11px] text-gray-500 font-medium whitespace-normal break-all mt-1 leading-tight"
-                                     th:text="'@' + ${emp.tenDangNhap}">Username
+                                <div class="text-[10px] text-gray-500 font-medium truncate mt-0.5"
+                                     th:text="'@' + ${emp.tenDangNhap}" th:title="'@' + ${emp.tenDangNhap}">Username
                                 </div>
                             </div>
                         </div>
                     </td>
 
-                    <td class="px-4 py-4 text-[#50453e] whitespace-nowrap">
-                        <div class="flex items-center gap-1.5">
-                            <i data-lucide="phone" class="w-3.5 h-3.5 text-gray-400 shrink-0"></i>
-                            <span th:text="${emp.soDienThoai}">SĐT</span>
+                    <td class="px-2 md:px-4 py-3 text-[#50453e] whitespace-nowrap">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="phone" class="w-4 h-4 text-gray-400 shrink-0"></i>
+                            <span class="text-sm font-bold tracking-wide" th:text="${emp.soDienThoai}">SĐT</span>
                         </div>
                     </td>
 
-                    <td class="px-4 py-4 text-[#50453e]">
-                        <div class="whitespace-normal break-all leading-relaxed" th:text="${emp.diaChi}">Địa chỉ</div>
-                    </td>
-
-                    <td class="px-4 py-4 text-center">
+                    <td class="px-2 md:px-4 py-3 text-center">
                         <span th:with="colorId=${emp.maChucVu != null ? (emp.maChucVu % 6) : 0}"
                               th:classappend="${colorId == 1 ? 'bg-purple-100 text-purple-700 border-purple-200' :
                                               (colorId == 2 ? 'bg-amber-100 text-amber-700 border-amber-200' :
@@ -120,27 +114,28 @@
                                               (colorId == 4 ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
                                               (colorId == 5 ? 'bg-rose-100 text-rose-700 border-rose-200' :
                                                               'bg-cyan-100 text-cyan-700 border-cyan-200'))))}"
-                              class="inline-block px-2.5 py-1 text-[10px] uppercase tracking-wider font-bold rounded-md border whitespace-normal break-words leading-relaxed max-w-full"
+                              class="inline-block px-2.5 py-1 text-[9px] md:text-[10px] uppercase tracking-wider font-bold rounded-md border whitespace-nowrap mx-auto"
                               th:text="${emp.tenChucVu != null ? emp.tenChucVu : 'Chưa phân công'}">Chức vụ</span>
                     </td>
 
-                    <td class="px-4 py-4 text-right font-medium text-[#50453e] whitespace-nowrap"
-                        th:text="${emp.luong != null ? #numbers.formatDecimal(emp.luong, 0, 'COMMA', 0, 'POINT') + ' VNĐ' : '0 VNĐ'}">
-                        0 VNĐ
+                    <td class="px-2 md:px-4 py-3 text-right font-bold text-emerald-600 whitespace-nowrap text-xs md:text-sm"
+                        th:text="${emp.luong != null ? #numbers.formatDecimal(emp.luong, 0, 'COMMA', 0, 'POINT') + 'đ' : '0đ'}">
+                        0đ
                     </td>
 
-                    <td class="px-4 py-4 whitespace-nowrap">
-                        <div class="flex items-start justify-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                    <td class="px-2 md:px-4 py-3 whitespace-nowrap" onclick="event.stopPropagation()">
+                        <div class="flex items-center justify-center gap-1">
                             <button type="button" th:data-id="${emp.maNhanVien}" th:data-name="${emp.hoTen}"
                                     th:data-phone="${emp.soDienThoai}" th:data-address="${emp.diaChi}"
                                     th:data-role="${emp.maChucVu}" th:data-salary="${emp.luong}"
-                                    onclick="openEditModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-phone'), this.getAttribute('data-address'), this.getAttribute('data-role'), this.getAttribute('data-salary'))"
+                                    th:data-user="${emp.tenDangNhap}"
+                                    onclick="openUniversalModal('EDIT', this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-phone'), this.getAttribute('data-address'), this.getAttribute('data-role'), this.getAttribute('data-salary'), this.getAttribute('data-user'))"
                                     class="p-1.5 text-[#553722] hover:bg-[#ffdcc6]/50 rounded-lg transition-colors"
                                     title="Sửa hồ sơ">
                                 <i data-lucide="pen-line" class="w-4 h-4"></i>
                             </button>
-                            <button type="button" th:data-id="${emp.maNhanVien}" th:data-name="${emp.hoTen}"
-                                    onclick="openDeleteModal(this.getAttribute('data-id'), this.getAttribute('data-name'))"
+                            <button type="button"
+                                    th:onclick="openDeleteModal([[${emp.maNhanVien}]], [[${emp.hoTen}]])"
                                     class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-100 rounded-lg transition-colors"
                                     title="Xóa hồ sơ">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -180,74 +175,78 @@
         </a>
     </div>
 
-    <div id="addModal"
+    <div id="universalModal"
          class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm transition-opacity p-4">
         <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-[#e2e3e1]">
             <div class="px-5 py-4 border-b border-[#e2e3e1]/60 flex justify-between items-center bg-[#f9f9f7] shrink-0">
-                <h3 class="text-lg font-bold text-[#1a1c1b]">Tuyển nhân sự mới</h3>
-                <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')"
+                <h3 id="univ_title" class="text-lg font-bold text-[#1a1c1b] flex items-center gap-2">
+                    <i data-lucide="user-plus" class="w-5 h-5 text-[#553722]"></i> Tuyển nhân sự mới
+                </h3>
+                <button type="button" onclick="document.getElementById('universalModal').classList.add('hidden')"
                         class="text-[#50453e] hover:text-rose-600 transition-colors">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
-            <form th:action="@{/employees/add}" th:object="${addForm}" method="POST"
+
+            <form id="universalForm" method="POST" th:action="@{#}"
+                  th:data-action-add="@{/employees/add(role=${selectedRole}, keyword=${keyword}, page=${currentPage})}"
+                  th:data-action-edit="@{/employees/edit(role=${selectedRole}, keyword=${keyword}, page=${currentPage})}"
                   class="p-5 overflow-y-auto custom-validate-form" novalidate>
+
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <input type="hidden" name="maNhanVien" id="univ_maNhanVien">
+
                 <div class="space-y-4">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Họ và
                                 tên <span class="text-rose-500">*</span></label>
-                            <input type="text" th:field="*{hoTen}" required minlength="2" maxlength="100"
-                                   title="Vui lòng nhập họ và tên hợp lệ (tối đa 100 ký tự)"
+                            <input type="text" name="hoTen" id="univ_hoTen" required minlength="2" maxlength="100"
                                    class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Số
                                 điện thoại <span class="text-rose-500">*</span></label>
-                            <input type="text" th:field="*{soDienThoai}" required maxlength="12"
-                                   pattern="^0\d{2}\s?\d{3}\s?\d{4}$" title="Vui lòng nhập đúng 10 số (bắt đầu bằng 0)"
+                            <input type="text" name="soDienThoai" id="univ_soDienThoai" required maxlength="12"
                                    oninput="formatPhone(this)"
                                    class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
                         </div>
                     </div>
+
                     <div>
                         <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Địa chỉ
                             <span class="text-rose-500">*</span></label>
-                        <input type="text" th:field="*{diaChi}" required maxlength="255"
-                               title="Vui lòng nhập địa chỉ liên hệ"
+                        <input type="text" name="diaChi" id="univ_diaChi" required maxlength="255"
                                class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
                     </div>
-                    <div class="pt-3 pb-1">
-                        <h4 class="text-sm font-semibold text-[#1a1c1b] border-b border-[#e2e3e1]/50 pb-2">Thông tin tài
-                            khoản & Chức vụ</h4>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Tên
-                                đăng nhập <span class="text-rose-500">*</span></label>
-                            <input type="text" th:field="*{tenDangNhap}" required maxlength="50"
-                                   pattern="^[a-zA-Z0-9_]+$"
-                                   title="Tên đăng nhập phải viết liền không dấu (tối đa 50 ký tự)"
-                                   th:class="${#fields.hasErrors('tenDangNhap') ? 'w-full border rounded-xl px-4 py-2.5 text-sm outline-none transition-colors border-rose-500 bg-rose-50' : 'w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors'}">
-                            <span th:if="${#fields.hasErrors('tenDangNhap')}"
-                                  class="error-msg text-[10px] text-rose-500 font-semibold flex items-center gap-1 mt-1.5 ml-1 block">
-                                <i data-lucide="info" class="w-3 h-3"></i> <span
-                                    th:text="${#fields.errors('tenDangNhap')[0]}"></span>
-                            </span>
+
+                    <div id="univ_account_section">
+                        <div class="pt-3 pb-1">
+                            <h4 class="text-sm font-semibold text-[#1a1c1b] border-b border-[#e2e3e1]/50 pb-2">Thông tin
+                                tài khoản (Chỉ tạo lần đầu)</h4>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Mật
-                                khẩu <span class="text-rose-500">*</span></label>
-                            <input type="password" th:field="*{matKhau}" required minlength="6" maxlength="255"
-                                   pattern="^[\x20-\x7E]+$" title="Mật khẩu phải từ 6 ký tự trở lên"
-                                   class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Tên
+                                    đăng nhập <span class="text-rose-500">*</span></label>
+                                <input type="text" name="tenDangNhap" id="univ_tenDangNhap" required maxlength="50"
+                                       class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Mật
+                                    khẩu <span class="text-rose-500">*</span></label>
+                                <input type="password" name="matKhau" id="univ_matKhau" required minlength="6"
+                                       maxlength="255"
+                                       class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
+                            </div>
                         </div>
                     </div>
+
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Chức
                                 vụ <span class="text-rose-500">*</span></label>
-                            <select th:field="*{maChucVu}" required
+                            <select name="maChucVu" id="univ_maChucVu" required
                                     class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722]">
                                 <option value="" disabled selected>-- Chọn chức vụ --</option>
                                 <option th:each="r : ${listRoles}" th:value="${r.maChucVu}"
@@ -257,96 +256,22 @@
                         <div>
                             <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Mức
                                 lương (VNĐ) <span class="text-rose-500">*</span></label>
-                            <input type="text" th:field="*{luong}" required title="Vui lòng nhập mức lương hợp lệ"
-                                   oninput="formatSalary(this)"
-                                   maxlength="12"
+                            <input type="text" id="univ_luong_display" required
+                                   oninput="formatCurrency(this, 'univ_luong_real')" maxlength="15"
                                    class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
+                            <input type="hidden" name="luong" id="univ_luong_real" value="0">
                         </div>
                     </div>
                 </div>
-                <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-[#e2e3e1]/60">
-                    <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')"
-                            class="px-5 py-2.5 rounded-xl text-sm font-bold text-[#50453e] bg-gray-100 hover:bg-gray-200">
-                        Hủy
-                    </button>
-                    <button type="submit"
-                            class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-[#553722] hover:bg-[#6f4e37] shadow-md flex items-center gap-2">
-                        <i data-lucide="save" class="w-4 h-4"></i> Lưu hồ sơ
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
 
-    <div id="editModal"
-         class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm transition-opacity p-4">
-        <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-[#e2e3e1]">
-            <div class="px-5 py-4 border-b border-[#e2e3e1]/60 flex justify-between items-center bg-[#f9f9f7] shrink-0">
-                <h3 class="text-lg font-bold text-[#1a1c1b]">Cập nhật hồ sơ</h3>
-                <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')"
-                        class="text-[#50453e] hover:text-rose-600 transition-colors">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-            <form th:action="@{/employees/edit}" method="POST" class="p-5 overflow-y-auto custom-validate-form"
-                  novalidate>
-                <input type="hidden" name="maNhanVien" id="edit_maNhanVien" th:value="${editForm?.maNhanVien}">
-                <div class="space-y-4">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Họ và
-                                tên <span class="text-rose-500">*</span></label>
-                            <input type="text" name="hoTen" id="edit_hoTen" th:value="${editForm?.hoTen}" required
-                                   minlength="2" maxlength="100"
-                                   title="Vui lòng nhập họ và tên hợp lệ (tối đa 100 ký tự)"
-                                   class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Số
-                                điện thoại <span class="text-rose-500">*</span></label>
-                            <input type="text" name="soDienThoai" id="edit_soDienThoai"
-                                   th:value="${editForm?.soDienThoai}" required maxlength="12"
-                                   pattern="^0\d{2}\s?\d{3}\s?\d{4}$" title="Vui lòng nhập đúng 10 số (bắt đầu bằng 0)"
-                                   oninput="formatPhone(this)"
-                                   class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Địa chỉ
-                            <span class="text-rose-500">*</span></label>
-                        <input type="text" name="diaChi" id="edit_diaChi" th:value="${editForm?.diaChi}" required
-                               maxlength="255" title="Vui lòng nhập địa chỉ liên hệ"
-                               class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Chức
-                                vụ <span class="text-rose-500">*</span></label>
-                            <select name="maChucVu" id="edit_maChucVu" required
-                                    class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722]">
-                                <option value="" disabled>-- Chọn chức vụ --</option>
-                                <option th:each="r : ${listRoles}" th:value="${r.maChucVu}"
-                                        th:text="${r.tenChucVu}"></option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Mức
-                                lương (VNĐ) <span class="text-rose-500">*</span></label>
-                            <input type="text" name="luong" id="edit_luong" th:value="${editForm?.luong}" required
-                                   title="Vui lòng nhập mức lương hợp lệ" oninput="formatSalary(this)"
-                                   maxlength="12"
-                                   class="w-full bg-[#f4f4f2] border border-transparent rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#553722] transition-colors">
-                        </div>
-                    </div>
-                </div>
                 <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-[#e2e3e1]/60">
-                    <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')"
+                    <button type="button" onclick="document.getElementById('universalModal').classList.add('hidden')"
                             class="px-5 py-2.5 rounded-xl text-sm font-bold text-[#50453e] bg-gray-100 hover:bg-gray-200">
                         Hủy
                     </button>
-                    <button type="submit"
+                    <button type="submit" id="univ_btn_submit"
                             class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-[#553722] hover:bg-[#6f4e37] shadow-md flex items-center gap-2">
-                        <i data-lucide="check" class="w-4 h-4"></i> Lưu thay đổi
+                        <i data-lucide="check" class="w-4 h-4"></i> <span id="univ_btn_text">Lưu</span>
                     </button>
                 </div>
             </form>
@@ -365,7 +290,8 @@
                     Bạn có chắc chắn muốn xóa hồ sơ của <strong id="delete_empName" class="text-rose-600"></strong>
                     không?
                 </p>
-                <form th:action="@{/employees/delete}" method="POST" class="flex justify-center gap-3">
+                <form th:action="@{/employees/delete(role=${selectedRole}, keyword=${keyword}, page=${currentPage})}"
+                      method="POST" class="flex justify-center gap-3">
                     <input type="hidden" name="maNhanVien" id="delete_maNhanVien">
                     <button type="button" onclick="document.getElementById('deleteModal').classList.add('hidden')"
                             class="px-5 py-2.5 rounded-xl text-sm font-bold text-[#50453e] bg-gray-100 hover:bg-gray-200 transition-all flex-1">
@@ -379,7 +305,298 @@
             </div>
         </div>
     </div>
-    <script th:src="@{/js/employees.js}"></script>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+
+        /** * 1. XỬ LÝ LỖI TỪ SERVER (Giữ form mở nếu điền sai)
+         */
+        let hasAddError = /*[[${hasAddError != null ? hasAddError : false}]]*/ false;
+        let hasEditError = /*[[${hasEditError != null ? hasEditError : false}]]*/ false;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (hasAddError) {
+                // Nếu lỗi lúc thêm mới, mở modal dạng ADD nhưng giữ nguyên Data cũ
+                document.getElementById('universalModal').classList.remove('hidden');
+                document.getElementById('univ_title').innerHTML = '<i data-lucide="user-plus" class="w-5 h-5 text-[#553722]"></i> Tuyển nhân sự mới';
+                document.getElementById('univ_btn_text').innerText = 'Lưu';
+                document.getElementById('univ_account_section').classList.remove('hidden');
+            } else if (hasEditError) {
+                // Nếu lỗi lúc sửa, mở modal dạng EDIT
+                document.getElementById('universalModal').classList.remove('hidden');
+                document.getElementById('univ_title').innerHTML = '<i data-lucide="pen-line" class="w-5 h-5 text-[#553722]"></i> Cập nhật hồ sơ';
+                document.getElementById('univ_btn_text').innerText = 'Lưu';
+                document.getElementById('univ_account_section').classList.add('hidden');
+            }
+        });
+
+        /** * 2. CÔNG CỤ FORMAT (Tiền tệ, SĐT, Text)
+         */
+        function formatPhone(input) {
+            let val = input.value.replace(/\D/g, '');
+            if (val.length > 10) val = val.substring(0, 10);
+            if (val.length > 6) input.value = val.replace(/(\d{3})(\d{3})(\d{1,4})/, '$1 $2 $3');
+            else if (val.length > 3) input.value = val.replace(/(\d{3})(\d{1,3})/, '$1 $2');
+            else input.value = val;
+        }
+
+        function formatCurrency(inputElement, hiddenInputId) {
+            let value = inputElement.value.replace(/\D/g, '');
+            if (value === '') {
+                inputElement.value = '';
+                document.getElementById(hiddenInputId).value = '0';
+                return;
+            }
+            inputElement.value = parseInt(value, 10).toLocaleString('en-US');
+            document.getElementById(hiddenInputId).value = value;
+        }
+
+        function toggleText(element) {
+            if (element.classList.contains('truncate')) {
+                element.classList.remove('truncate');
+                element.classList.add('whitespace-normal', 'break-all');
+            } else {
+                element.classList.add('truncate');
+                element.classList.remove('whitespace-normal', 'break-all');
+            }
+        }
+
+        /** * 3. LOGIC MODAL & VALIDATION
+         */
+        function openUniversalModal(action, id, name, phone, address, role, salary, username) {
+            const form = document.getElementById('universalForm');
+            const modal = document.getElementById('universalModal');
+            const title = document.getElementById('univ_title');
+            const btnText = document.getElementById('univ_btn_text');
+
+            const fId = document.getElementById('univ_maNhanVien');
+            const fName = document.getElementById('univ_hoTen');
+            const fPhone = document.getElementById('univ_soDienThoai');
+            const fAddress = document.getElementById('univ_diaChi');
+            const fRole = document.getElementById('univ_maChucVu');
+            const fSalaryDisp = document.getElementById('univ_luong_display');
+            const fSalaryReal = document.getElementById('univ_luong_real');
+
+            const accountSection = document.getElementById('univ_account_section');
+            const fUsername = document.getElementById('univ_tenDangNhap');
+            const fPassword = document.getElementById('univ_matKhau');
+
+            // Xóa mọi lỗi viền đỏ cũ
+            form.querySelectorAll('.error-msg').forEach(e => e.remove());
+            form.querySelectorAll('.border-rose-500').forEach(e => {
+                e.classList.remove('border-rose-500', 'bg-rose-50');
+                e.classList.add('border-transparent');
+            });
+
+            if (action === 'ADD') {
+                title.innerHTML = '<i data-lucide="user-plus" class="w-5 h-5 text-[#553722]"></i> Tuyển nhân sự mới';
+                btnText.innerText = 'Lưu';
+                form.action = form.getAttribute('data-action-add');
+
+                fId.value = '';
+                fId.disabled = true;
+                fName.value = '';
+                fPhone.value = '';
+                fAddress.value = '';
+                fRole.value = '';
+                fSalaryDisp.value = '';
+                fSalaryReal.value = '0';
+
+                // Đổi nhãn tiêu đề
+                accountSection.querySelector('h4').innerText = 'Thông tin tài khoản & Chức vụ';
+
+                fUsername.disabled = false;
+                fUsername.required = true;
+                fUsername.value = '';
+                fPassword.disabled = false;
+                fPassword.required = true;
+                fPassword.value = '';
+                fPassword.placeholder = '';
+
+            } else if (action === 'EDIT') {
+                title.innerHTML = '<i data-lucide="pen-line" class="w-5 h-5 text-[#553722]"></i> Cập nhật hồ sơ';
+                btnText.innerText = 'Lưu';
+                form.action = form.getAttribute('data-action-edit');
+
+                fId.value = id;
+                fId.disabled = false;
+                fName.value = name;
+
+                fPhone.value = phone;
+                formatPhone(fPhone);
+
+                fAddress.value = address;
+
+                if (role) {
+                    let roleVal = role.toString().trim();
+                    let optionExists = Array.from(fRole.options).some(opt => opt.value === roleVal);
+                    fRole.value = optionExists ? roleVal : '';
+                }
+
+                if (salary && salary !== 'null') {
+                    fSalaryReal.value = salary;
+                    fSalaryDisp.value = parseInt(salary, 10).toLocaleString('en-US');
+                } else {
+                    fSalaryReal.value = '0';
+                    fSalaryDisp.value = '0';
+                }
+
+                // 🟢 ĐIỀU CHỈNH: Không ẩn phần Tài Khoản nữa, cho phép sửa Tên đăng nhập
+                accountSection.classList.remove('hidden');
+                accountSection.querySelector('h4').innerText = 'Cập nhật Tài khoản (Bỏ trống mật khẩu nếu không đổi)';
+
+                fUsername.disabled = false;
+                fUsername.required = true;
+                fUsername.value = username ? username : ''; // Đổ tên tài khoản cũ vào
+
+                // Mật khẩu không bắt buộc phải sửa
+                fPassword.disabled = false;
+                fPassword.required = false;
+                fPassword.value = '';
+                fPassword.placeholder = 'Nhập mật khẩu mới...';
+            }
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            modal.classList.remove('hidden');
+        }
+
+        function openDeleteModal(id, name) {
+            document.getElementById('delete_maNhanVien').value = id;
+            document.getElementById('delete_empName').textContent = name;
+            document.getElementById('deleteModal').classList.remove('hidden');
+        }
+
+        // Bọc Validation vào hàm để gọi lại sau khi load AJAX
+        function initFormValidation() {
+            const forms = document.querySelectorAll('.custom-validate-form');
+
+            forms.forEach(function (form) {
+                // Xóa các event cũ trước khi gán mới (tránh bị lặp event khi AJAX load)
+                const newForm = form.cloneNode(true);
+                form.parentNode.replaceChild(newForm, form);
+
+                newForm.addEventListener('submit', function (e) {
+                    let isValid = true;
+                    const inputs = newForm.querySelectorAll('input[required]:not([disabled]), select[required]:not([disabled])');
+
+                    newForm.querySelectorAll('.error-msg').forEach(msg => msg.remove());
+
+                    inputs.forEach(function (input) {
+                        input.classList.remove('border-rose-500', 'bg-rose-50');
+                        let val = input.value ? input.value.trim() : '';
+
+                        if (!val) {
+                            isValid = false;
+                            input.classList.remove('border-transparent', 'border-[#e2e3e1]', 'focus:border-[#553722]');
+                            input.classList.add('border-rose-500', 'bg-rose-50');
+
+                            let errorHtml = `<span class="error-msg text-[10px] text-rose-500 font-semibold flex items-center gap-1 mt-1.5 ml-1 block"><i data-lucide="info" class="w-3.5 h-3.5 shrink-0"></i> Trường này không được bỏ trống.</span>`;
+                            input.insertAdjacentHTML('afterend', errorHtml);
+                        }
+                    });
+
+                    if (!isValid) {
+                        e.preventDefault();
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                    } else {
+                        // Trước khi gửi, dọn sạch khoảng trắng của SĐT để lưu vào DB chuẩn nhất
+                        let phoneInput = newForm.querySelector('input[name="soDienThoai"]');
+                        if (phoneInput) {
+                            phoneInput.value = phoneInput.value.replace(/\D/g, '');
+                        }
+                    }
+                });
+
+                newForm.addEventListener('input', function(e) {
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
+                        e.target.classList.remove('border-rose-500', 'bg-rose-50');
+                        e.target.classList.add('border-transparent');
+                        let wrapper = e.target.parentElement;
+                        wrapper.querySelectorAll('.error-msg').forEach(msg => msg.remove());
+                    }
+                });
+            });
+        }
+
+        /**
+         * 4. LOGIC AJAX NAVIGATION (Chuyển trang không giật lác)
+         */
+        function initAjaxNavigation() {
+            const ajaxLinks = document.querySelectorAll('.ajax-link');
+            ajaxLinks.forEach(function (link) {
+                // Xóa event cũ tránh duplicate
+                const newLink = link.cloneNode(true);
+                link.parentNode.replaceChild(newLink, link);
+
+                newLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    fetchPage(this.getAttribute('href'));
+                });
+            });
+
+            const ajaxForm = document.querySelector('.ajax-form');
+            if (ajaxForm) {
+                const newAjaxForm = ajaxForm.cloneNode(true);
+                ajaxForm.parentNode.replaceChild(newAjaxForm, ajaxForm);
+
+                newAjaxForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const formData = new FormData(this);
+                    const params = new URLSearchParams(formData);
+                    let url = this.getAttribute('action');
+
+                    if (params.toString()) {
+                        url += '?' + params.toString();
+                    }
+                    fetchPage(url);
+                });
+            }
+        }
+
+        function fetchPage(url) {
+            const mainContent = document.querySelector('main');
+            mainContent.style.transition = 'opacity 0.2s ease';
+            mainContent.style.opacity = '0.4';
+
+            fetch(url)
+                .then(response => response.text())
+                .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newMain = doc.querySelector('main');
+
+                if (newMain) {
+                    mainContent.innerHTML = newMain.innerHTML;
+                    mainContent.style.opacity = '1';
+                    window.history.pushState({path: url}, '', url);
+
+                    // Kích hoạt lại các Script sau khi thay đổi DOM
+                    initAjaxNavigation();
+                    initFormValidation();
+
+                    if (typeof lucide !== 'undefined') {
+                        lucide.createIcons();
+                    }
+                }
+            })
+                .catch(error => {
+                console.error('Lỗi khi tải dữ liệu:', error);
+                mainContent.style.opacity = '1';
+            });
+        }
+
+        window.addEventListener('popstate', function() {
+            fetchPage(window.location.href);
+        });
+
+        // Kích hoạt tất cả khi tải trang lần đầu
+        document.addEventListener('DOMContentLoaded', function () {
+            initFormValidation();
+            initAjaxNavigation();
+        });
+
+        /*]]>*/
+    </script>
 </main>
 </body>
 </html>

@@ -4,6 +4,7 @@ import com.quanlycafe.cafe_management.dto.DonNhapHistoryDTO;
 import com.quanlycafe.cafe_management.dto.InventoryFormDTO;
 import com.quanlycafe.cafe_management.dto.InventoryItemDTO;
 import com.quanlycafe.cafe_management.service.InventoryService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -66,68 +67,108 @@ public class InventoryController {
     }
 
     @PostMapping("/inventory/add")
-    public String addItem(@ModelAttribute("form") InventoryFormDTO form, RedirectAttributes redirectAttributes) {
+    public String addItem(@ModelAttribute("form") InventoryFormDTO form,
+                          RedirectAttributes redirectAttributes,
+                          HttpServletRequest request) {
+
+        String referer = request.getHeader("Referer");
+        String redirectUrl = referer != null ? referer : "/inventory";
+
         try {
             inventoryService.createItem(form);
             redirectAttributes.addFlashAttribute("successMsg", "Nhập hàng hóa mới thành công!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMsg", "Lỗi: " + e.getMessage());
         }
-        return "redirect:/inventory";
+        return "redirect:" + redirectUrl;
     }
 
     @PostMapping("/inventory/edit")
-    public String editItem(@ModelAttribute("form") InventoryFormDTO form, RedirectAttributes redirectAttributes) {
+    public String editItem(@ModelAttribute("form") InventoryFormDTO form,
+                           RedirectAttributes redirectAttributes,
+                           HttpServletRequest request) {
+
+
+        String referer = request.getHeader("Referer");
+        String redirectUrl = referer != null ? referer : "/inventory";
+
         try {
             inventoryService.updateItem(form);
             redirectAttributes.addFlashAttribute("successMsg", "Cập nhật thông tin thành công!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMsg", "Lỗi: " + e.getMessage());
         }
-        return "redirect:/inventory";
+        return "redirect:" + redirectUrl;
     }
 
     @PostMapping("/inventory/import")
-    public String importStock(@ModelAttribute("form") InventoryFormDTO form, RedirectAttributes redirectAttributes) {
+    public String importStock(@ModelAttribute("form") InventoryFormDTO form,
+                              RedirectAttributes redirectAttributes,
+                              HttpServletRequest request) {
+
+
+        String referer = request.getHeader("Referer");
+        String redirectUrl = referer != null ? referer : "/inventory";
+
         try {
             inventoryService.importStock(form);
             redirectAttributes.addFlashAttribute("successMsg", "Đã cập nhật số lượng nhập kho!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMsg", "Lỗi: " + e.getMessage());
         }
-        return "redirect:/inventory";
+        return "redirect:" + redirectUrl;
     }
 
     @PostMapping("/inventory/history/edit")
-    public String editHistory(@ModelAttribute("form") InventoryFormDTO form, RedirectAttributes redirectAttributes) {
+    public String editHistory(@ModelAttribute("form") InventoryFormDTO form,
+                              RedirectAttributes redirectAttributes,
+                              HttpServletRequest request) {
+
+
+        String referer = request.getHeader("Referer");
+        String redirectUrl = referer != null ? referer : "/inventory";
+
         try {
             inventoryService.updateDonNhapHistory(form);
             redirectAttributes.addFlashAttribute("successMsg", "Đã cập nhật phiếu nhập hàng thành công!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMsg", "Lỗi: " + e.getMessage());
         }
-        return "redirect:/inventory";
+        return "redirect:" + redirectUrl;
     }
 
     @PostMapping("/inventory/delete")
-    public String deleteItem(@RequestParam Integer maHangHoa, RedirectAttributes redirectAttributes) {
+    public String deleteItem(@RequestParam Integer maHangHoa,
+                             RedirectAttributes redirectAttributes,
+                             HttpServletRequest request) {
+
+
+        String referer = request.getHeader("Referer");
+        String redirectUrl = referer != null ? referer : "/inventory";
+
         try {
             inventoryService.deleteItem(maHangHoa);
             redirectAttributes.addFlashAttribute("successMsg", "Đã xóa hàng hóa khỏi kho!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMsg", "Lỗi: " + e.getMessage());
         }
-        return "redirect:/inventory";
+        return "redirect:" + redirectUrl;
     }
 
     @PostMapping("/inventory/history/delete")
-    public String deleteHistory(@RequestParam Integer maDonNhap, RedirectAttributes redirectAttributes) {
+    public String deleteHistory(@RequestParam Integer maDonNhap,
+                                RedirectAttributes redirectAttributes,
+                                HttpServletRequest request) {
+
+        String referer = request.getHeader("Referer");
+        String redirectUrl = referer != null ? referer : "/inventory";
+
         try {
             inventoryService.deleteDonNhapHistory(maDonNhap);
             redirectAttributes.addFlashAttribute("successMsg", "Đã xóa phiếu nhập hàng!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMsg", "Lỗi: " + e.getMessage());
         }
-        return "redirect:/inventory";
+        return "redirect:" + redirectUrl;
     }
 }

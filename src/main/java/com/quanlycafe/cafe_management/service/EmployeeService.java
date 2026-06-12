@@ -21,8 +21,8 @@ import java.util.List;
 
 /**
  * EmployeeService
- * Version 1.8
- * Date: 07-06-2026
+ * Version 1.9
+ * Date: 12-06-2026
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
@@ -31,6 +31,7 @@ import java.util.List;
  * 07-06-2026 lhthoai      Dynamic database role filtering, map and save NhanVien Luong
  * 07-06-2026 lhthoai      Standardize imports and Javadoc comments
  * 07-06-2026 lhthoai      Apply Soft Delete for TaiKhoan
+ * 12-06-2026 Quản Lý Cafe Cập nhật tính năng sửa cả tài khoản & mật khẩu (Có check trùng)
  */
 @Service
 @RequiredArgsConstructor
@@ -129,7 +130,8 @@ public class EmployeeService {
     }
 
     /**
-     * Cập nhật thông tin nhân viên và phân quyền lại nếu chức vụ thay đổi.
+     * Cập nhật thông tin nhân viên và tài khoản.
+     * Cho phép đổi Tên đăng nhập và Mật khẩu (Có check trùng tên).
      *
      * @param form Form chứa dữ liệu nhân viên từ View
      */
@@ -150,9 +152,28 @@ public class EmployeeService {
 
             TaiKhoan tk = nv.getTaiKhoan();
             if (tk != null) {
+                // 1. CẬP NHẬT TÊN ĐĂNG NHẬP (Kiểm tra trùng chéo)
+                if (form.getTenDangNhap() != null && !form.getTenDangNhap().trim().isEmpty()) {
+                    String newUsername = form.getTenDangNhap().toLowerCase().trim();
+                    // Nếu tên đăng nhập mới khác tên đăng nhập cũ, cần kiểm tra xem có bị trùng với người khác không
+                    if (!tk.getTenDangNhap().equals(newUsername)) {
+                        if (taiKhoanRepository.existsByTenDangNhapIgnoreCase(newUsername)) {
+                            throw new IllegalArgumentException("Tên đăng nhập '" + newUsername + "' đã được sử dụng!");
+                        }
+                        tk.setTenDangNhap(newUsername);
+                    }
+                }
+
+                // 2. CẬP NHẬT MẬT KHẨU (Chỉ update nếu có nhập pass mới)
+                if (form.getMatKhau() != null && !form.getMatKhau().trim().isEmpty()) {
+                    tk.setMatKhau(passwordEncoder.encode(form.getMatKhau()));
+                }
+
+                // 3. CẬP NHẬT QUYỀN HẠN DỰA THEO CHỨC VỤ
                 boolean isAdmin = cv.getTenChucVu().toLowerCase().contains("giám đốc") ||
                         cv.getTenChucVu().toLowerCase().contains("quản lý");
                 tk.setQuyenHan(isAdmin ? 1 : 2);
+
                 taiKhoanRepository.save(tk);
             }
         }

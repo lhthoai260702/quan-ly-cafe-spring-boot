@@ -193,15 +193,17 @@ function toggleHistoryRow(maHangHoa) {
                 contentDiv.innerHTML = '<span class="italic text-gray-500">Chưa có dữ liệu nhập hàng.</span>';
                 return;
             }
+
+            // Đã tinh chỉnh lại tỷ lệ độ rộng (width) cho từng cột để bảng cân đối và dễ nhìn hơn
             let html = `
-                    <table class="w-full text-left bg-white rounded-lg overflow-hidden shadow-sm mt-1 mb-2 border border-[#e2e3e1]/60">
+                    <table class="w-full text-left bg-white rounded-lg overflow-hidden shadow-sm mt-1 mb-2 border border-[#e2e3e1]/60 table-fixed">
                         <thead class="bg-[#f4f4f2] text-[10px] uppercase text-[#50453e] font-bold">
                             <tr>
                                 <th class="p-2 pl-4 w-32">Ngày nhập</th>
-                                <th class="p-2 text-center">SL Nhập</th>
-                                <th class="p-2 text-right">Đơn giá</th>
-                                <th class="p-2 text-right">Thành tiền</th>
-                                <th class="p-2 text-center w-20">Hành động</th>
+                                <th class="p-2 text-center w-24">SL Nhập</th>
+                                <th class="p-2 text-right w-36">Đơn giá</th>
+                                <th class="p-2 text-right w-40">Thành tiền</th>
+                                <th class="p-2 text-center w-24">Thao tác</th>
                             </tr>
                         </thead><tbody class="divide-y divide-[#e2e3e1]/40 text-sm">`;
 
@@ -214,10 +216,10 @@ function toggleHistoryRow(maHangHoa) {
 
                 html += `
                         <tr class="hover:bg-[#f9f9f7]/50">
-                            <td class="p-2 pl-4">${dateStr}</td>
-                            <td class="p-2 text-center font-bold text-emerald-700">${formattedQty}</td>
-                            <td class="p-2 text-right font-bold text-[#553722]">${formattedDonGia}đ</td>
-                            <td class="p-2 text-right font-bold text-amber-600">${formattedTongTien}đ</td>
+                            <td class="p-2 pl-4 truncate">${dateStr}</td>
+                            <td class="p-2 text-center font-bold text-emerald-700 truncate">${formattedQty}</td>
+                            <td class="p-2 text-right font-bold text-[#553722] truncate">${formattedDonGia}đ</td>
+                            <td class="p-2 text-right font-bold text-amber-600 truncate">${formattedTongTien}đ</td>
                             <td class="p-2 text-center flex justify-center gap-1.5">
                                 <button type="button" onclick="openUniversalModal('EDIT_HISTORY', ${item.maDonNhap}, null, null, null, '${rawDate}', '${formattedQty}', ${item.donGia})" class="p-1 text-[#553722] hover:bg-[#ffdcc6]/50 rounded"><i data-lucide="pen-line" class="w-4 h-4"></i></button>
                                 <button type="button" onclick="openDeleteHistoryModalCustom(${item.maDonNhap})" class="p-1 text-rose-500 hover:bg-rose-100 rounded"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
