@@ -102,9 +102,11 @@ public class EmployeeController {
                               RedirectAttributes redirectAttributes,
                               HttpServletRequest request) {
 
+        // 1. Lấy URL trang hiện tại để quay lại (kèm theo tham số phân trang, bộ lọc)
         String referer = request.getHeader("Referer");
         String redirectUrl = referer != null ? referer : "/employees";
 
+        // 2. Validate thủ công (Nếu DTO chưa có @NotBlank, @Size)
         if (form.getTenDangNhap() == null || form.getTenDangNhap().trim().isEmpty()) {
             bindingResult.addError(new FieldError("addForm", "tenDangNhap", "Tên đăng nhập không được để trống"));
         }
@@ -113,7 +115,12 @@ public class EmployeeController {
             bindingResult.addError(new FieldError("addForm", "matKhau", "Mật khẩu phải từ 6 ký tự trở lên"));
         }
 
+        // 3. Xử lý khi có lỗi Validate
         if (bindingResult.hasErrors()) {
+            // Lấy câu lỗi đầu tiên gán vào errorMsg để Frontend hiển thị Toast thông báo
+            String firstError = bindingResult.getAllErrors().get(0).getDefaultMessage();
+            redirectAttributes.addFlashAttribute("errorMsg", firstError);
+
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.addForm", bindingResult);
             redirectAttributes.addFlashAttribute("addForm", form);
             redirectAttributes.addFlashAttribute("hasAddError", true);
@@ -121,10 +128,14 @@ public class EmployeeController {
             return "redirect:" + redirectUrl;
         }
 
+        // 4. Xử lý lưu DB
         try {
             employeeService.createEmployee(form);
             redirectAttributes.addFlashAttribute("successMsg", "Tuyển nhân sự thành công!");
         } catch (IllegalArgumentException ex) {
+            // Bắt lỗi trùng Username: Gán errorMsg để Javascript đọc được chữ "Tên đăng nhập" và tự bôi đỏ
+            redirectAttributes.addFlashAttribute("errorMsg", ex.getMessage());
+
             bindingResult.addError(new FieldError("addForm", "tenDangNhap", ex.getMessage()));
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.addForm", bindingResult);
             redirectAttributes.addFlashAttribute("addForm", form);
@@ -133,6 +144,7 @@ public class EmployeeController {
             return "redirect:" + redirectUrl;
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMsg", "Lỗi hệ thống: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("hasAddError", true);
         }
 
         return "redirect:" + redirectUrl;

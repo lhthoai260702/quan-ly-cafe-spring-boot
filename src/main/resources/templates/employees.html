@@ -309,24 +309,95 @@
     <script th:inline="javascript">
         /*<![CDATA[*/
 
-        /** * 1. XỬ LÝ LỖI TỪ SERVER (Giữ form mở nếu điền sai)
+        /** * 1. XỬ LÝ LỖI TỪ SERVER (Giữ form mở, Phục hồi dữ liệu & Highlight lỗi)
          */
         let hasAddError = /*[[${hasAddError != null ? hasAddError : false}]]*/ false;
         let hasEditError = /*[[${hasEditError != null ? hasEditError : false}]]*/ false;
+        let serverErrorMsg = /*[[${errorMsg != null ? errorMsg : ''}]]*/ '';
+
+        // Hứng dữ liệu form đang gõ dở từ Controller truyền xuống
+        let addFormData = /*[[${addForm}]]*/ null;
+        let editFormData = /*[[${editForm}]]*/ null;
 
         document.addEventListener('DOMContentLoaded', function() {
-            if (hasAddError) {
-                // Nếu lỗi lúc thêm mới, mở modal dạng ADD nhưng giữ nguyên Data cũ
-                document.getElementById('universalModal').classList.remove('hidden');
-                document.getElementById('univ_title').innerHTML = '<i data-lucide="user-plus" class="w-5 h-5 text-[#553722]"></i> Tuyển nhân sự mới';
-                document.getElementById('univ_btn_text').innerText = 'Lưu';
-                document.getElementById('univ_account_section').classList.remove('hidden');
-            } else if (hasEditError) {
-                // Nếu lỗi lúc sửa, mở modal dạng EDIT
-                document.getElementById('universalModal').classList.remove('hidden');
-                document.getElementById('univ_title').innerHTML = '<i data-lucide="pen-line" class="w-5 h-5 text-[#553722]"></i> Cập nhật hồ sơ';
-                document.getElementById('univ_btn_text').innerText = 'Lưu';
-                document.getElementById('univ_account_section').classList.add('hidden');
+            if (hasAddError || hasEditError) {
+                const modal = document.getElementById('universalModal');
+                const title = document.getElementById('univ_title');
+                const btnText = document.getElementById('univ_btn_text');
+                const accountSection = document.getElementById('univ_account_section');
+                const form = document.getElementById('universalForm');
+
+                modal.classList.remove('hidden');
+
+                // LOGIC PHỤC HỒI LẠI DỮ LIỆU ĐÃ GÕ
+                let formData = hasAddError ? addFormData : editFormData;
+                if (formData) {
+                    if (hasEditError) document.getElementById('univ_maNhanVien').value = formData.maNhanVien || '';
+                    document.getElementById('univ_hoTen').value = formData.hoTen || '';
+
+                    let phoneInput = document.getElementById('univ_soDienThoai');
+                    phoneInput.value = formData.soDienThoai || '';
+                    formatPhone(phoneInput); // Tự động định dạng lại số điện thoại
+
+                    document.getElementById('univ_diaChi').value = formData.diaChi || '';
+                    document.getElementById('univ_tenDangNhap').value = formData.tenDangNhap || '';
+
+                    if (formData.maChucVu) {
+                        document.getElementById('univ_maChucVu').value = formData.maChucVu;
+                    }
+
+                    if (formData.luong) {
+                        document.getElementById('univ_luong_real').value = formData.luong;
+                        document.getElementById('univ_luong_display').value = parseInt(formData.luong, 10).toLocaleString('en-US');
+                    }
+                }
+
+                // Cấu hình lại giao diện Form cho đúng Action
+                if (hasAddError) {
+                    title.innerHTML = '<i data-lucide="user-plus" class="w-5 h-5 text-[#553722]"></i> Tuyển nhân sự mới';
+                    btnText.innerText = 'Lưu';
+                    accountSection.classList.remove('hidden');
+                    form.action = form.getAttribute('data-action-add');
+                } else if (hasEditError) {
+                    title.innerHTML = '<i data-lucide="pen-line" class="w-5 h-5 text-[#553722]"></i> Cập nhật hồ sơ';
+                    btnText.innerText = 'Lưu';
+                    accountSection.classList.remove('hidden');
+                    accountSection.querySelector('h4').innerText = 'Cập nhật Tài khoản (Bỏ trống mật khẩu nếu không đổi)';
+                    form.action = form.getAttribute('data-action-edit');
+
+                    const fPassword = document.getElementById('univ_matKhau');
+                    fPassword.disabled = false;
+                    fPassword.required = false;
+                    fPassword.placeholder = 'Nhập mật khẩu mới...';
+                }
+
+                // 🔴 LOGIC KIỂM TRA LỖI TỪ BACKEND VÀ BÔI ĐỎ CHÍNH XÁC Ô LỖI
+                if (serverErrorMsg) {
+                    let lowerMsg = serverErrorMsg.toLowerCase();
+
+                    // Lỗi liên quan đến Username
+                    if (lowerMsg.includes('tên đăng nhập')) {
+                        const usernameInput = document.getElementById('univ_tenDangNhap');
+                        if (usernameInput) {
+                            usernameInput.classList.remove('border-transparent', 'border-[#e2e3e1]');
+                            usernameInput.classList.add('border-rose-500', 'bg-rose-50');
+
+                            let errorHtml = `<span class="error-msg text-[10px] text-rose-500 font-semibold flex items-center gap-1 mt-1.5 ml-1 block"><i data-lucide="info" class="w-3.5 h-3.5 shrink-0"></i> ${serverErrorMsg}</span>`;
+                            usernameInput.insertAdjacentHTML('afterend', errorHtml);
+                        }
+                    }
+                    // Lỗi liên quan đến Mật khẩu
+                    else if (lowerMsg.includes('mật khẩu')) {
+                        const passwordInput = document.getElementById('univ_matKhau');
+                        if (passwordInput) {
+                            passwordInput.classList.remove('border-transparent', 'border-[#e2e3e1]');
+                            passwordInput.classList.add('border-rose-500', 'bg-rose-50');
+
+                            let errorHtml = `<span class="error-msg text-[10px] text-rose-500 font-semibold flex items-center gap-1 mt-1.5 ml-1 block"><i data-lucide="info" class="w-3.5 h-3.5 shrink-0"></i> ${serverErrorMsg}</span>`;
+                            passwordInput.insertAdjacentHTML('afterend', errorHtml);
+                        }
+                    }
+                }
             }
         });
 
@@ -381,7 +452,6 @@
             const fUsername = document.getElementById('univ_tenDangNhap');
             const fPassword = document.getElementById('univ_matKhau');
 
-            // Xóa mọi lỗi viền đỏ cũ
             form.querySelectorAll('.error-msg').forEach(e => e.remove());
             form.querySelectorAll('.border-rose-500').forEach(e => {
                 e.classList.remove('border-rose-500', 'bg-rose-50');
@@ -402,7 +472,6 @@
                 fSalaryDisp.value = '';
                 fSalaryReal.value = '0';
 
-                // Đổi nhãn tiêu đề
                 accountSection.querySelector('h4').innerText = 'Thông tin tài khoản & Chức vụ';
 
                 fUsername.disabled = false;
@@ -441,15 +510,13 @@
                     fSalaryDisp.value = '0';
                 }
 
-                // 🟢 ĐIỀU CHỈNH: Không ẩn phần Tài Khoản nữa, cho phép sửa Tên đăng nhập
                 accountSection.classList.remove('hidden');
                 accountSection.querySelector('h4').innerText = 'Cập nhật Tài khoản (Bỏ trống mật khẩu nếu không đổi)';
 
                 fUsername.disabled = false;
                 fUsername.required = true;
-                fUsername.value = username ? username : ''; // Đổ tên tài khoản cũ vào
+                fUsername.value = username ? username : '';
 
-                // Mật khẩu không bắt buộc phải sửa
                 fPassword.disabled = false;
                 fPassword.required = false;
                 fPassword.value = '';
@@ -466,12 +533,10 @@
             document.getElementById('deleteModal').classList.remove('hidden');
         }
 
-        // Bọc Validation vào hàm để gọi lại sau khi load AJAX
         function initFormValidation() {
             const forms = document.querySelectorAll('.custom-validate-form');
 
             forms.forEach(function (form) {
-                // Xóa các event cũ trước khi gán mới (tránh bị lặp event khi AJAX load)
                 const newForm = form.cloneNode(true);
                 form.parentNode.replaceChild(newForm, form);
 
@@ -485,6 +550,7 @@
                         input.classList.remove('border-rose-500', 'bg-rose-50');
                         let val = input.value ? input.value.trim() : '';
 
+                        // Bắt lỗi bỏ trống
                         if (!val) {
                             isValid = false;
                             input.classList.remove('border-transparent', 'border-[#e2e3e1]', 'focus:border-[#553722]');
@@ -493,13 +559,22 @@
                             let errorHtml = `<span class="error-msg text-[10px] text-rose-500 font-semibold flex items-center gap-1 mt-1.5 ml-1 block"><i data-lucide="info" class="w-3.5 h-3.5 shrink-0"></i> Trường này không được bỏ trống.</span>`;
                             input.insertAdjacentHTML('afterend', errorHtml);
                         }
+                        // 🔴 Bắt lỗi nhập thiếu ký tự (Ví dụ Mật khẩu ít hơn 6 ký tự)
+                        else if (input.hasAttribute('minlength') && val.length < parseInt(input.getAttribute('minlength'))) {
+                            isValid = false;
+                            input.classList.remove('border-transparent', 'border-[#e2e3e1]', 'focus:border-[#553722]');
+                            input.classList.add('border-rose-500', 'bg-rose-50');
+
+                            let min = input.getAttribute('minlength');
+                            let errorHtml = `<span class="error-msg text-[10px] text-rose-500 font-semibold flex items-center gap-1 mt-1.5 ml-1 block"><i data-lucide="info" class="w-3.5 h-3.5 shrink-0"></i> Vui lòng nhập tối thiểu ${min} ký tự.</span>`;
+                            input.insertAdjacentHTML('afterend', errorHtml);
+                        }
                     });
 
                     if (!isValid) {
                         e.preventDefault();
                         if (typeof lucide !== 'undefined') lucide.createIcons();
                     } else {
-                        // Trước khi gửi, dọn sạch khoảng trắng của SĐT để lưu vào DB chuẩn nhất
                         let phoneInput = newForm.querySelector('input[name="soDienThoai"]');
                         if (phoneInput) {
                             phoneInput.value = phoneInput.value.replace(/\D/g, '');
@@ -524,7 +599,6 @@
         function initAjaxNavigation() {
             const ajaxLinks = document.querySelectorAll('.ajax-link');
             ajaxLinks.forEach(function (link) {
-                // Xóa event cũ tránh duplicate
                 const newLink = link.cloneNode(true);
                 link.parentNode.replaceChild(newLink, link);
 
@@ -570,7 +644,6 @@
                     mainContent.style.opacity = '1';
                     window.history.pushState({path: url}, '', url);
 
-                    // Kích hoạt lại các Script sau khi thay đổi DOM
                     initAjaxNavigation();
                     initFormValidation();
 
