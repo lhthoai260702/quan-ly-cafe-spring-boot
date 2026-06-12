@@ -7,9 +7,12 @@
 <body>
 <main class="flex-1 p-4 md:p-8 overflow-y-auto bg-[#f9f9f7]">
 
-    <div th:if="${successMsg}" class="mb-4 p-3 bg-green-100 text-green-700 rounded-lg text-sm"
+    <div th:if="${successMsg}"
+         class="mb-4 p-3 bg-green-100 text-green-700 rounded-lg text-sm font-medium flex items-center gap-2"
          th:text="${successMsg}"></div>
-    <div th:if="${errorMsg}" class="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm" th:text="${errorMsg}"></div>
+    <div th:if="${errorMsg}"
+         class="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm font-medium flex items-center gap-2"
+         th:text="${errorMsg}"></div>
 
     <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 md:mb-8 gap-4">
         <div>
@@ -21,7 +24,7 @@
             <p class="text-xs md:text-sm text-[#50453e] opacity-80 mt-1">Tổ chức sự kiện, phát hành mã giảm giá và kích
                 cầu doanh thu.</p>
         </div>
-        <button onclick="document.getElementById('addModal').classList.remove('hidden')"
+        <button onclick="openUniversalModal('ADD')"
                 class="w-full md:w-auto justify-center flex items-center gap-2 bg-[#553722] hover:bg-[#6f4e37] text-white px-5 py-2.5 rounded-xl text-sm font-semibold uppercase tracking-wider transition-all shadow-md">
             <i data-lucide="ticket" class="w-4 h-4"></i> Tạo chương trình mới
         </button>
@@ -37,7 +40,7 @@
         </form>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-[#e2e3e1]/40 overflow-hidden">
+    <div class="bg-white rounded-b-2xl shadow-sm border border-t-0 border-[#e2e3e1]/40 overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse table-fixed">
                 <thead>
@@ -108,12 +111,12 @@
                             <button type="button"
                                     class="p-1.5 text-[#553722] hover:bg-[#ffdcc6]/50 rounded-lg transition-colors"
                                     title="Sửa chương trình"
-                                    th:onclick="openEditModal([[${km.maKhuyenMai}]], [[${km.tenKhuyenMai}]], [[${km.ngayBatDau}]], [[${km.ngayKetThuc}]], [[${km.loaiKhuyenMai}]], [[${km.giaTriGiam}]], [[${km.moTa}]])">
+                                    th:onclick="openUniversalModal('EDIT', [[${km.maKhuyenMai}]], [[${km.tenKhuyenMai}]], [[${km.ngayBatDau}]], [[${km.ngayKetThuc}]], [[${km.loaiKhuyenMai}]], [[${km.giaTriGiam}]], [[${km.moTa}]])">
                                 <i data-lucide="pen-line" class="w-4 h-4"></i>
                             </button>
                             <button type="button"
                                     class="p-1.5 text-rose-500 hover:bg-rose-100 rounded-lg transition-colors"
-                                    title="Xóa chương trình"
+                                    title="Dừng/Xóa chương trình"
                                     th:onclick="openDeleteModal([[${km.maKhuyenMai}]], [[${km.tenKhuyenMai}]])">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
@@ -152,51 +155,47 @@
         </a>
     </div>
 
-    <div id="addModal"
+    <div id="universalModal"
          class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm p-4">
         <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
             <div class="px-5 py-4 border-b border-[#e2e3e1]/60 flex justify-between shrink-0 bg-[#f9f9f7]">
-                <h3 class="font-bold text-[#1a1c1b] flex items-center"><i data-lucide="ticket"
-                                                                          class="w-4 h-4 inline-block mr-2 text-[#553722]"></i>Tạo
-                    Khuyến Mãi Mới</h3>
-                <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')"
+                <h3 id="univ_title" class="font-bold text-[#1a1c1b] flex items-center">
+                    <i data-lucide="ticket" class="w-4 h-4 inline-block mr-2 text-[#553722]"></i>Tạo Khuyến Mãi Mới
+                </h3>
+                <button type="button" onclick="document.getElementById('universalModal').classList.add('hidden')"
                         class="text-gray-400 hover:text-rose-600"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
 
-            <form th:action="@{/marketing/add}" th:object="${addForm}" method="POST"
+            <form id="universalForm" method="POST" th:action="@{#}"
+                  th:data-action-add="@{/marketing/add}"
+                  th:data-action-edit="@{/marketing/edit}"
                   class="p-5 overflow-y-auto space-y-4 custom-validate-form" novalidate>
+
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <input type="hidden" name="maKhuyenMai" id="univ_id">
 
                 <div>
                     <label class="block text-xs font-bold text-[#50453e] mb-1">Tên chương trình <span
                             class="text-rose-500">*</span></label>
-                    <input type="text" th:field="*{tenKhuyenMai}" required maxlength="100"
+                    <input type="text" name="tenKhuyenMai" id="univ_name" required maxlength="100"
                            title="Vui lòng nhập tên chương trình (tối đa 100 ký tự)"
-                           th:classappend="${#fields.hasErrors('tenKhuyenMai')} ? 'border-rose-500 bg-rose-50' : 'border-[#e2e3e1]'"
-                           class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
-                    <span th:if="${#fields.hasErrors('tenKhuyenMai')}" th:errors="*{tenKhuyenMai}"
-                          class="server-error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"></span>
+                           class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-[#50453e] mb-1">Ngày bắt đầu <span
                                 class="text-rose-500">*</span></label>
-                        <input type="date" th:field="*{ngayBatDau}" id="add_start_date" required
+                        <input type="date" name="ngayBatDau" id="univ_start" required
                                title="Vui lòng chọn ngày bắt đầu"
-                               th:classappend="${#fields.hasErrors('ngayBatDau')} ? 'border-rose-500 bg-rose-50' : 'border-[#e2e3e1]'"
-                               class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
-                        <span th:if="${#fields.hasErrors('ngayBatDau')}" th:errors="*{ngayBatDau}"
-                              class="server-error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"></span>
+                               class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-[#50453e] mb-1">Ngày kết thúc <span
                                 class="text-rose-500">*</span></label>
-                        <input type="date" th:field="*{ngayKetThuc}" id="add_end_date" required
+                        <input type="date" name="ngayKetThuc" id="univ_end" required
                                title="Vui lòng chọn ngày kết thúc"
-                               th:classappend="${#fields.hasErrors('ngayKetThuc')} ? 'border-rose-500 bg-rose-50' : 'border-[#e2e3e1]'"
-                               class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
-                        <span th:if="${#fields.hasErrors('ngayKetThuc')}" th:errors="*{ngayKetThuc}"
-                              class="server-error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"></span>
+                               class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
                     </div>
                 </div>
 
@@ -204,142 +203,35 @@
                     <div>
                         <label class="block text-xs font-bold text-[#50453e] mb-1">Loại khuyến mãi <span
                                 class="text-rose-500">*</span></label>
-                        <select th:field="*{loaiKhuyenMai}" id="add_type" required title="Vui lòng chọn loại khuyến mãi"
-                                th:classappend="${#fields.hasErrors('loaiKhuyenMai')} ? 'border-rose-500 bg-rose-50' : 'border-[#e2e3e1]'"
+                        <select name="loaiKhuyenMai" id="univ_type" required title="Vui lòng chọn loại khuyến mãi"
                                 class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
                             <option value="Phần trăm">Giảm theo % (Phần trăm)</option>
                             <option value="Số tiền">Giảm trực tiếp (Tiền mặt)</option>
                         </select>
-                        <span th:if="${#fields.hasErrors('loaiKhuyenMai')}" th:errors="*{loaiKhuyenMai}"
-                              class="server-error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"></span>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-[#50453e] mb-1">Mức giảm <span class="text-rose-500">*</span></label>
-                        <input type="text" id="add_val_display" required
-                               th:classappend="${#fields.hasErrors('giaTriGiam')} ? 'border-rose-500 bg-rose-50' : 'border-[#e2e3e1]'"
-                               class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
-                        <input type="hidden" th:field="*{giaTriGiam}" id="add_val_hidden">
-
-                        <span th:if="${#fields.hasErrors('giaTriGiam')}" th:errors="*{giaTriGiam}"
-                              class="server-error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"></span>
+                        <input type="text" id="univ_val_display" required
+                               class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
+                        <input type="hidden" name="giaTriGiam" id="univ_val_hidden">
                     </div>
                 </div>
 
                 <div>
                     <label class="block text-xs font-bold text-[#50453e] mb-1">Mô tả chi tiết</label>
-                    <textarea th:field="*{moTa}" rows="2" maxlength="2000" title="Nhập mô tả chương trình"
-                              th:classappend="${#fields.hasErrors('moTa')} ? 'border-rose-500 bg-rose-50' : 'border-[#e2e3e1]'"
-                              class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all"
+                    <textarea name="moTa" id="univ_desc" rows="2" maxlength="2000" title="Nhập mô tả chương trình"
+                              class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all"
                               placeholder="Điều kiện áp dụng..."></textarea>
-                    <span th:if="${#fields.hasErrors('moTa')}" th:errors="*{moTa}"
-                          class="server-error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"></span>
                 </div>
 
                 <div class="pt-4 mt-2 border-t border-[#e2e3e1]/60 flex flex-col-reverse sm:flex-row justify-end gap-3">
-                    <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')"
+                    <button type="button" onclick="document.getElementById('universalModal').classList.add('hidden')"
                             class="w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-bold bg-gray-100 hover:bg-gray-200 text-gray-600 transition-all text-center">
                         Hủy
                     </button>
-                    <button type="submit"
-                            class="w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-bold bg-[#553722] hover:bg-[#6f4e37] text-white shadow-md transition-all text-center">
-                        Lưu chương trình
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="editModal"
-         class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
-            <div class="px-5 py-4 border-b border-[#e2e3e1]/60 flex justify-between shrink-0 bg-[#f9f9f7]">
-                <h3 class="font-bold text-[#1a1c1b]">Cập nhật Khuyến Mãi</h3>
-                <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')"
-                        class="text-gray-400 hover:text-rose-600"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-
-            <form th:action="@{/marketing/edit}" th:object="${editForm}" method="POST"
-                  class="p-5 overflow-y-auto space-y-4 custom-validate-form" novalidate>
-                <input type="hidden" th:field="*{maKhuyenMai}" id="edit_id">
-
-                <div>
-                    <label class="block text-xs font-bold text-[#50453e] mb-1">Tên chương trình <span
-                            class="text-rose-500">*</span></label>
-                    <input type="text" th:field="*{tenKhuyenMai}" id="edit_name" required maxlength="100"
-                           title="Vui lòng nhập tên chương trình"
-                           th:classappend="${#fields.hasErrors('tenKhuyenMai')} ? 'border-rose-500 bg-rose-50' : 'border-[#e2e3e1]'"
-                           class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
-                    <span th:if="${#fields.hasErrors('tenKhuyenMai')}" th:errors="*{tenKhuyenMai}"
-                          class="server-error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"></span>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-[#50453e] mb-1">Ngày bắt đầu <span
-                                class="text-rose-500">*</span></label>
-                        <input type="date" th:field="*{ngayBatDau}" id="edit_start" required
-                               title="Vui lòng chọn ngày bắt đầu"
-                               th:classappend="${#fields.hasErrors('ngayBatDau')} ? 'border-rose-500 bg-rose-50' : 'border-[#e2e3e1]'"
-                               class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
-                        <span th:if="${#fields.hasErrors('ngayBatDau')}" th:errors="*{ngayBatDau}"
-                              class="server-error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"></span>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-[#50453e] mb-1">Ngày kết thúc <span
-                                class="text-rose-500">*</span></label>
-                        <input type="date" th:field="*{ngayKetThuc}" id="edit_end" required
-                               title="Vui lòng chọn ngày kết thúc"
-                               th:classappend="${#fields.hasErrors('ngayKetThuc')} ? 'border-rose-500 bg-rose-50' : 'border-[#e2e3e1]'"
-                               class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
-                        <span th:if="${#fields.hasErrors('ngayKetThuc')}" th:errors="*{ngayKetThuc}"
-                              class="server-error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"></span>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-[#50453e] mb-1">Loại khuyến mãi <span
-                                class="text-rose-500">*</span></label>
-                        <select th:field="*{loaiKhuyenMai}" id="edit_type" required
-                                title="Vui lòng chọn loại khuyến mãi"
-                                th:classappend="${#fields.hasErrors('loaiKhuyenMai')} ? 'border-rose-500 bg-rose-50' : 'border-[#e2e3e1]'"
-                                class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
-                            <option value="Phần trăm">Giảm theo % (Phần trăm)</option>
-                            <option value="Số tiền">Giảm trực tiếp (Tiền mặt)</option>
-                        </select>
-                        <span th:if="${#fields.hasErrors('loaiKhuyenMai')}" th:errors="*{loaiKhuyenMai}"
-                              class="server-error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"></span>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-[#50453e] mb-1">Mức giảm <span class="text-rose-500">*</span></label>
-                        <input type="text" id="edit_val_display" required
-                               th:classappend="${#fields.hasErrors('giaTriGiam')} ? 'border-rose-500 bg-rose-50' : 'border-[#e2e3e1]'"
-                               class="w-full bg-[#f4f4f2] border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all">
-                        <input type="hidden" th:field="*{giaTriGiam}" id="edit_val_hidden">
-
-                        <span th:if="${#fields.hasErrors('giaTriGiam')}" th:errors="*{giaTriGiam}"
-                              class="server-error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"></span>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-[#50453e] mb-1">Mô tả chi tiết</label>
-                    <textarea th:field="*{moTa}" id="edit_desc" rows="2" maxlength="2000"
-                              title="Nhập mô tả chương trình"
-                              th:classappend="${#fields.hasErrors('moTa')} ? 'border-rose-500 bg-rose-50' : 'border-[#e2e3e1]'"
-                              class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#553722] transition-all"></textarea>
-                    <span th:if="${#fields.hasErrors('moTa')}" th:errors="*{moTa}"
-                          class="server-error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"></span>
-                </div>
-
-                <div class="pt-4 mt-2 border-t border-[#e2e3e1]/60 flex flex-col-reverse sm:flex-row justify-end gap-3">
-                    <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')"
-                            class="w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-bold bg-gray-100 hover:bg-gray-200 text-gray-600 transition-all text-center">
-                        Hủy
-                    </button>
-                    <button type="submit"
-                            class="w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-bold bg-[#553722] hover:bg-[#6f4e37] text-white shadow-md transition-all text-center">
-                        Lưu thay đổi
+                    <button type="submit" id="univ_btn_submit"
+                            class="w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-bold bg-[#553722] hover:bg-[#6f4e37] text-white shadow-md transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="check" class="w-4 h-4"></i> <span id="univ_btn_text">Lưu chương trình</span>
                     </button>
                 </div>
             </form>
@@ -368,7 +260,241 @@
         </div>
     </div>
 
-    <script th:src="@{/js/marketing.js}"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+
+        /**
+         * 1. FORMAT CÔNG CỤ (Tiền tệ, Mức giảm)
+         */
+        function formatMoney(valueStr) {
+            let clean = valueStr.replace(/\D/g, '');
+            if (!clean) return '';
+            return parseInt(clean, 10).toLocaleString('en-US');
+        }
+
+        function handleInputDiscount(displayEl, hiddenEl, typeEl) {
+            let rawVal = displayEl.value.replace(/\D/g, '').replace(/^0+/, '');
+
+            if (typeEl.value === 'Phần trăm') {
+                if (rawVal !== '' && parseInt(rawVal, 10) > 100) rawVal = '100';
+                displayEl.value = rawVal;
+                hiddenEl.value = rawVal;
+            } else {
+                displayEl.value = formatMoney(rawVal);
+                hiddenEl.value = rawVal;
+            }
+        }
+
+        function updatePromoValidation(typeEl, displayEl, hiddenEl) {
+            let currentVal = hiddenEl.value || displayEl.value.replace(/\D/g, '');
+            currentVal = currentVal.replace(/^0+/, '');
+
+            if (typeEl.value === 'Phần trăm') {
+                displayEl.maxLength = 3;
+                displayEl.setAttribute('title', 'Mức giảm phần trăm phải từ 1 đến 100');
+                if (currentVal && parseInt(currentVal, 10) > 100) currentVal = '100';
+                displayEl.value = currentVal;
+                hiddenEl.value = currentVal;
+            } else {
+                displayEl.removeAttribute('maxlength');
+                displayEl.setAttribute('title', 'Mức giảm tiền mặt phải lớn hơn 0');
+                displayEl.value = formatMoney(currentVal);
+                hiddenEl.value = currentVal;
+            }
+
+            let existingError = displayEl.parentElement.querySelector('.error-msg, .server-error-msg');
+            if (existingError) existingError.remove();
+
+            displayEl.classList.remove('border-rose-500', 'bg-rose-50');
+            displayEl.classList.add('border-[#e2e3e1]');
+        }
+
+        /**
+         * 2. LOGIC MODAL GỘP (Thêm/Sửa)
+         */
+        function openUniversalModal(action, id, name, start, end, type, val, desc) {
+            const form = document.getElementById('universalForm');
+            const modal = document.getElementById('universalModal');
+            const title = document.getElementById('univ_title');
+            const btnText = document.getElementById('univ_btn_text');
+
+            const fId = document.getElementById('univ_id');
+            const fName = document.getElementById('univ_name');
+            const fStart = document.getElementById('univ_start');
+            const fEnd = document.getElementById('univ_end');
+            const fType = document.getElementById('univ_type');
+            const fValDisplay = document.getElementById('univ_val_display');
+            const fValHidden = document.getElementById('univ_val_hidden');
+            const fDesc = document.getElementById('univ_desc');
+
+            // Xóa mọi lỗi viền đỏ cũ
+            form.querySelectorAll('.error-msg, .server-error-msg').forEach(e => e.remove());
+            form.querySelectorAll('.border-rose-500').forEach(e => {
+                e.classList.remove('border-rose-500', 'bg-rose-50');
+                e.classList.add('border-[#e2e3e1]');
+            });
+
+            if (action === 'ADD') {
+                title.innerHTML = '<i data-lucide="ticket" class="w-5 h-5 text-[#553722] mr-2"></i> Tạo Khuyến Mãi Mới';
+                btnText.innerText = 'Lưu chương trình';
+                form.action = form.getAttribute('data-action-add');
+
+                fId.value = '';
+                fId.disabled = true;
+
+                fName.value = '';
+
+                // Tự động gán ngày hôm nay cho trường bắt đầu
+                const today = new Date();
+                today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+                fStart.value = today.toISOString().split('T')[0];
+
+                fEnd.value = '';
+                fEnd.min = ''; // Reset chặn ngày cũ
+                fType.value = 'Phần trăm';
+                fValHidden.value = '';
+                fValDisplay.value = '';
+                fDesc.value = '';
+
+            } else if (action === 'EDIT') {
+                title.innerHTML = '<i data-lucide="pen-line" class="w-5 h-5 text-[#553722] mr-2"></i> Cập nhật Khuyến Mãi';
+                btnText.innerText = 'Lưu thay đổi';
+                form.action = form.getAttribute('data-action-edit');
+
+                fId.value = id;
+                fId.disabled = false;
+
+                fName.value = name;
+                fStart.value = start;
+                fEnd.value = end;
+                fType.value = type;
+                fValHidden.value = val;
+                fDesc.value = (desc && desc !== 'null') ? desc : '';
+
+                // Cập nhật Min ngày kết thúc
+                if (start) {
+                    let d = new Date(start);
+                    d.setDate(d.getDate() + 1);
+                    fEnd.min = d.toISOString().split('T')[0];
+                }
+            }
+
+            // Gọi hàm render để định dạng số/tỷ lệ hiển thị đúng format ngay khi mở
+            updatePromoValidation(fType, fValDisplay, fValHidden);
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            modal.classList.remove('hidden');
+        }
+
+        function openDeleteModal(id, name) {
+            document.getElementById('delete_id').value = id;
+            document.getElementById('delete_name').textContent = name;
+            document.getElementById('deleteModal').classList.remove('hidden');
+        }
+
+        /**
+         * 3. KHỞI TẠO CÁC SỰ KIỆN (VALIDATION TRỰC TIẾP)
+         */
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // Xử lý giữ form nếu Backend trả về lỗi
+            let hasAddError = /*[[${hasAddError != null ? hasAddError : false}]]*/ false;
+            let hasEditError = /*[[${hasEditError != null ? hasEditError : false}]]*/ false;
+            if (hasAddError) openUniversalModal('ADD');
+            if (hasEditError) openUniversalModal('EDIT');
+
+            const fType = document.getElementById('univ_type');
+            const fValDisplay = document.getElementById('univ_val_display');
+            const fValHidden = document.getElementById('univ_val_hidden');
+            const fStart = document.getElementById('univ_start');
+            const fEnd = document.getElementById('univ_end');
+
+            // Gắn sự kiện chặn ngày kết thúc
+            if (fStart && fEnd) {
+                fStart.addEventListener('change', function () {
+                    if (this.value) {
+                        let d = new Date(this.value);
+                        d.setDate(d.getDate() + 1);
+                        fEnd.min = d.toISOString().split('T')[0];
+
+                        // Nếu đang có ngày kết thúc lỗi thì tự động xóa rỗng
+                        if (fEnd.value && new Date(fEnd.value) <= new Date(this.value)) {
+                            fEnd.value = '';
+                        }
+                    }
+                });
+            }
+
+            // Sự kiện gõ mức giảm (Phần trăm / VND)
+            if (fType && fValDisplay && fValHidden) {
+                fType.addEventListener('change', function () {
+                    updatePromoValidation(fType, fValDisplay, fValHidden);
+                });
+                fValDisplay.addEventListener('input', function () {
+                    handleInputDiscount(fValDisplay, fValHidden, fType);
+                });
+            }
+
+            const forms = document.querySelectorAll('.custom-validate-form');
+            forms.forEach(function (form) {
+                form.addEventListener('submit', function (e) {
+                    let isValid = true;
+                    const inputs = form.querySelectorAll('input[required]:not([disabled]), select[required]:not([disabled])');
+
+                    inputs.forEach(function (input) {
+                        let existingError = input.parentElement.querySelector('.error-msg, .server-error-msg');
+                        if (existingError) existingError.remove();
+                        input.classList.remove('border-rose-500', 'bg-rose-50');
+
+                        if (!input.value.trim()) {
+                            isValid = false;
+                            input.classList.remove('border-[#e2e3e1]');
+                            input.classList.add('border-rose-500', 'bg-rose-50');
+
+                            let errorText = input.getAttribute('title') || 'Trường này không được để trống.';
+                            let errorHtml = `<span class="error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"><i data-lucide="info" class="w-3.5 h-3.5 shrink-0"></i> ${errorText}</span>`;
+                            input.insertAdjacentHTML('afterend', errorHtml);
+                        }
+                    });
+
+                    // Kiểm tra Logic Ngày kết thúc > Ngày bắt đầu
+                    if (fStart && fEnd && fStart.value && fEnd.value) {
+                        let startDate = new Date(fStart.value);
+                        let endDate = new Date(fEnd.value);
+
+                        if (endDate <= startDate) {
+                            isValid = false;
+                            fEnd.classList.remove('border-[#e2e3e1]');
+                            fEnd.classList.add('border-rose-500', 'bg-rose-50');
+
+                            let existingError = fEnd.parentElement.querySelector('.error-msg, .server-error-msg');
+                            if (existingError) existingError.remove();
+
+                            let errorHtml = `<span class="error-msg text-[10px] text-rose-500 font-semibold block mt-1.5 ml-1 flex items-center gap-1"><i data-lucide="info" class="w-3.5 h-3.5 shrink-0"></i> Ngày kết thúc phải lớn hơn ngày bắt đầu.</span>`;
+                            fEnd.insertAdjacentHTML('afterend', errorHtml);
+                        }
+                    }
+
+                    if (!isValid) {
+                        e.preventDefault();
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                    }
+                });
+
+                // Tự động gỡ viền đỏ khi người dùng nhập lại
+                form.addEventListener('input', function (e) {
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') {
+                        let existingError = e.target.parentElement.querySelector('.error-msg, .server-error-msg');
+                        if (existingError) existingError.remove();
+
+                        e.target.classList.remove('border-rose-500', 'bg-rose-50');
+                        e.target.classList.add('border-[#e2e3e1]');
+                    }
+                });
+            });
+        });
+        /*]]>*/
+    </script>
 </main>
 </body>
 </html>
