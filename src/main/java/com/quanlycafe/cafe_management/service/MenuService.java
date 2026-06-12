@@ -102,7 +102,10 @@ public class MenuService {
                     detail.setKhoiLuong(BigDecimal.valueOf(ing.getKhoiLuong()));
 
                     hangHoaRepository.findById(ing.getMaHangHoa()).ifPresent(hh -> {
-                        if (hh.getDonViTinh() != null) {
+                        // Ưu tiên lấy Đơn vị sử dụng. Nếu không có mới lấy Đơn vị tính
+                        if (hh.getDonViSuDung() != null) {
+                            detail.setDonViTinh(hh.getDonViSuDung().getTenDonVi());
+                        } else if (hh.getDonViTinh() != null) {
                             detail.setDonViTinh(hh.getDonViTinh().getTenDonVi());
                         }
                     });
@@ -140,7 +143,10 @@ public class MenuService {
                     detail.setKhoiLuong(BigDecimal.valueOf(ing.getKhoiLuong()));
 
                     hangHoaRepository.findById(ing.getMaHangHoa()).ifPresent(hh -> {
-                        if (hh.getDonViTinh() != null) {
+                        // Ưu tiên lấy Đơn vị sử dụng. Nếu không có mới lấy Đơn vị tính
+                        if (hh.getDonViSuDung() != null) {
+                            detail.setDonViTinh(hh.getDonViSuDung().getTenDonVi());
+                        } else if (hh.getDonViTinh() != null) {
                             detail.setDonViTinh(hh.getDonViTinh().getTenDonVi());
                         }
                     });

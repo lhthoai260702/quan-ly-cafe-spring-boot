@@ -24,7 +24,7 @@
             <p class="text-sm text-[#50453e] opacity-80 mt-1">Quản lý các món ăn, thức uống, giá bán và công thức chế
                 biến.</p>
         </div>
-        <button onclick="document.getElementById('addModal').classList.remove('hidden')"
+        <button onclick="openUniversalModal('ADD')"
                 class="w-full md:w-auto justify-center flex items-center gap-2 bg-[#553722] hover:bg-[#6f4e37] text-white px-5 py-2.5 rounded-xl text-sm font-semibold uppercase tracking-wider transition-all duration-200 shadow-md">
             <i data-lucide="plus-circle" class="w-4 h-4"></i> Thêm món mới
         </button>
@@ -50,26 +50,33 @@
 
     <div class="bg-white rounded-2xl shadow-sm border border-[#e2e3e1]/40 overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse table-fixed min-w-[1024px]">
+            <table class="w-full text-left border-collapse table-auto">
                 <thead>
                 <tr class="bg-[#f4f4f2] text-[#50453e] text-[10px] uppercase tracking-wider font-bold border-b border-[#e2e3e1]/60">
-                    <th class="px-4 py-4 text-center w-12 whitespace-nowrap">#</th>
-                    <th class="px-4 py-4 w-72">Tên món</th>
-                    <th class="px-4 py-4 text-center w-48 whitespace-nowrap">Loại món</th>
-                    <th class="px-4 py-4 text-right w-40 whitespace-nowrap">Giá bán</th>
-                    <th class="px-4 py-4 text-center w-36 whitespace-nowrap">Thao tác</th>
+                    <th class="px-2 md:px-4 py-4 text-center w-8 md:w-12 whitespace-nowrap">#</th>
+                    <th class="px-2 md:px-4 py-4 w-auto">Tên món</th>
+                    <th class="px-2 md:px-4 py-4 text-center w-28 md:w-40 whitespace-nowrap">Loại món</th>
+                    <th class="px-2 md:px-4 py-4 text-right w-28 md:w-40 whitespace-nowrap">Giá bán</th>
+                    <th class="px-2 md:px-4 py-4 text-center w-20 md:w-28 whitespace-nowrap">Thao tác</th>
                 </tr>
                 </thead>
                 <tbody class="text-sm text-[#1a1c1b] divide-y divide-[#e2e3e1]/40">
+                <tr th:if="${#lists.isEmpty(menuItems)}">
+                    <td colspan="5" class="p-8 text-center text-[#50453e] opacity-70">
+                        <i data-lucide="inbox" class="w-10 h-10 mx-auto mb-3 opacity-50"></i>
+                        <p>Thực đơn hiện đang trống hoặc không tìm thấy món.</p>
+                    </td>
+                </tr>
+
                 <th:block th:each="mon, iterStat : ${menuItems}">
-                    <tr class="hover:bg-[#f9f9f7]/50 transition-colors group align-top cursor-pointer"
+                    <tr class="hover:bg-[#f9f9f7]/50 transition-colors group align-middle cursor-pointer"
                         th:onclick="'toggleIngredientRow(' + ${mon.maThucDon} + ')'">
-                        <td class="px-4 py-4 text-center text-xs text-gray-400 font-medium whitespace-nowrap"
+                        <td class="px-2 md:px-4 py-4 text-center text-xs text-gray-400 font-medium whitespace-nowrap"
                             th:text="${(currentPage - 1) * 10 + iterStat.count}">1
                         </td>
-                        <td class="px-4 py-4">
-                            <div class="flex items-center gap-3 max-w-full">
-                                <div class="w-10 h-10 rounded-xl bg-[#f3e2ac]/40 text-[#6a5e33] flex items-center justify-center shrink-0 border border-[#e2e3e1]/60">
+                        <td class="px-2 md:px-4 py-4">
+                            <div class="flex items-center gap-2 md:gap-3 max-w-full">
+                                <div class="hidden md:flex w-10 h-10 rounded-xl bg-[#f3e2ac]/40 text-[#6a5e33] items-center justify-center shrink-0 border border-[#e2e3e1]/60">
                                     <i data-lucide="coffee" class="w-5 h-5"></i>
                                 </div>
                                 <div class="min-w-0 flex-1">
@@ -79,29 +86,27 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="px-4 py-4 text-center">
-                            <span class="inline-block max-w-[160px] px-2.5 py-1 text-[10px] uppercase tracking-wider font-bold rounded-md border whitespace-normal break-words leading-relaxed mx-auto bg-amber-100 text-amber-700 border-amber-200"
+                        <td class="px-2 md:px-4 py-4 text-center">
+                            <span class="inline-block px-2.5 py-1 text-[9px] md:text-[10px] uppercase tracking-wider font-bold rounded-md border whitespace-normal break-words leading-relaxed mx-auto bg-amber-100 text-amber-700 border-amber-200"
                                   th:text="${mon.loaiMon != null ? mon.loaiMon : 'Khác'}">Loại món</span>
                         </td>
-                        <td class="px-4 py-4 text-right font-bold text-amber-600 whitespace-nowrap"
+                        <td class="px-2 md:px-4 py-4 text-right font-bold text-amber-600 whitespace-nowrap text-xs md:text-sm"
                             th:text="${#numbers.formatDecimal(mon.giaTienHienTai, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0
                             VNĐ
                         </td>
-                        <td class="px-4 py-4 whitespace-nowrap" onclick="event.stopPropagation()">
-                            <div class="flex items-start justify-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-                                <button type="button" th:data-id="${mon.maThucDon}" th:data-name="${mon.tenMon}"
-                                        th:data-price="${#numbers.formatInteger(mon.giaTienHienTai, 0)}"
-                                        th:data-category="${mon.loaiMon}"
-                                        onclick="openEditModal(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-price'), this.getAttribute('data-category'))"
+                        <td class="px-2 md:px-4 py-4 whitespace-nowrap" onclick="event.stopPropagation()">
+                            <div class="flex items-center justify-center gap-1">
+                                <button type="button"
+                                        th:onclick="openUniversalModal('EDIT', [[${mon.maThucDon}]], [[${mon.tenMon}]], [[${#numbers.formatInteger(mon.giaTienHienTai, 0)}]], [[${mon.loaiMon}]])"
                                         class="p-1.5 text-[#553722] hover:bg-[#ffdcc6]/50 rounded-lg transition-colors"
                                         title="Sửa hồ sơ">
-                                    <i data-lucide="pen-line" class="w-4 h-4"></i>
+                                    <i data-lucide="pen-line" class="w-4 h-4 md:w-5 md:h-5"></i>
                                 </button>
-                                <button type="button" th:data-id="${mon.maThucDon}" th:data-name="${mon.tenMon}"
-                                        onclick="openDeleteModal(this.getAttribute('data-id'), this.getAttribute('data-name'))"
+                                <button type="button"
+                                        th:onclick="openDeleteModal([[${mon.maThucDon}]], [[${mon.tenMon}]])"
                                         class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-100 rounded-lg transition-colors"
                                         title="Xóa hồ sơ">
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    <i data-lucide="trash-2" class="w-4 h-4 md:w-5 md:h-5"></i>
                                 </button>
                             </div>
                         </td>
@@ -109,10 +114,10 @@
 
                     <tr th:id="'ingredient-view-' + ${mon.maThucDon}"
                         class="hidden bg-[#f4f4f2] border-t-0 shadow-inner">
-                        <td colspan="5" class="px-6 py-4">
+                        <td colspan="5" class="px-4 md:px-6 py-3 md:py-4">
                             <div class="text-xs text-[#50453e] font-medium"
                                  th:id="'ingredient-content-' + ${mon.maThucDon}">
-                                <span class="italic opacity-60">Đang tải nguyên liệu...</span>
+                                <span class="italic opacity-60">Đang tải công thức...</span>
                             </div>
                         </td>
                     </tr>
@@ -123,82 +128,92 @@
     </div>
 
     <template id="ingredientRowTemplate">
-        <div class="flex items-center gap-3 ingredient-row bg-white p-3 rounded-xl border border-[#e2e3e1] shadow-sm transition-all hover:shadow-md">
+        <div class="flex items-center gap-2 md:gap-3 ingredient-row bg-white p-2 md:p-3 mb-3 rounded-xl border border-[#e2e3e1] shadow-sm transition-all hover:shadow-md relative">
+
             <div class="custom-combobox relative flex-1 group">
-                <input type="hidden" class="ingredient-hidden-id" required>
+                <input type="hidden" class="ingredient-hidden-id">
                 <div class="relative group/input">
                     <input type="text"
-                           class="ingredient-search w-full bg-[#f9f9f7] border border-[#e2e3e1] rounded-lg pl-4 pr-10 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:bg-white focus:border-[#553722] focus:ring-4 focus:ring-[#553722]/10 transition-all placeholder:text-[#50453e]/60 font-medium"
-                           placeholder="Gõ để tìm hoặc chọn nguyên liệu..."
-                           oninput="filterCombobox(this)"
+                           class="ingredient-search w-full bg-[#f9f9f7] border border-[#e2e3e1] rounded-lg pl-3 pr-8 py-2 md:py-2.5 text-xs md:text-sm text-[#1a1c1b] focus:outline-none focus:bg-white focus:border-[#553722] focus:ring-2 focus:ring-[#553722]/20 transition-all placeholder:text-[#50453e]/60 font-medium"
+                           placeholder="Gõ tìm nguyên liệu..."
+                           oninput="handleInputCombobox(this)"
                            onfocus="openCombobox(this)"
                            onblur="closeCombobox(this)" autocomplete="off">
-                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-[#50453e] opacity-50 group-focus-within/input:opacity-100 group-focus-within/input:text-[#553722] transition-colors">
-                        <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-2.5 pointer-events-none text-[#50453e] opacity-50 group-focus-within/input:opacity-100 group-focus-within/input:text-[#553722] transition-colors">
+                        <i data-lucide="search" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
                     </div>
                 </div>
 
-                <ul class="combobox-list hidden absolute z-50 w-full bg-white border border-[#e2e3e1] rounded-xl mt-1.5 max-h-56 overflow-y-auto shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] py-1.5 custom-scrollbar">
-
-                    <li class="no-match-msg hidden px-4 py-2.5 text-[11px] uppercase tracking-wider text-rose-500 bg-rose-50/50 font-bold items-center gap-1.5 border-b border-rose-100/50 mb-1">
-                        <i data-lucide="info" class="w-3.5 h-3.5"></i>
-                        Không có kết quả, vui lòng chọn bên dưới:
+                <ul class="combobox-list hidden absolute z-50 w-full bg-white border border-[#e2e3e1] rounded-xl mt-1 max-h-48 overflow-y-auto shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] py-1 custom-scrollbar">
+                    <li class="no-match-msg hidden px-3 py-2 text-[10px] uppercase tracking-wider text-rose-500 bg-rose-50/50 font-bold items-center gap-1 border-b border-rose-100/50 mb-1">
+                        <i data-lucide="info" class="w-3 h-3"></i> Không tìm thấy
                     </li>
 
                     <th:block th:if="${listHangHoa != null}">
                         <li th:each="hh : ${listHangHoa}"
                             th:data-id="${hh.maHangHoa}"
                             th:data-name="${hh.tenHangHoa}"
+                            th:data-unit="${hh.donViSuDung != null ? hh.donViSuDung.tenDonVi : (hh.donViTinh != null ? hh.donViTinh.tenDonVi : '-')}"
                             onmousedown="selectComboboxOption(this)"
-                            class="combobox-item px-4 py-2.5 text-sm cursor-pointer hover:bg-[#ffdcc6]/60 hover:text-[#553722] text-[#1a1c1b] transition-colors flex items-center justify-between group/item">
-                            <span class="font-bold" th:text="${hh.tenHangHoa}"></span>
-                            <span class="text-[10px] uppercase font-bold text-[#50453e] opacity-60 group-hover/item:opacity-100 bg-[#f4f4f2] group-hover/item:bg-white group-hover/item:text-[#553722] px-2 py-0.5 rounded-md border border-[#e2e3e1]/50 transition-all"
-                                  th:text="${hh.donViTinh != null ? hh.donViTinh.tenDonVi : 'Chưa rõ'}"></span>
+                            class="combobox-item px-3 py-2 text-xs md:text-sm cursor-pointer hover:bg-[#ffdcc6]/60 hover:text-[#553722] text-[#1a1c1b] transition-colors flex items-center justify-between group/item font-bold">
+                            <span class="truncate" th:text="${hh.tenHangHoa}"></span>
+                            <span class="text-[9px] md:text-[10px] uppercase font-bold text-[#50453e] opacity-60 group-hover/item:opacity-100 bg-[#f4f4f2] group-hover/item:bg-white group-hover/item:text-[#553722] px-1.5 py-0.5 rounded border border-[#e2e3e1]/50 transition-all shrink-0 ml-2"
+                                  th:text="${hh.donViSuDung != null ? hh.donViSuDung.tenDonVi : (hh.donViTinh != null ? hh.donViTinh.tenDonVi : '-')}"></span>
                         </li>
                     </th:block>
                 </ul>
             </div>
 
-            <div class="relative w-32 shrink-0">
-                <input type="number" step="0.01" min="0.01"
-                       class="ingredient-qty w-full bg-[#f9f9f7] border border-[#e2e3e1] rounded-lg px-4 py-2.5 text-sm font-bold text-[#1a1c1b] focus:outline-none focus:bg-white focus:border-[#553722] focus:ring-4 focus:ring-[#553722]/10 transition-all text-center"
-                       placeholder="Khối lượng" required>
+            <div class="relative flex items-center w-36 md:w-48 shrink-0">
+                <input type="text" inputmode="decimal"
+                       class="ingredient-qty w-full bg-[#f9f9f7] border border-[#e2e3e1] rounded-l-lg px-2 py-2 md:py-2.5 text-xs md:text-sm font-bold text-[#1a1c1b] focus:outline-none focus:bg-white focus:border-[#553722] focus:ring-2 focus:ring-[#553722]/20 transition-all text-center"
+                       placeholder="SL" oninput="formatQuantity(this)">
+                <span class="ingredient-unit bg-[#e2e3e1]/50 border border-l-0 border-[#e2e3e1] rounded-r-lg px-2 text-[10px] md:text-xs font-bold text-[#50453e] uppercase flex items-center justify-center min-w-[32px] md:min-w-[40px] h-[34px] md:h-[42px] pointer-events-none">-</span>
             </div>
 
             <button type="button"
                     onclick="let container = this.closest('.space-y-2').id; this.closest('.ingredient-row').remove(); updateIngredientNames(container)"
-                    class="p-2.5 text-rose-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-100 rounded-lg transition-all shrink-0"
+                    class="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-100 rounded-lg transition-all shrink-0"
                     title="Xóa dòng">
                 <i data-lucide="trash-2" class="w-4 h-4"></i>
             </button>
         </div>
     </template>
 
-    <div id="addModal"
+    <div id="universalModal"
          class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm transition-opacity p-4">
-        <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-[#e2e3e1]">
+        <div class="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-[#e2e3e1]">
             <div class="px-5 py-4 border-b border-[#e2e3e1]/60 flex justify-between items-center bg-[#f9f9f7] shrink-0">
-                <h3 class="text-base md:text-lg font-bold text-[#1a1c1b]">Thêm món mới</h3>
-                <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')"
+                <h3 id="univ_title" class="text-base md:text-lg font-bold text-[#1a1c1b] flex items-center gap-2">
+                    <i data-lucide="plus-circle" class="w-5 h-5"></i> Thêm món mới
+                </h3>
+                <button type="button" onclick="document.getElementById('universalModal').classList.add('hidden')"
                         class="text-[#50453e] hover:text-rose-600 transition-colors"><i data-lucide="x"
                                                                                         class="w-5 h-5"></i></button>
             </div>
-            <form th:action="@{/menu/add}" th:object="${addForm}" method="POST"
+
+            <form id="universalForm" method="POST" th:action="@{#}"
+                  th:data-action-add="@{/menu/add(keyword=${keyword}, category=${currentCategory}, page=${currentPage})}"
+                  th:data-action-edit="@{/menu/edit(keyword=${keyword}, category=${currentCategory}, page=${currentPage})}"
                   class="p-5 overflow-y-auto custom-validate-form" novalidate>
+
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <input type="hidden" name="maThucDon" id="univ_maThucDon">
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Tên món
                             <span class="text-rose-500">*</span></label>
-                        <input type="text" th:field="*{tenMon}" required maxlength="100"
-                               class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] focus:ring-4 focus:ring-[#553722]/10 transition-all">
+                        <input type="text" name="tenMon" id="univ_tenMon" required maxlength="100"
+                               class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] focus:ring-2 focus:ring-[#553722]/20 transition-all">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Giá bán
                             (VNĐ) <span class="text-rose-500">*</span></label>
-                        <input type="text" id="add_giaTien_display" required
-                               oninput="formatCurrency(this, 'add_giaTienHienTai')"
-                               class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] focus:ring-4 focus:ring-[#553722]/10 transition-all">
-                        <input type="hidden" th:field="*{giaTienHienTai}" id="add_giaTienHienTai">
+                        <input type="text" id="univ_giaTien_display" required
+                               oninput="formatCurrency(this, 'univ_giaTienHienTai')"
+                               class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm font-bold text-amber-600 focus:outline-none focus:border-[#553722] focus:ring-2 focus:ring-[#553722]/20 transition-all">
+                        <input type="hidden" name="giaTienHienTai" id="univ_giaTienHienTai" value="0">
                     </div>
                 </div>
 
@@ -206,8 +221,8 @@
                     <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase tracking-wider">Loại món <span
                             class="text-rose-500">*</span></label>
                     <div class="relative">
-                        <select name="loaiMon" id="add_loaiMon_select" required onchange="toggleLoaiMonKhac('add')"
-                                class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl pl-4 pr-10 py-2.5 text-sm text-[#1a1c1b] appearance-none focus:outline-none focus:border-[#553722] focus:ring-4 focus:ring-[#553722]/10 transition-all">
+                        <select id="univ_loaiMon_select" name="loaiMon" required onchange="toggleLoaiMonKhac()"
+                                class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl pl-4 pr-10 py-2.5 text-sm text-[#1a1c1b] appearance-none focus:outline-none focus:border-[#553722] focus:ring-2 focus:ring-[#553722]/20 transition-all">
                             <option value="" disabled selected>-- Chọn loại món --</option>
                             <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}"></option>
                             <option value="Khác" class="font-bold text-[#553722] bg-[#ffdcc6]">➕ Khác (Thêm loại
@@ -218,98 +233,30 @@
                             <i data-lucide="chevron-down" class="w-4 h-4"></i>
                         </div>
                     </div>
-                    <input type="text" id="add_loaiMon_khac" placeholder="Nhập tên loại món mới..."
-                           class="hidden mt-2 w-full bg-[#f9f9f7] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] focus:ring-4 focus:ring-[#553722]/10 transition-all shadow-inner">
+                    <input type="text" id="univ_loaiMon_khac" placeholder="Nhập tên loại món mới..."
+                           class="hidden mt-2 w-full bg-[#f9f9f7] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] focus:ring-2 focus:ring-[#553722]/20 transition-all shadow-inner">
                 </div>
 
                 <div class="pt-4 border-t border-[#e2e3e1]/60 mt-4">
                     <div class="flex justify-between items-center mb-3">
                         <label class="block text-xs font-bold text-[#50453e] uppercase tracking-wider">Thành phần (Công
                             thức)</label>
-                        <button type="button" onclick="addIngredientRow('add_ingredients_container')"
-                                class="text-xs font-bold text-[#553722] bg-[#ffdcc6] px-3 py-1.5 rounded-lg flex items-center gap-1">
+                        <button type="button" onclick="addIngredientRow('univ_ingredients_container')"
+                                class="text-xs font-bold text-[#553722] bg-[#ffdcc6] px-3 py-1.5 rounded-lg flex items-center gap-1 hover:bg-[#ffcda8] transition-colors">
                             <i data-lucide="plus" class="w-3 h-3"></i> Thêm nguyên liệu
                         </button>
                     </div>
-                    <div id="add_ingredients_container" class="space-y-2"></div>
+                    <div id="univ_ingredients_container" class="space-y-2"></div>
                 </div>
 
                 <div class="mt-6 pt-4 flex justify-end gap-3 border-t border-[#e2e3e1]/60">
-                    <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')"
-                            class="px-5 py-2.5 rounded-xl text-sm font-bold bg-gray-100">Hủy
+                    <button type="button" onclick="document.getElementById('universalModal').classList.add('hidden')"
+                            class="px-5 py-2.5 rounded-xl text-sm font-bold bg-gray-100 hover:bg-gray-200 transition-colors">
+                        Hủy
                     </button>
-                    <button type="submit" class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-[#553722]">Lưu
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="editModal"
-         class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm transition-opacity p-4">
-        <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-[#e2e3e1]">
-            <div class="px-5 py-4 border-b border-[#e2e3e1]/60 flex justify-between items-center bg-[#f9f9f7] shrink-0">
-                <h3 class="text-base md:text-lg font-bold text-[#1a1c1b]">Cập nhật món</h3>
-                <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')"
-                        class="text-[#50453e] hover:text-rose-600 transition-colors"><i data-lucide="x"
-                                                                                        class="w-5 h-5"></i></button>
-            </div>
-            <form th:action="@{/menu/edit}" th:object="${editForm}" method="POST"
-                  class="p-5 overflow-y-auto custom-validate-form" novalidate>
-                <input type="hidden" th:field="*{maThucDon}" id="edit_maThucDon">
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold mb-1.5 uppercase tracking-wider">Tên món</label>
-                        <input type="text" th:field="*{tenMon}" id="edit_tenMon" required
-                               class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] focus:ring-4 focus:ring-[#553722]/10 transition-all">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold mb-1.5 uppercase tracking-wider">Giá bán</label>
-                        <input type="text" id="edit_giaTien_display" required
-                               oninput="formatCurrency(this, 'edit_giaTienHienTai')"
-                               class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] focus:ring-4 focus:ring-[#553722]/10 transition-all">
-                        <input type="hidden" th:field="*{giaTienHienTai}" id="edit_giaTienHienTai">
-                    </div>
-                </div>
-
-                <div class="mt-4">
-                    <label class="block text-xs font-bold mb-1.5 uppercase tracking-wider">Loại món</label>
-                    <div class="relative">
-                        <select name="loaiMon" id="edit_loaiMon_select" required onchange="toggleLoaiMonKhac('edit')"
-                                class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl pl-4 pr-10 py-2.5 text-sm text-[#1a1c1b] appearance-none focus:outline-none focus:border-[#553722] focus:ring-4 focus:ring-[#553722]/10 transition-all">
-                            <option value="" disabled>-- Chọn loại món --</option>
-                            <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat}"></option>
-                            <option value="Khác" class="font-bold text-[#553722] bg-[#ffdcc6]">➕ Khác (Thêm loại
-                                mới...)
-                            </option>
-                        </select>
-                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-[#50453e] opacity-50">
-                            <i data-lucide="chevron-down" class="w-4 h-4"></i>
-                        </div>
-                    </div>
-                    <input type="text" id="edit_loaiMon_khac" placeholder="Nhập tên loại món mới..."
-                           class="hidden mt-2 w-full bg-[#f9f9f7] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm text-[#1a1c1b] focus:outline-none focus:border-[#553722] focus:ring-4 focus:ring-[#553722]/10 transition-all shadow-inner">
-                </div>
-
-                <div class="pt-4 border-t border-[#e2e3e1]/60 mt-4">
-                    <div class="flex justify-between items-center mb-3">
-                        <label class="block text-xs font-bold text-[#50453e] uppercase tracking-wider">Thành phần (Công
-                            thức)</label>
-                        <button type="button" onclick="addIngredientRow('edit_ingredients_container')"
-                                class="text-xs font-bold text-[#553722] bg-[#ffdcc6] px-3 py-1.5 rounded-lg flex items-center gap-1">
-                            <i data-lucide="plus" class="w-3 h-3"></i> Thêm nguyên liệu
-                        </button>
-                    </div>
-                    <div id="edit_ingredients_container" class="space-y-2">
-                    </div>
-                </div>
-
-                <div class="mt-6 pt-4 flex justify-end gap-3 border-t border-[#e2e3e1]/60">
-                    <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')"
-                            class="px-5 py-2.5 rounded-xl text-sm font-bold bg-gray-100">Hủy
-                    </button>
-                    <button type="submit" class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-[#553722]">Lưu
+                    <button type="submit" id="univ_btn_submit"
+                            class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-[#553722] shadow-md flex items-center gap-2">
+                        <i data-lucide="check" class="w-4 h-4"></i> <span id="univ_btn_text">Lưu</span>
                     </button>
                 </div>
             </form>
@@ -319,20 +266,449 @@
     <div id="deleteModal"
          class="hidden fixed inset-0 z-50 flex items-center justify-center bg-[#1a1c1b]/50 backdrop-blur-sm transition-opacity p-4">
         <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden p-6 text-center">
-            <h3 class="font-bold text-lg mb-2">Xác nhận gỡ món</h3>
-            <p class="text-sm mb-4">Bạn có chắc chắn muốn xóa <strong id="delete_monName"
-                                                                      class="text-rose-600"></strong>?</p>
-            <form th:action="@{/menu/delete}" method="POST" class="flex justify-center gap-3">
+            <div class="w-14 h-14 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="alert-triangle" class="w-7 h-7"></i>
+            </div>
+            <h3 class="font-bold text-[#1a1c1b] text-lg mb-2">Xác nhận gỡ món</h3>
+            <p class="text-sm text-[#50453e] mb-6">Bạn có chắc chắn muốn xóa <strong id="delete_monName"
+                                                                                     class="text-rose-600"></strong>?
+            </p>
+            <form th:action="@{/menu/delete(keyword=${keyword}, category=${currentCategory}, page=${currentPage})}"
+                  method="POST" class="flex justify-center gap-3">
                 <input type="hidden" name="maThucDon" id="delete_maThucDon">
                 <button type="button" onclick="document.getElementById('deleteModal').classList.add('hidden')"
-                        class="px-4 py-2 bg-gray-100 rounded-lg">Hủy
+                        class="px-4 py-2 bg-gray-100 text-[#50453e] font-bold rounded-lg flex-1">Hủy
                 </button>
-                <button type="submit" class="px-4 py-2 bg-rose-600 text-white rounded-lg">Đồng ý</button>
+                <button type="submit" class="px-4 py-2 bg-rose-600 text-white font-bold rounded-lg shadow-md flex-1">Xóa
+                    món
+                </button>
             </form>
         </div>
     </div>
 
-    <script th:src="@{/js/menu.js}"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+
+        function formatCurrency(inputElement, hiddenInputId) {
+            let value = inputElement.value.replace(/\D/g, '');
+            if (value === '') {
+                inputElement.value = '';
+                document.getElementById(hiddenInputId).value = '0';
+                return;
+            }
+            inputElement.value = parseInt(value, 10).toLocaleString('en-US');
+            document.getElementById(hiddenInputId).value = value;
+        }
+
+        function formatQuantity(input) {
+            let val = input.value;
+            val = val.replace(/,/g, '.');
+            val = val.replace(/[^0-9.]/g, '');
+            const parts = val.split('.');
+            if (parts.length > 2) {
+                val = parts[0] + '.' + parts.slice(1).join('');
+            }
+            input.value = val;
+        }
+
+        function toggleLoaiMonKhac() {
+            const selectEl = document.getElementById('univ_loaiMon_select');
+            const inputEl = document.getElementById('univ_loaiMon_khac');
+
+            if (selectEl.value === 'Khác') {
+                inputEl.classList.remove('hidden');
+                inputEl.required = true;
+                inputEl.name = 'loaiMon';
+                selectEl.removeAttribute('name');
+            } else {
+                inputEl.classList.add('hidden');
+                inputEl.required = false;
+                inputEl.value = '';
+                selectEl.name = 'loaiMon';
+                inputEl.removeAttribute('name');
+            }
+        }
+
+        function toggleIngredientRow(maThucDon) {
+            const row = document.getElementById('ingredient-view-' + maThucDon);
+            const contentDiv = document.getElementById('ingredient-content-' + maThucDon);
+
+            if (row.classList.contains('hidden')) {
+                row.classList.remove('hidden');
+                if (contentDiv.innerHTML.includes('Đang tải')) {
+                    fetch('/api/menu/ingredients/' + maThucDon)
+                        .then(res => res.json())
+                        .then(data => {
+                        if (data.length === 0) {
+                            contentDiv.innerHTML = '<span class="text-rose-500 italic">Món này chưa thiết lập công thức nguyên liệu.</span>';
+                        } else {
+                            let html = '<ul class="list-disc list-inside space-y-1 mt-1">';
+                            data.forEach(item => {
+                                html += `<li><b>${item.tenHangHoa}</b>: ${item.khoiLuong} <span class="text-[10px] uppercase font-bold bg-[#e2e3e1]/50 px-1 rounded">${item.donViTinh || '-'}</span></li>`;
+                            });
+                            html += '</ul>';
+                            contentDiv.innerHTML = html;
+                        }
+                    })
+                        .catch(error => {
+                        console.error('Lỗi khi tải công thức:', error);
+                        contentDiv.innerHTML = '<span class="text-rose-500 italic">Lỗi khi tải dữ liệu nguyên liệu.</span>';
+                    });
+                }
+            } else {
+                row.classList.add('hidden');
+            }
+        }
+
+        function handleInputCombobox(input) {
+            const combobox = input.closest('.custom-combobox');
+            const hiddenId = combobox.querySelector('.ingredient-hidden-id');
+            const unitSpan = input.closest('.ingredient-row').querySelector('.ingredient-unit');
+
+            hiddenId.value = '';
+            unitSpan.innerText = '-';
+
+            filterCombobox(input);
+        }
+
+        function filterCombobox(input) {
+            const filter = input.value.toLowerCase().trim();
+            const combobox = input.closest('.custom-combobox');
+            const list = combobox.querySelector('.combobox-list');
+            const items = list.querySelectorAll('.combobox-item');
+            const noMatchMsg = list.querySelector('.no-match-msg');
+
+            let hasMatch = false;
+
+            items.forEach(li => {
+                const name = li.getAttribute('data-name').toLowerCase();
+                if (name.includes(filter)) {
+                    li.style.display = '';
+                    hasMatch = true;
+                } else {
+                    li.style.display = 'none';
+                }
+            });
+
+            if (!hasMatch && filter !== '') {
+                noMatchMsg.classList.remove('hidden');
+                noMatchMsg.style.display = 'flex';
+                items.forEach(li => li.style.display = 'none');
+            } else {
+                noMatchMsg.classList.add('hidden');
+                noMatchMsg.style.display = 'none';
+            }
+        }
+
+        function openCombobox(input) {
+            const list = input.closest('.custom-combobox').querySelector('.combobox-list');
+            list.classList.remove('hidden');
+            filterCombobox(input);
+        }
+
+        function closeCombobox(input) {
+            setTimeout(() => {
+                const list = input.closest('.custom-combobox').querySelector('.combobox-list');
+                if (list) list.classList.add('hidden');
+            }, 200);
+        }
+
+        function selectComboboxOption(li) {
+            const combobox = li.closest('.custom-combobox');
+            const searchInput = combobox.querySelector('.ingredient-search');
+            const hiddenId = combobox.querySelector('.ingredient-hidden-id');
+            const unitSpan = li.closest('.ingredient-row').querySelector('.ingredient-unit');
+
+            searchInput.value = li.getAttribute('data-name');
+            hiddenId.value = li.getAttribute('data-id');
+            unitSpan.innerText = li.getAttribute('data-unit') || '-';
+
+            combobox.querySelector('.combobox-list').classList.add('hidden');
+
+            searchInput.classList.remove('border-rose-500', 'bg-rose-50');
+            let form = combobox.closest('form');
+            if (form) {
+                form.querySelectorAll('.error-msg').forEach(msg => msg.remove());
+                form.querySelectorAll('.ingredient-row').forEach(r => r.style.paddingBottom = '');
+            }
+        }
+
+        function addIngredientRow(containerId, maHangHoa = '', tenHangHoa = '', khoiLuong = '', donVi = '') {
+            const container = document.getElementById(containerId);
+            const template = document.getElementById('ingredientRowTemplate');
+            const clone = template.content.cloneNode(true);
+
+            if (maHangHoa !== '') {
+                clone.querySelector('.ingredient-hidden-id').value = maHangHoa;
+                clone.querySelector('.ingredient-search').value = tenHangHoa;
+                clone.querySelector('.ingredient-qty').value = khoiLuong;
+                if (donVi !== '') {
+                    clone.querySelector('.ingredient-unit').innerText = donVi;
+                }
+            }
+
+            container.appendChild(clone);
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            updateIngredientNames(containerId);
+        }
+
+        function updateIngredientNames(containerId) {
+            const container = document.getElementById(containerId);
+            const rows = container.querySelectorAll('.ingredient-row');
+
+            rows.forEach((row, index) => {
+                const hiddenId = row.querySelector('.ingredient-hidden-id');
+                const qtyInput = row.querySelector('.ingredient-qty');
+                hiddenId.name = `ingredients[${index}].maHangHoa`;
+                qtyInput.name = `ingredients[${index}].khoiLuong`;
+            });
+        }
+
+        function openUniversalModal(action, id, name, price, category) {
+            const form = document.getElementById('universalForm');
+            const modal = document.getElementById('universalModal');
+            const title = document.getElementById('univ_title');
+            const btnText = document.getElementById('univ_btn_text');
+
+            const fId = document.getElementById('univ_maThucDon');
+            const fName = document.getElementById('univ_tenMon');
+            const fPriceDisp = document.getElementById('univ_giaTien_display');
+            const fPriceReal = document.getElementById('univ_giaTienHienTai');
+            const fCatSel = document.getElementById('univ_loaiMon_select');
+            const fCatKhac = document.getElementById('univ_loaiMon_khac');
+            const container = document.getElementById('univ_ingredients_container');
+
+            form.querySelectorAll('.error-msg').forEach(e => e.remove());
+            form.querySelectorAll('.border-rose-500').forEach(e => {
+                e.classList.remove('border-rose-500', 'bg-rose-50');
+                e.classList.add('border-[#e2e3e1]');
+            });
+
+            if (action === 'ADD') {
+                title.innerHTML = '<i data-lucide="plus-circle" class="w-5 h-5 text-[#553722]"></i> Thêm món mới';
+                btnText.innerText = 'Lưu món mới';
+                form.action = form.getAttribute('data-action-add');
+
+                fId.value = '';
+                fId.disabled = true;
+
+                fName.value = '';
+                fPriceDisp.value = '';
+                fPriceReal.value = '0';
+                fCatSel.value = '';
+                toggleLoaiMonKhac();
+                container.innerHTML = '';
+
+                addIngredientRow('univ_ingredients_container');
+
+            } else if (action === 'EDIT') {
+                title.innerHTML = '<i data-lucide="pen-line" class="w-5 h-5 text-[#553722]"></i> Cập nhật món';
+                btnText.innerText = 'Lưu thay đổi';
+                form.action = form.getAttribute('data-action-edit');
+
+                fId.value = id;
+                fId.disabled = false;
+
+                fName.value = name;
+                fPriceDisp.value = price;
+                formatCurrency(fPriceDisp, 'univ_giaTienHienTai');
+
+                fCatSel.name = 'loaiMon';
+                fCatKhac.removeAttribute('name');
+                fCatKhac.classList.add('hidden');
+                fCatKhac.value = '';
+
+                if (category && category !== 'null') {
+                    let optionExists = Array.from(fCatSel.options).some(opt => opt.value === category);
+                    if (optionExists && category !== 'Khác') {
+                        fCatSel.value = category;
+                        toggleLoaiMonKhac();
+                    } else {
+                        fCatSel.value = 'Khác';
+                        toggleLoaiMonKhac();
+                        fCatKhac.value = category === 'Khác' ? '' : category;
+                    }
+                } else {
+                    fCatSel.value = '';
+                    toggleLoaiMonKhac();
+                }
+
+                container.innerHTML = '<span class="text-xs italic text-gray-500 flex items-center gap-1"><i data-lucide="loader-2" class="w-3 h-3 animate-spin"></i> Đang tải công thức...</span>';
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+
+                fetch('/api/menu/ingredients/' + id)
+                    .then(res => res.json())
+                    .then(data => {
+                    container.innerHTML = '';
+                    if(data.length === 0) {
+                        addIngredientRow('univ_ingredients_container');
+                    } else {
+                        data.forEach(item => {
+                            addIngredientRow('univ_ingredients_container', item.maHangHoa, item.tenHangHoa, item.khoiLuong, item.donViTinh || '-');
+                        });
+                    }
+                })
+                    .catch(error => {
+                    console.error('Lỗi API Công thức:', error);
+                    container.innerHTML = '<span class="text-rose-500 text-[11px] font-bold italic">Không thể tải cấu hình nguyên liệu, vui lòng F5.</span>';
+                });
+            }
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            modal.classList.remove('hidden');
+        }
+
+        function openDeleteModal(id, name) {
+            document.getElementById('delete_maThucDon').value = id;
+            document.getElementById('delete_monName').textContent = name;
+            document.getElementById('deleteModal').classList.remove('hidden');
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const forms = document.querySelectorAll('.custom-validate-form');
+
+            forms.forEach(function (form) {
+                form.addEventListener('submit', function (e) {
+                    let isValid = true;
+
+                    // Quét và xóa thông báo lỗi cũ
+                    form.querySelectorAll('.error-msg').forEach(msg => msg.remove());
+                    form.querySelectorAll('.ingredient-row').forEach(row => {
+                        row.style.paddingBottom = '';
+                    });
+
+                    // 1. KIỂM TRA CÁC TRƯỜNG CƠ BẢN (Tên món, Giá bán, Loại món)
+                    const basicInputs = form.querySelectorAll('input[required]:not([disabled]), select[required]:not([disabled])');
+                    basicInputs.forEach(function (input) {
+                        input.classList.remove('border-rose-500', 'bg-rose-50');
+                        let val = input.value ? input.value.trim() : '';
+
+                        if (!val) {
+                            isValid = false;
+                            input.classList.remove('border-[#e2e3e1]', 'focus:border-[#553722]');
+                            input.classList.add('border-rose-500', 'bg-rose-50');
+                            showError(input, 'Trường này không được bỏ trống.');
+                        }
+                    });
+
+                    // 2. KIỂM TRA CHÉO LOGIC NGUYÊN LIỆU (Chỉ bắt lỗi nếu điền 1 bỏ 1)
+                    const ingredientRows = form.querySelectorAll('.ingredient-row');
+                    ingredientRows.forEach(function (row) {
+                        const hiddenIdInput = row.querySelector('.ingredient-hidden-id');
+                        const searchInput = row.querySelector('.ingredient-search');
+                        const qtyInput = row.querySelector('.ingredient-qty');
+
+                        // Reset viền
+                        searchInput.classList.remove('border-rose-500', 'bg-rose-50');
+                        qtyInput.classList.remove('border-rose-500', 'bg-rose-50');
+
+                        let idVal = hiddenIdInput.value ? hiddenIdInput.value.trim() : '';
+                        let qtyVal = qtyInput.value ? qtyInput.value.trim() : '';
+                        let searchVal = searchInput.value ? searchInput.value.trim() : '';
+
+                        // Tình huống 1: Bỏ trống hoàn toàn cả ID, Text tìm kiếm và Số lượng -> HỢP LỆ (Bỏ qua)
+                        if (!idVal && !searchVal && !qtyVal) {
+                            // Do nothing, hợp lệ
+                        }
+                        // Tình huống 2: Đã nhập tên nhưng chưa chọn từ danh sách -> LỖI
+                        else if (!idVal && searchVal !== '') {
+                            isValid = false;
+                            searchInput.classList.remove('border-[#e2e3e1]');
+                            searchInput.classList.add('border-rose-500', 'bg-rose-50');
+                            showError(searchInput, 'Vui lòng chọn từ danh sách.');
+                        }
+                        // Tình huống 3: CÓ chọn nguyên liệu, KHÔNG điền số lượng -> LỖI
+                        else if (idVal && !qtyVal) {
+                            isValid = false;
+                            qtyInput.classList.remove('border-[#e2e3e1]', 'focus:border-[#553722]');
+                            qtyInput.classList.add('border-rose-500', 'bg-rose-50');
+                            showError(qtyInput, 'Vui lòng nhập số lượng.');
+                        }
+                        // Tình huống 4: KHÔNG chọn nguyên liệu, CÓ điền số lượng -> LỖI
+                        else if (!idVal && qtyVal) {
+                            isValid = false;
+                            searchInput.classList.remove('border-[#e2e3e1]');
+                            searchInput.classList.add('border-rose-500', 'bg-rose-50');
+                            showError(searchInput, 'Vui lòng chọn nguyên liệu.');
+                        }
+                        // Tình huống 5: CÓ chọn nguyên liệu, CÓ số lượng nhưng số lượng sai định dạng hoặc <= 0 -> LỖI
+                        else if (idVal && qtyVal) {
+                            if (isNaN(qtyVal) || parseFloat(qtyVal) <= 0 || qtyVal === '.') {
+                                isValid = false;
+                                qtyInput.classList.remove('border-[#e2e3e1]', 'focus:border-[#553722]');
+                                qtyInput.classList.add('border-rose-500', 'bg-rose-50');
+                                showError(qtyInput, 'Số lượng phải > 0');
+                            }
+                        }
+                    });
+
+                    if (!isValid) {
+                        e.preventDefault();
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                    } else {
+                        // 🟢 TRƯỚC KHI GỬI LÊN SERVER: Xóa các dòng nguyên liệu rỗng để Backend không bị lỗi NULL
+                        ingredientRows.forEach(function (row) {
+                            const hiddenIdInput = row.querySelector('.ingredient-hidden-id');
+                            const qtyInput = row.querySelector('.ingredient-qty');
+                            if (!hiddenIdInput.value.trim() && !qtyInput.value.trim()) {
+                                row.remove();
+                            }
+                        });
+                        // Cập nhật lại chỉ số mảng (index) trước khi submit
+                        updateIngredientNames('univ_ingredients_container');
+                    }
+                });
+
+                form.addEventListener('input', function(e) {
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
+                        e.target.classList.remove('border-rose-500', 'bg-rose-50');
+                        e.target.classList.add('border-[#e2e3e1]');
+
+                        let row = e.target.closest('.ingredient-row');
+                        if (row) {
+                            let search = row.querySelector('.ingredient-search');
+                            if (search) {
+                                search.classList.remove('border-rose-500', 'bg-rose-50');
+                                search.classList.add('border-[#e2e3e1]');
+                            }
+                        }
+
+                        form.querySelectorAll('.error-msg').forEach(msg => msg.remove());
+                        form.querySelectorAll('.ingredient-row').forEach(r => {
+                            r.style.paddingBottom = '';
+                        });
+                    }
+                });
+            });
+
+            function showError(inputElement, message) {
+                if (inputElement.classList.contains('ingredient-qty') || inputElement.classList.contains('ingredient-search')) {
+
+                    let wrapper = inputElement.closest('.custom-combobox') || inputElement.parentElement;
+
+                    if (wrapper) {
+                        wrapper.classList.add('relative');
+                        let errorHtml = `<span class="error-msg absolute top-full left-1 mt-1 text-[11px] text-rose-500 font-bold flex items-center gap-1 z-10 w-max"><i data-lucide="info" class="w-3.5 h-3.5 shrink-0"></i> ${message}</span>`;
+                        wrapper.insertAdjacentHTML('beforeend', errorHtml);
+                    }
+
+                    let row = inputElement.closest('.ingredient-row');
+                    if (row) {
+                        row.style.paddingBottom = '2.5rem';
+                    }
+                }
+                else {
+                    let errorHtml = `<span class="error-msg text-[11px] text-rose-500 font-bold flex items-center gap-1 mt-1.5 ml-1"><i data-lucide="info" class="w-3.5 h-3.5"></i> ${message}</span>`;
+                    if (inputElement.parentElement.classList.contains('relative')) {
+                        inputElement.parentElement.insertAdjacentHTML('afterend', errorHtml);
+                    } else {
+                        inputElement.insertAdjacentHTML('afterend', errorHtml);
+                    }
+                }
+            }
+        });
+        /*]]>*/
+    </script>
 </main>
 </body>
 </html>
