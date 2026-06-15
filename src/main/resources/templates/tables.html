@@ -73,7 +73,7 @@
                  th:data-ten="${ban.tenBan}"
                  th:data-tinhtrang="${ban.tinhTrang}"
                  onclick="handleTableClick(this)"
-                 class="table-card p-4 rounded-2xl border transition-all cursor-pointer relative shadow-sm hover:shadow-md flex flex-col justify-between h-full min-h-[128px] w-full"
+                 class="table-card p-4 rounded-2xl border transition-all cursor-pointer relative shadow-sm hover:shadow-md flex flex-col justify-between h-full min-h-[180px] w-full"
                  th:classappend="${ban.tinhTrang == 'Đang sử dụng' ? 'bg-[#fff8ed] border-[#fde68a]' :
                          (ban.tinhTrang == 'Đã đặt trước' ? 'bg-[#eff6ff] border-[#bfdbfe]' :
                          'bg-white border-[#e2e3e1]')}">
@@ -468,7 +468,7 @@
             <h3 class="text-base md:text-lg font-bold text-[#553722] mb-4 border-b pb-2 shrink-0"><i
                     class="fa-solid fa-scissors mr-2"></i>Tách Hóa Đơn</h3>
 
-            <form th:action="@{/tables/split}" method="post" class="flex flex-col flex-1 overflow-hidden">
+            <form th:action="@{/tables/split}" method="post" class="flex flex-col flex-1 overflow-hidden" onsubmit="return validateSplitForm(this)">
                 <input type="hidden" name="tuMaBan" id="splitFromTableId">
                 <div class="mb-3 md:mb-4 shrink-0">
                     <p class="text-xs md:text-sm text-gray-600">Tách từ bàn: <span id="splitFromTableName"
@@ -511,10 +511,10 @@
                     <div class="overflow-y-auto flex-1 custom-scrollbar">
                         <table class="w-full text-left border-collapse text-[10px] md:text-xs">
                             <thead>
-                            <tr class="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold sticky top-0">
-                                <th class="p-2 md:p-3">Tên món</th>
-                                <th class="p-2 md:p-3 text-center w-16 md:w-28 leading-tight">Số lượng<br>hiện tại</th>
-                                <th class="p-2 md:p-3 text-center w-24 md:w-32 leading-tight">Số lượng<br>muốn tách</th>
+                            <tr class="bg-gray-100 border-b border-gray-200 text-gray-700 font-bold sticky top-0 z-10">
+                                <th class="p-3 md:p-4">Tên món</th>
+                                <th class="p-3 md:p-4 text-center w-24 md:w-32 leading-tight">Số lượng<br>hiện tại</th>
+                                <th class="p-3 md:p-4 text-center w-32 md:w-40 leading-tight">Số lượng<br>muốn tách</th>
                             </tr>
                             </thead>
                             <tbody id="splitItemsTableBody" class="divide-y divide-gray-100 text-gray-700 bg-white">

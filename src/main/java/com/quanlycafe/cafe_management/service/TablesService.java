@@ -84,7 +84,9 @@ public class TablesService {
     }
 
     public List<Ban> getBanByTinhTrang(String tinhTrang) {
-        return banRepository.findByTinhTrang(tinhTrang);
+        List<Ban> bans = banRepository.findByTinhTrang(tinhTrang);
+        bans.sort((b1, b2) -> b1.getTenBan().compareToIgnoreCase(b2.getTenBan()));
+        return bans;
     }
 
     /**

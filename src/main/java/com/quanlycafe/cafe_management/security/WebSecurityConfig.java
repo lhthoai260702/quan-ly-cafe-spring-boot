@@ -49,10 +49,11 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
 
-                        // CÁC TRANG DÀNH RIÊNG CHO QUẢN LÝ (ROLE_ADMIN)
-                        .requestMatchers("/employee/**", "/equipment/**", "/inventory/**",
-                                "/menu/**", "/marketing/**", "/budget/**",
-                                "/data/**", "/report/**", "/settings/**").hasRole("ADMIN")
+                        // 1. CÁC TRANG CHO CẢ QUẢN LÝ VÀ NHÂN VIÊN CÙNG TRUY CẬP
+                        .requestMatchers("/equipment/**", "/inventory/**", "/menu/**", "/marketing/**").hasAnyRole("ADMIN", "USER")
+
+                        // 2. CÁC TRANG DÀNH RIÊNG CHO QUẢN LÝ (ROLE_ADMIN)
+                        .requestMatchers("/employee/**", "/budget/**", "/data/**", "/report/**", "/settings/**").hasRole("ADMIN")
 
                         // CÁC TRANG CÒN LẠI - YÊU CẦU ĐĂNG NHẬP
                         .anyRequest().authenticated()

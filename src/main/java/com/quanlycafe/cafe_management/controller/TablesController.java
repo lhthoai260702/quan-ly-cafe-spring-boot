@@ -62,7 +62,7 @@ public class TablesController {
             @RequestParam(name = "status", required = false) String status,
             @RequestParam(name = "search", required = false) String search,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "15") int size,
+            @RequestParam(defaultValue = "12") int size,
             Model model) {
 
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Order.asc("tenBan").ignoreCase()));

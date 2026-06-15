@@ -182,13 +182,27 @@ function executeAction(actionType) {
                 .then(response => response.json())
                 .then(items => {
                 const tbody = document.getElementById('splitItemsTableBody');
-                tbody.innerHTML = items.length === 0 ? '<tr><td colspan="3" class="p-4 text-center text-gray-400 italic">Bàn trống!</td></tr>' : '';
+                tbody.innerHTML = items.length === 0 ? '<tr><td colspan="3" class="p-8 text-center text-gray-500 italic">Bàn trống, không có món để tách!</td></tr>' : '';
 
                 items.forEach(item => {
                     const row = document.createElement('tr');
-                    row.innerHTML = `<td class="p-3 font-semibold">${item.tenmon}<input type="hidden" name="mathucdonList" value="${item.mathucdon}"></td>
-                                         <td class="p-3 text-center">${item.soluong}</td>
-                                         <td class="p-3 text-center"><input type="number" name="soluongTachList" value="0" min="0" max="${item.soluong}" class="w-16 border rounded text-center"></td>`;
+                    row.className = 'hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0';
+                    row.innerHTML = `
+                        <td class="p-3 md:p-4">
+                            <span class="font-bold text-gray-800 text-xs md:text-sm">${item.tenmon}</span>
+                            <input type="hidden" name="mathucdonList" value="${item.mathucdon}">
+                        </td>
+                        <td class="p-3 md:p-4 text-center font-semibold text-gray-600 text-xs md:text-sm">${item.soluong}</td>
+                        <td class="p-3 md:p-4 text-center">
+                            <div class="flex items-center justify-center gap-1 md:gap-2 bg-white border border-gray-200 rounded-lg p-1 w-max mx-auto shadow-sm">
+                                <button type="button" onclick="giamSoLuongTach(this)" class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-gray-100 text-gray-600 rounded transition-all font-bold hover:bg-gray-200 text-sm md:text-base">-</button>
+                                <input type="text" name="soluongTachList" value="0" data-max="${item.soluong}"
+                                   oninput="kiemTraSoLuongTach(this)" onblur="chuanHoaSoLuongTach(this)"
+                                   class="w-8 md:w-10 text-center text-xs md:text-sm font-bold border-none p-0 bg-transparent focus:ring-1 focus:ring-amber-500 rounded text-gray-800 transition-all">
+                                <button type="button" onclick="tangSoLuongTach(this)" class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-amber-100 text-amber-700 rounded transition-all font-bold hover:bg-amber-200 text-sm md:text-base">+</button>
+                            </div>
+                        </td>
+                    `;
                     tbody.appendChild(row);
                 });
                 document.getElementById('splitModal').classList.remove('hidden');
@@ -692,4 +706,97 @@ function selectCustomerType(type) {
 
 function closeConfirmCustomerTypeModal() {
     document.getElementById('confirmCustomerTypeModal').classList.add('hidden');
+}
+
+/**
+ * Tăng số lượng món muốn tách
+ */
+function tangSoLuongTach(btn) {
+    const input = btn.previousElementSibling;
+    const max = parseInt(input.getAttribute('data-max'), 10);
+    let val = parseInt(input.value, 10) || 0;
+
+    if (val < max) {
+        input.value = val + 1;
+    } else {
+        showCustomError(`Món này bàn hiện tại chỉ có ${max} phần!`);
+    }
+}
+
+/**
+ * Giảm số lượng món muốn tách
+ */
+function giamSoLuongTach(btn) {
+    const input = btn.nextElementSibling;
+    let val = parseInt(input.value, 10) || 0;
+
+    if (val > 0) {
+        input.value = val - 1;
+    }
+}
+
+/**
+ * Bắt lỗi trước khi Tách Bàn
+ */
+function validateSplitForm(form) {
+    const denMaBan = document.getElementById('splitDenMaBan').value;
+
+    if (!denMaBan) {
+        showCustomError('Vui lòng chọn 1 bàn trống làm bàn đích để chuyển món sang!');
+        return false;
+    }
+
+    const inputs = form.querySelectorAll('input[name="soluongTachList"]');
+    let totalQty = 0;
+
+    for (let i = 0; i < inputs.length; i++) {
+        let val = parseInt(inputs[i].value, 10);
+        if (!isNaN(val)) {
+            totalQty += val;
+        }
+    }
+
+    if (totalQty === 0) {
+        showCustomError('Không có món nào được chọn!\nVui lòng tách ít nhất 1 món để thực hiện.');
+        return false; // Chặn Submit, giữ nguyên Popup
+    }
+
+    return true; // Cho phép gửi lệnh
+}
+
+/**
+ * 🚀 Tự động kiểm tra và giới hạn số lượng ngay khi thu ngân đang gõ
+ */
+function kiemTraSoLuongTach(input) {
+    // 1. Chỉ giữ lại các ký tự là số (Xóa bỏ chữ cái, ký tự đặc biệt)
+    let val = input.value.replace(/\D/g, '');
+
+    // Lấy số lượng tối đa của món đó
+    const max = parseInt(input.getAttribute('data-max'), 10);
+
+    if (val !== '') {
+        let num = parseInt(val, 10);
+
+        // 2. Nếu gõ lố số lượng hiện có -> Ép về số lượng tối đa và báo lỗi
+        if (num > max) {
+            num = max;
+            showCustomError(`Món này bàn hiện tại chỉ có tối đa ${max} phần!`);
+        }
+
+        // 3. Loại bỏ số 0 vô nghĩa ở đầu (VD gõ "05" sẽ thành "5")
+        input.value = num;
+    } else {
+        // Cho phép tạm thời để trống ô khi đang ấn nút xóa (Backspace)
+        input.value = '';
+    }
+}
+
+/**
+ * 🚀 Chốt lại số lượng chuẩn khi thu ngân click chuột ra ngoài ô nhập (blur)
+ */
+function chuanHoaSoLuongTach(input) {
+    // Nếu thu ngân xóa trắng ô rồi click ra ngoài -> Tự động trả về số 0
+    if (input.value.trim() === '') {
+        input.value = '0';
+    }
 }

@@ -47,28 +47,28 @@
             <span class="text-sm font-medium">Quản lý nhân viên</span>
         </a>
 
-        <a sec:authorize="hasRole('ADMIN')" th:href="@{/menu}"
+        <a sec:authorize="hasAnyRole('ADMIN', 'USER')" th:href="@{/menu}"
            th:classappend="${activeTab == 'utensils-crossed'} ? 'bg-[#ffdcc6] text-[#553722] font-bold border-l-4 border-[#553722]' : 'text-[#50453e] hover:bg-[#e8e8e6] opacity-85 hover:opacity-100'"
            class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-sans">
             <i data-lucide="utensils-crossed" class="w-5 h-5"></i>
             <span class="text-sm font-medium">Quản lý thực đơn</span>
         </a>
 
-        <a sec:authorize="hasRole('ADMIN')" th:href="@{/equipment}"
+        <a sec:authorize="hasAnyRole('ADMIN', 'USER')" th:href="@{/equipment}"
            th:classappend="${activeTab == 'wrench'} ? 'bg-[#ffdcc6] text-[#553722] font-bold border-l-4 border-[#553722]' : 'text-[#50453e] hover:bg-[#e8e8e6] opacity-85 hover:opacity-100'"
            class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-sans">
             <i data-lucide="wrench" class="w-5 h-5"></i>
             <span class="text-sm font-medium">Quản lý thiết bị</span>
         </a>
 
-        <a sec:authorize="hasRole('ADMIN')" th:href="@{/inventory}"
+        <a sec:authorize="hasAnyRole('ADMIN', 'USER')" th:href="@{/inventory}"
            th:classappend="${activeTab == 'package'} ? 'bg-[#ffdcc6] text-[#553722] font-bold border-l-4 border-[#553722]' : 'text-[#50453e] hover:bg-[#e8e8e6] opacity-85 hover:opacity-100'"
            class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-sans">
             <i data-lucide="package" class="w-5 h-5"></i>
             <span class="text-sm font-medium">Quản lý kho hàng</span>
         </a>
 
-        <a sec:authorize="hasRole('ADMIN')" th:href="@{/marketing}"
+        <a sec:authorize="hasAnyRole('ADMIN', 'USER')" th:href="@{/marketing}"
            th:classappend="${activeTab == 'megaphone'} ? 'bg-[#ffdcc6] text-[#553722] font-bold border-l-4 border-[#553722]' : 'text-[#50453e] hover:bg-[#e8e8e6] opacity-85 hover:opacity-100'"
            class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-sans">
             <i data-lucide="megaphone" class="w-5 h-5"></i>
