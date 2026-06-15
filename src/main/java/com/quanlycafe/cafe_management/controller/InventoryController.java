@@ -33,6 +33,16 @@ public class InventoryController {
 
     private final InventoryService inventoryService;
 
+    /**
+     * Hiển thị trang inventory
+     *
+     * @param keyword
+     * @param unit
+     * @param page
+     * @param size
+     * @param model
+     * @return
+     */
     @GetMapping("/inventory")
     public String showInventory(
             @RequestParam(required = false, defaultValue = "") String keyword,
@@ -60,12 +70,26 @@ public class InventoryController {
         return "inventory";
     }
 
+    /**
+     * Lấy đơn nhập
+     *
+     * @param id
+     * @return
+     */
     @GetMapping("/inventory/api/history/{id}")
     @ResponseBody
     public ResponseEntity<List<DonNhapHistoryDTO>> getHistory(@PathVariable Integer id) {
         return ResponseEntity.ok(inventoryService.getImportHistory(id));
     }
 
+    /**
+     * Thêm hàng hoá
+     *
+     * @param form
+     * @param redirectAttributes
+     * @param request
+     * @return
+     */
     @PostMapping("/inventory/add")
     public String addItem(@ModelAttribute("form") InventoryFormDTO form,
                           RedirectAttributes redirectAttributes,
@@ -83,6 +107,14 @@ public class InventoryController {
         return "redirect:" + redirectUrl;
     }
 
+    /**
+     * Chỉnh sửa hàng hoá
+     *
+     * @param form
+     * @param redirectAttributes
+     * @param request
+     * @return
+     */
     @PostMapping("/inventory/edit")
     public String editItem(@ModelAttribute("form") InventoryFormDTO form,
                            RedirectAttributes redirectAttributes,
@@ -101,6 +133,14 @@ public class InventoryController {
         return "redirect:" + redirectUrl;
     }
 
+    /**
+     * Thêm đơn nhập
+     *
+     * @param form
+     * @param redirectAttributes
+     * @param request
+     * @return
+     */
     @PostMapping("/inventory/import")
     public String importStock(@ModelAttribute("form") InventoryFormDTO form,
                               RedirectAttributes redirectAttributes,
@@ -119,6 +159,14 @@ public class InventoryController {
         return "redirect:" + redirectUrl;
     }
 
+    /**
+     * Chỉnh sửa đơn nhập
+     *
+     * @param form
+     * @param redirectAttributes
+     * @param request
+     * @return
+     */
     @PostMapping("/inventory/history/edit")
     public String editHistory(@ModelAttribute("form") InventoryFormDTO form,
                               RedirectAttributes redirectAttributes,
@@ -137,6 +185,14 @@ public class InventoryController {
         return "redirect:" + redirectUrl;
     }
 
+    /**
+     * Xoá hàng hoá
+     *
+     * @param maHangHoa
+     * @param redirectAttributes
+     * @param request
+     * @return
+     */
     @PostMapping("/inventory/delete")
     public String deleteItem(@RequestParam Integer maHangHoa,
                              RedirectAttributes redirectAttributes,
@@ -155,6 +211,14 @@ public class InventoryController {
         return "redirect:" + redirectUrl;
     }
 
+    /**
+     * Xoá phiếu nhập hàng
+     *
+     * @param maDonNhap
+     * @param redirectAttributes
+     * @param request
+     * @return
+     */
     @PostMapping("/inventory/history/delete")
     public String deleteHistory(@RequestParam Integer maDonNhap,
                                 RedirectAttributes redirectAttributes,

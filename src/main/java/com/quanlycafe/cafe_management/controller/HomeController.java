@@ -22,7 +22,7 @@ import java.util.*;
  * DATE         AUTHOR      DESCRIPTION
  * 29-05-2026   lhthoai     Create
  * 09-06-2026   lhthoai     Thêm logic thống kê dữ liệu thật cho Dashboard và Format Convention
- * 15-06-2026   Quản Lý     Cập nhật Món bán chạy nhất (Tháng này) & Lọc hóa đơn đã hủy
+ * 15-06-2026   lhthoai     Cập nhật Món bán chạy nhất (Tháng này) & Lọc hóa đơn đã hủy
  */
 @Controller
 @RequiredArgsConstructor

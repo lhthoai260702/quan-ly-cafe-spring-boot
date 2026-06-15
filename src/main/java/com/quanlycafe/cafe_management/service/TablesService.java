@@ -53,14 +53,33 @@ public class TablesService {
     @Autowired
     private ChiTietDatBanRepository chiTietDatBanRepository;
 
+    /**
+     * Tìm bàn theo id
+     *
+     * @param maBan
+     * @return
+     */
     public Ban findById(Integer maBan) {
         return banRepository.findById(maBan).orElse(null);
     }
 
+    /**
+     * Lấy bàn theo tên
+     *
+     * @return
+     */
     public List<Ban> getAllTables() {
         return banRepository.findAll(Sort.by(Sort.Direction.ASC, "tenBan"));
     }
 
+    /**
+     * Tìm bàn với phân trang
+     *
+     * @param status
+     * @param search
+     * @param pageable
+     * @return
+     */
     public Page<Ban> getTablesWithPagination(String status, String search, Pageable pageable) {
         String keyword = (search == null) ? "" : search.trim();
         if (status == null || status.isEmpty() || status.equals("Tất cả")) {
@@ -75,14 +94,31 @@ public class TablesService {
         return banRepository.findByTinhTrangAndTenBanContainingIgnoreCase(tinhTrangDb, keyword, pageable);
     }
 
+    /**
+     * Tổng số bàn
+     *
+     * @return
+     */
     public long countTongSoBan() {
         return banRepository.count();
     }
 
+    /**
+     * Tổng số bàn theo tình trạng
+     *
+     * @param tinhTrang
+     * @return
+     */
     public long countBanByTinhTrang(String tinhTrang) {
         return banRepository.countByTinhTrang(tinhTrang);
     }
 
+    /**
+     * Lấy tình trạng bàn
+     *
+     * @param tinhTrang
+     * @return
+     */
     public List<Ban> getBanByTinhTrang(String tinhTrang) {
         List<Ban> bans = banRepository.findByTinhTrang(tinhTrang);
         bans.sort((b1, b2) -> b1.getTenBan().compareToIgnoreCase(b2.getTenBan()));
@@ -91,6 +127,9 @@ public class TablesService {
 
     /**
      * Lấy chi tiết thông tin gọi món và hóa đơn của một bàn (Luôn ưu tiên HĐ mới nhất)
+     *
+     * @param maBan
+     * @return
      */
     public ThongTinBanGoiMonDTO getChiTietGoiMonTheoBan(Integer maBan) {
         Ban ban = banRepository.findById(maBan).orElse(null);
@@ -148,6 +187,9 @@ public class TablesService {
 
     /**
      * Lấy danh sách món ăn đang phục vụ tại bàn dưới dạng Map JSON
+     *
+     * @param maBan
+     * @return
      */
     public List<Map<String, Object>> getDanhSachMonJsonTheoBan(Integer maBan) {
         // 🚀 Dùng Sub-query bắt HĐ mới nhất
@@ -163,6 +205,13 @@ public class TablesService {
         return jdbcTemplate.queryForList(sql, maBan);
     }
 
+    /**
+     * Chuyển bàn
+     *
+     * @param tuMaBan
+     * @param denMaBan
+     * @return
+     */
     @Transactional
     public boolean chuyenBan(Integer tuMaBan, Integer denMaBan) {
         Ban tuBan = banRepository.findById(tuMaBan).orElse(null);
@@ -196,6 +245,13 @@ public class TablesService {
         }
     }
 
+    /**
+     * Gộp bàn
+     *
+     * @param tuMaBanList
+     * @param denMaBan
+     * @return
+     */
     @Transactional
     public boolean gopBan(List<Integer> tuMaBanList, Integer denMaBan) {
         try {
@@ -236,6 +292,15 @@ public class TablesService {
         }
     }
 
+    /**
+     * Tách bàn
+     *
+     * @param tuMaBan
+     * @param denMaBan
+     * @param mathucdonList
+     * @param soluongTachList
+     * @return
+     */
     @Transactional
     public boolean tachBan(Integer tuMaBan, Integer denMaBan, List<Integer> mathucdonList, List<Integer> soluongTachList) {
         try {
@@ -299,6 +364,15 @@ public class TablesService {
         }
     }
 
+    /**
+     * Đặt bàn
+     *
+     * @param maBan
+     * @param maNhanVien
+     * @param tenKhachHang
+     * @param sdtKhachHang
+     * @param ngayGioDat
+     */
     @Transactional
     public void datBanTruoc(Integer maBan, Integer maNhanVien, String tenKhachHang, String sdtKhachHang, LocalDateTime ngayGioDat) {
         HoaDon hoaDonMoi = new HoaDon();
@@ -320,6 +394,15 @@ public class TablesService {
         banRepository.save(ban);
     }
 
+    /**
+     * Thêm món
+     *
+     * @param maBan
+     * @param maNhanVien
+     * @param danhSachMaMon
+     * @param danhSachSoLuong
+     * @param loaiKhach
+     */
     @Transactional
     public void themMonVaoBan(Integer maBan, Integer maNhanVien, List<Integer> danhSachMaMon, List<Integer> danhSachSoLuong, String loaiKhach) {
         boolean coMonDuocGoi = false;
@@ -394,6 +477,12 @@ public class TablesService {
         }
     }
 
+    /**
+     * Thanh toán
+     *
+     * @param maBan
+     * @param maKhuyenMai
+     */
     @Transactional
     public void thanhToanHoaDon(Integer maBan, Integer maKhuyenMai) {
         String sqlFindHoaDon = "SELECT hd.mahoadon, hd.tongtien FROM hoadon hd " +
@@ -442,6 +531,11 @@ public class TablesService {
         }
     }
 
+    /**
+     * Lấy mã khuyến mãi
+     *
+     * @return
+     */
     public List<Map<String, Object>> getKhuyenMaiHopLe() {
         String sql = "SELECT makhuyenmai, tenkhuyenmai, loaikhuyenmai, giatrigiam " +
                 "FROM khuyenmai " +
@@ -449,6 +543,11 @@ public class TablesService {
         return jdbcTemplate.queryForList(sql);
     }
 
+    /**
+     * Lấy thực đơn với trạng thái
+     *
+     * @return
+     */
     public List<Map<String, Object>> getDanhSachThucDonVoiTrangThai() {
         String sql = "SELECT td.mathucdon, td.tenmon, td.giatienhientai, " +
                 "true AS is_available " +
@@ -459,6 +558,11 @@ public class TablesService {
         return jdbcTemplate.queryForList(sql);
     }
 
+    /**
+     * Huỷ bàn
+     *
+     * @param maBan
+     */
     @Transactional
     public void huyBan(Integer maBan) {
         Ban ban = banRepository.findById(maBan)
@@ -495,7 +599,9 @@ public class TablesService {
     }
 
     /**
-     * 🚀 Truy xuất thông tin đặt bàn & Khách đang sử dụng (Gộp hiển thị UI)
+     * Truy xuất thông tin đặt bàn & Khách đang sử dụng (Gộp hiển thị UI)
+     *
+     * @return
      */
     public Map<Integer, String> getThongTinDatBanMap() {
         Map<Integer, String> map = new HashMap<>();

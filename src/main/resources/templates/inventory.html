@@ -316,31 +316,16 @@
 
     <script th:inline="javascript">
         /*<![CDATA[*/
-        let hasAddError = /*[[${hasAddError != null ? hasAddError : false}]]*/ false;
-        let hasEditError = /*[[${hasEditError != null ? hasEditError : false}]]*/ false;
-        let hasImportError = /*[[${hasImportError != null ? hasImportError : false}]]*/ false;
-        let hasEditHistoryError = /*[[${hasEditHistoryError != null ? hasEditHistoryError : false}]]*/ false;
-
-        document.addEventListener('DOMContentLoaded', function() {
-            if (hasAddError) restoreUniversalModal('ADD');
-            else if (hasEditError) restoreUniversalModal('EDIT_ITEM');
-            else if (hasImportError) restoreUniversalModal('IMPORT');
-            else if (hasEditHistoryError) restoreUniversalModal('EDIT_HISTORY');
-        });
+        const SERVER_FLAGS = {
+            hasAddError: /*[[${hasAddError != null ? hasAddError : false}]]*/ false,
+            hasEditError: /*[[${hasEditError != null ? hasEditError : false}]]*/ false,
+            hasImportError: /*[[${hasImportError != null ? hasImportError : false}]]*/ false,
+            hasEditHistoryError: /*[[${hasEditHistoryError != null ? hasEditHistoryError : false}]]*/ false
+        };
         /*]]>*/
     </script>
+
     <script th:src="@{/js/inventory.js}"></script>
-    <script>
-        function openDeleteModalCustom(id, name) {
-            document.getElementById('delete_id').value = id;
-            document.getElementById('delete_name').textContent = name;
-            document.getElementById('deleteModal').classList.remove('hidden');
-        }
-        function openDeleteHistoryModalCustom(id) {
-            document.getElementById('delete_hist_id').value = id;
-            document.getElementById('deleteHistoryModal').classList.remove('hidden');
-        }
-    </script>
 </main>
 </body>
 </html>

@@ -195,11 +195,6 @@
                     class="shrink-0 flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 md:py-2.5 bg-red-50 hover:bg-red-100 text-red-600 font-semibold text-[11px] md:text-xs rounded-lg md:rounded-xl transition-all shadow-sm">
                 <i class="fa-solid fa-ban text-[10px] md:text-[11px]"></i> Hủy bàn
             </button>
-
-            <button id="btnThanhToan" onclick="executeAction('thanhtoan')"
-                    class="shrink-0 flex items-center gap-1.5 md:gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] md:text-xs rounded-lg md:rounded-xl transition-all shadow-md">
-                <i class="fa-solid fa-credit-card text-[10px] md:text-[11px]"></i> Thanh toán
-            </button>
             <button onclick="closeBottomBar()"
                     class="hidden md:block ml-2 p-2 text-gray-400 hover:text-gray-600 rounded-lg transition-all"
                     title="Bỏ chọn">
@@ -670,6 +665,7 @@
             </form>
         </div>
     </div>
+
     <div id="confirmCustomerTypeModal"
          class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[70] transition-all duration-300 p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-5 md:p-6 transform transition-all scale-100 text-center">
@@ -690,8 +686,9 @@
                         class="w-full py-2.5 bg-white text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-100 transition-all border border-gray-200">
                     Khách vãng lai mượn bàn
                 </button>
+
                 <button type="button" onclick="closeConfirmCustomerTypeModal()"
-                        class="w-full mt-2 py-2 text-gray-400 text-xs font-semibold hover:text-gray-600 transition-all">
+                        class="w-full py-2.5 bg-gray-100 text-gray-600 rounded-xl text-sm font-bold hover:bg-gray-200 transition-all text-center">
                     Hủy thao tác
                 </button>
             </div>

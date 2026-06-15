@@ -34,6 +34,8 @@ public class ReportService {
 
     /**
      * Lấy dữ liệu doanh thu trong 7 ngày gần nhất để vẽ biểu đồ.
+     *
+     * @return
      */
     public Map<String, Object> getRevenueLast7Days() {
         List<String> labels = new ArrayList<>();

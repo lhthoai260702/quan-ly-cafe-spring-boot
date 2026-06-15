@@ -295,3 +295,30 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 });
+
+// ============================================================================
+// XỬ LÝ LỖI VALIDATION TỪ SERVER TRẢ VỀ
+// ============================================================================
+document.addEventListener('DOMContentLoaded', function() {
+    // Kiểm tra xem biến SERVER_FLAGS từ HTML truyền sang có tồn tại không
+    if (typeof SERVER_FLAGS !== 'undefined') {
+        if (SERVER_FLAGS.hasAddError) restoreUniversalModal('ADD');
+        else if (SERVER_FLAGS.hasEditError) restoreUniversalModal('EDIT_ITEM');
+        else if (SERVER_FLAGS.hasImportError) restoreUniversalModal('IMPORT');
+        else if (SERVER_FLAGS.hasEditHistoryError) restoreUniversalModal('EDIT_HISTORY');
+    }
+});
+
+// ============================================================================
+// CÁC HÀM MỞ MODAL XÓA (DELETE)
+// ============================================================================
+function openDeleteModalCustom(id, name) {
+    document.getElementById('delete_id').value = id;
+    document.getElementById('delete_name').textContent = name;
+    document.getElementById('deleteModal').classList.remove('hidden');
+}
+
+function openDeleteHistoryModalCustom(id) {
+    document.getElementById('delete_hist_id').value = id;
+    document.getElementById('deleteHistoryModal').classList.remove('hidden');
+}
