@@ -54,17 +54,17 @@
 
     <div class="bg-white rounded-2xl shadow-sm border border-[#e2e3e1]/40 overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse table-auto">
+            <table class="w-full text-left border-collapse table-fixed">
                 <thead>
                 <tr class="bg-[#f4f4f2] text-[#50453e] text-[10px] uppercase font-bold border-b border-[#e2e3e1]/60">
-                    <th class="px-2 py-3 text-center w-8">#</th>
-                    <th class="px-2 py-3 min-w-[140px]">Tên mặt hàng</th>
-                    <th class="px-2 py-3 text-center whitespace-nowrap">Tồn kho</th>
-                    <th class="px-2 py-3 text-center whitespace-nowrap">ĐVT(Nhập)</th>
-                    <th class="px-2 py-3 text-center whitespace-nowrap">ĐVT(SD)</th>
-                    <th class="px-2 py-3 text-right whitespace-nowrap">Đơn giá</th>
-                    <th class="px-2 py-3 text-right whitespace-nowrap">Tổng giá trị</th>
-                    <th class="px-2 py-3 text-center whitespace-nowrap w-[110px]">Thao tác</th>
+                    <th class="px-2 py-3 text-center w-10">#</th>
+                    <th class="px-2 py-3 w-1/3">Tên mặt hàng</th>
+                    <th class="px-2 py-3 text-center w-[10%]">Tồn kho</th>
+                    <th class="px-2 py-3 text-center w-[10%]">ĐVT(Nhập)</th>
+                    <th class="px-2 py-3 text-center w-[10%]">ĐVT(SD)</th>
+                    <th class="px-2 py-3 text-right w-[12%]">Đơn giá</th>
+                    <th class="px-2 py-3 text-right w-[15%]">Tổng giá trị</th>
+                    <th class="px-2 py-3 text-center w-[110px]">Thao tác</th>
                 </tr>
                 </thead>
                 <tbody class="text-sm text-[#1a1c1b] divide-y divide-[#e2e3e1]/40">
@@ -87,15 +87,15 @@
                             </div>
                         </td>
                         <td class="px-2 py-3 text-center">
-                            <span th:data-rawqty="${item.soLuong}"
-                                  th:classappend="${item.soLuong < 5} ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'"
-                                  class="px-2 py-1 rounded-md font-bold text-xs inline-block text-center"
-                                  th:text="${item.soLuong % 1 == 0 ? #numbers.formatInteger(item.soLuong, 1, 'COMMA') : #strings.replace(#strings.toString(item.soLuong), '.', ',')}">0</span>
+                <span th:data-rawqty="${item.soLuong}"
+                      th:classappend="${item.soLuong < 5} ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'"
+                      class="px-2 py-1 rounded-md font-bold text-xs inline-block text-center"
+                      th:text="${item.soLuong % 1 == 0 ? #numbers.formatInteger(item.soLuong, 1, 'COMMA') : #strings.replace(#strings.toString(item.soLuong), '.', ',')}">0</span>
                         </td>
-                        <td class="px-2 py-3 text-center text-xs text-gray-500 font-medium"
+                        <td class="px-2 py-3 text-center text-xs text-gray-500 font-medium whitespace-normal break-words"
                             th:text="${item.donViTinh != null ? item.donViTinh.tenDonVi : '-'}">-
                         </td>
-                        <td class="px-2 py-3 text-center text-xs font-bold text-[#50453e]"
+                        <td class="px-2 py-3 text-center text-xs font-bold text-[#50453e] whitespace-normal break-words"
                             th:text="${item.donViSuDung != null ? item.donViSuDung.tenDonVi : '-'}">-
                         </td>
                         <td class="px-2 py-3 text-right font-bold text-[#553722] whitespace-nowrap"
@@ -194,7 +194,8 @@
                     <div class="mb-4">
                         <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase">Tên mặt hàng <span
                                 class="text-rose-500">*</span></label>
-                        <input type="text" th:field="*{tenHangHoa}" id="univ_name" required
+                        <input type="text" th:field="*{tenHangHoa}" id="univ_name" required minlength="1"
+                               maxlength="100"
                                class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-4 py-2.5 text-sm focus:border-[#553722] transition-all">
                     </div>
                     <div class="grid grid-cols-2 gap-4 mb-4">
@@ -237,7 +238,7 @@
                         <label id="univ_qty_label" class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase">Số
                             lượng <span class="text-rose-500">*</span></label>
                         <input type="text" id="univ_qty_display"
-                               oninput="formatQuantity(this, 'univ_qty_real', null)" required
+                               oninput="formatQuantity(this, 'univ_qty_real', null)" required maxlength="12"
                                class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-3 py-2 text-sm font-bold text-emerald-700">
                         <input type="hidden" th:field="*{soLuong}" id="univ_qty_real" value="1">
                     </div>
@@ -245,7 +246,7 @@
                         <label class="block text-xs font-bold text-[#50453e] mb-1.5 uppercase">Đơn giá (VNĐ) <span
                                 class="text-rose-500">*</span></label>
                         <input type="text" id="univ_price_display" oninput="formatCurrency(this, 'univ_price_real')"
-                               required
+                               required maxlength="15"
                                class="w-full bg-[#f4f4f2] border border-[#e2e3e1] rounded-xl px-3 py-2 text-sm font-bold text-[#553722]">
                         <input type="hidden" th:field="*{donGia}" id="univ_price_real" value="0">
                     </div>
