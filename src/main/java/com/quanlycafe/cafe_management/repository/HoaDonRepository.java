@@ -31,7 +31,7 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
     List<HoaDon> findByNgayGioTaoBetweenAndTrangThai(LocalDateTime start, LocalDateTime end, String trangThai);
 
     /**
-     * Thống kê 5 món bán chạy nhất
+     * Thống kê 5 món bán chạy nhất trong khoảng thời gian (Lọc bỏ hóa đơn đã hủy)
      *
      * @return List<Object[]>
      */
@@ -41,7 +41,10 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
                     "JOIN thucdon t ON c.mathucdon = t.mathucdon " +
                     "JOIN hoadon h ON c.mahoadon = h.mahoadon " +
                     "WHERE h.trangthai = 'Đã thanh toán' " +
+                    "AND (h.flag_delete = 0 OR h.flag_delete IS NULL) " +
+                    "AND h.ngaygiotao >= :startDate AND h.ngaygiotao <= :endDate " +
                     "GROUP BY t.tenmon " +
                     "ORDER BY tong_so_luong DESC LIMIT 5", nativeQuery = true)
-    List<Object[]> getTopSellingDishes();
+    List<Object[]> getTopSellingDishesCurrentMonth(@org.springframework.data.repository.query.Param("startDate") java.time.LocalDateTime startDate,
+                                                   @org.springframework.data.repository.query.Param("endDate") java.time.LocalDateTime endDate);
 }

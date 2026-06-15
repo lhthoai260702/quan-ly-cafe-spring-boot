@@ -550,7 +550,7 @@
                         input.classList.remove('border-rose-500', 'bg-rose-50');
                         let val = input.value ? input.value.trim() : '';
 
-                        // Bắt lỗi bỏ trống
+                        // 1. Bắt lỗi bỏ trống
                         if (!val) {
                             isValid = false;
                             input.classList.remove('border-transparent', 'border-[#e2e3e1]', 'focus:border-[#553722]');
@@ -559,7 +559,16 @@
                             let errorHtml = `<span class="error-msg text-[10px] text-rose-500 font-semibold flex items-center gap-1 mt-1.5 ml-1 block"><i data-lucide="info" class="w-3.5 h-3.5 shrink-0"></i> Trường này không được bỏ trống.</span>`;
                             input.insertAdjacentHTML('afterend', errorHtml);
                         }
-                        // 🔴 Bắt lỗi nhập thiếu ký tự (Ví dụ Mật khẩu ít hơn 6 ký tự)
+                        // 🔴 2. BẮT LỖI LƯƠNG BẰNG 0
+                        else if (input.id === 'univ_luong_display' && val === '0') {
+                            isValid = false;
+                            input.classList.remove('border-transparent', 'border-[#e2e3e1]', 'focus:border-[#553722]');
+                            input.classList.add('border-rose-500', 'bg-rose-50');
+
+                            let errorHtml = `<span class="error-msg text-[10px] text-rose-500 font-semibold flex items-center gap-1 mt-1.5 ml-1 block"><i data-lucide="info" class="w-3.5 h-3.5 shrink-0"></i> Mức lương không được bằng 0.</span>`;
+                            input.insertAdjacentHTML('afterend', errorHtml);
+                        }
+                        // 3. Bắt lỗi nhập thiếu ký tự (Ví dụ Mật khẩu ít hơn 6 ký tự)
                         else if (input.hasAttribute('minlength') && val.length < parseInt(input.getAttribute('minlength'))) {
                             isValid = false;
                             input.classList.remove('border-transparent', 'border-[#e2e3e1]', 'focus:border-[#553722]');

@@ -145,7 +145,8 @@
                     </button>
                 </div>
 
-                <ul class="combobox-list hidden absolute z-50 w-full bg-white border border-[#e2e3e1] rounded-xl mt-1 max-h-48 overflow-y-auto shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] py-1 custom-scrollbar">
+                <ul class="combobox-list hidden absolute z-[100] w-full bg-white border border-[#e2e3e1] rounded-xl mt-1 max-h-48 overflow-y-auto shadow-2xl py-1 custom-scrollbar"
+                    style="top: 100%; left: 0;">
                     <li class="no-match-msg hidden px-3 py-2 text-[10px] uppercase tracking-wider text-rose-500 bg-rose-50/50 font-bold items-center gap-1 border-b border-rose-100/50 mb-1">
                         <i data-lucide="info" class="w-3 h-3"></i> Không tìm thấy
                     </li>
@@ -390,21 +391,51 @@
             const items = list.querySelectorAll('.combobox-item');
             const noMatchMsg = list.querySelector('.no-match-msg');
 
+            // 🚀 BƯỚC 1: Thu thập tất cả các ID nguyên liệu đã được chọn ở CÁC DÒNG KHÁC
+            const currentHiddenInput = combobox.querySelector('.ingredient-hidden-id');
+            const selectedIds = new Set();
+            document.querySelectorAll('#univ_ingredients_container .ingredient-hidden-id').forEach(hiddenInput => {
+                // Nếu ô đó có giá trị và KHÔNG PHẢI là ô hiện tại đang thao tác
+                if (hiddenInput.value && hiddenInput !== currentHiddenInput) {
+                    selectedIds.add(hiddenInput.value);
+                }
+            });
+
             let hasMatch = false;
 
+            // 🚀 BƯỚC 2: Vòng lặp kiểm tra từng món trong danh sách đổ xuống
             items.forEach(li => {
                 const name = li.getAttribute('data-name').toLowerCase();
-                if (name.includes(filter)) {
+                const id = li.getAttribute('data-id');
+
+                // Nếu nguyên liệu này đã được chọn ở dòng khác -> Ẩn nó đi ngay lập tức
+                if (selectedIds.has(id)) {
+                    li.style.display = 'none';
+                }
+                // Nếu chưa được chọn và tên khớp với từ khóa tìm kiếm -> Hiển thị
+                else if (name.includes(filter)) {
                     li.style.display = '';
                     hasMatch = true;
-                } else {
+                }
+                // Không khớp từ khóa -> Ẩn
+                else {
                     li.style.display = 'none';
                 }
             });
 
-            if (!hasMatch && filter !== '') {
+            // 🚀 BƯỚC 3: Xử lý thông báo khi danh sách trống
+            if (!hasMatch) {
+                // Nếu người dùng chưa gõ tìm kiếm mà danh sách trống trơn -> Báo là đã chọn hết
+                if (filter === '') {
+                    noMatchMsg.innerHTML = '<i data-lucide="info" class="w-3 h-3"></i> Đã chọn hết nguyên liệu kho';
+                } else {
+                    noMatchMsg.innerHTML = '<i data-lucide="info" class="w-3 h-3"></i> Không tìm thấy';
+                }
+
                 noMatchMsg.classList.remove('hidden');
                 noMatchMsg.style.display = 'flex';
+                if (typeof lucide !== 'undefined') lucide.createIcons(); // Render lại icon
+
                 items.forEach(li => li.style.display = 'none');
             } else {
                 noMatchMsg.classList.add('hidden');
@@ -413,10 +444,41 @@
         }
 
         function openCombobox(input) {
-            const list = input.closest('.custom-combobox').querySelector('.combobox-list');
+            const combobox = input.closest('.custom-combobox');
+            const list = combobox.querySelector('.combobox-list');
+
             list.classList.remove('hidden');
             filterCombobox(input);
+
+            // 🚀 BÍ QUYẾT: Tính toán tọa độ và dùng 'fixed' để thoát khỏi overflow của Popup
+            const rect = input.getBoundingClientRect();
+            list.style.position = 'fixed';
+            list.style.left = rect.left + 'px';
+            list.style.width = rect.width + 'px';
+            list.style.zIndex = '99999';
+
+            // 🚀 NÂNG CẤP: Nếu danh sách dài chạm đáy màn hình, tự động lật ngược lên trên!
+            const dropdownHeight = 192; // Tương đương max-h-48 (12rem = 192px / Khoảng 5 món)
+            if (rect.bottom + dropdownHeight > window.innerHeight) {
+                list.style.top = 'auto';
+                list.style.bottom = (window.innerHeight - rect.top + 4) + 'px';
+                list.classList.remove('mt-1');
+                list.classList.add('mb-1', 'shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.15)]'); // Đổ bóng ngược
+            } else {
+                list.style.bottom = 'auto';
+                list.style.top = (rect.bottom + 4) + 'px';
+                list.classList.remove('mb-1', 'shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.15)]');
+                list.classList.add('mt-1');
+            }
         }
+
+        // Đóng combobox nếu người dùng lăn chuột cuộn form (để tránh danh sách bị bay lơ lửng sai vị trí)
+        document.getElementById('universalForm').addEventListener('scroll', function() {
+            const activeInput = document.activeElement;
+            if (activeInput && activeInput.classList.contains('ingredient-search')) {
+                activeInput.blur(); // Tự động đóng danh sách khi cuộn
+            }
+        });
 
         function closeCombobox(input) {
             setTimeout(() => {

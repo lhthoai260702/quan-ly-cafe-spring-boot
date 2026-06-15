@@ -4,19 +4,22 @@ import com.quanlycafe.cafe_management.entity.Ban;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 /**
  * BanRepository
- * Version 1.1
- * Date: 30-05-2026
+ * Version 1.2
+ * Date: 13-06-2026
  * Modification Logs:
  * DATE       AUTHOR       DESCRIPTION
  * -----------------------------------------------------------------------
- * 29-05-2026 lhthoai       Create
+ * 29-05-2026 lhthoai      Create
  * 30-05-2026 lhthoai      Add Pagination and Count queries
+ * 13-06-2026 Quản Lý      Add custom Query to sort table name ignore case
  */
 @Repository
 public interface BanRepository extends JpaRepository<Ban, Integer> {
@@ -50,9 +53,11 @@ public interface BanRepository extends JpaRepository<Ban, Integer> {
 
     /**
      * Lấy danh sách bàn theo tình trạng (Dùng cho dropdown Modal)
+     * Sắp xếp theo tên bàn tăng dần (Không phân biệt hoa thường)
      *
      * @param tinhTrang String
      * @return List<Ban>
      */
-    List<Ban> findByTinhTrang(String tinhTrang);
+    @Query("SELECT b FROM Ban b WHERE b.tinhTrang = :tinhTrang ORDER BY LOWER(b.tenBan) ASC")
+    List<Ban> findByTinhTrang(@Param("tinhTrang") String tinhTrang);
 }

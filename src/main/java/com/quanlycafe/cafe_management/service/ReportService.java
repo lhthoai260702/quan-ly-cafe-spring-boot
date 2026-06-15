@@ -1,12 +1,12 @@
 package com.quanlycafe.cafe_management.service;
 
-import com.quanlycafe.cafe_management.entity.ChiTieu;
+import com.quanlycafe.cafe_management.dto.ThuChiDTO;
 import com.quanlycafe.cafe_management.entity.HoaDon;
-import com.quanlycafe.cafe_management.repository.ChiTieuRepository;
 import com.quanlycafe.cafe_management.repository.HoaDonRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -15,24 +15,25 @@ import java.util.*;
 
 /**
  * ReportService
- * Version 1.1
- * Date: 09-06-2026
+ * Version 1.2
+ * Date: 15-06-2026
  * Modification Logs:
  * DATE         AUTHOR      DESCRIPTION
  * 29-05-2026   lhthoai     Create
  * 09-06-2026   lhthoai     Apply Java Coding Convention & Add Javadoc
+ * 15-06-2026   Quản Lý     Đồng bộ logic Thu - Chi với BudgetService và lọc Hóa đơn đã hủy
  */
 @Service
 @RequiredArgsConstructor
 public class ReportService {
 
     private final HoaDonRepository hoaDonRepository;
-    private final ChiTieuRepository chiTieuRepository;
+
+    // Xóa ChiTieuRepository và tiêm thẳng BudgetService vào đây
+    private final BudgetService budgetService;
 
     /**
      * Lấy dữ liệu doanh thu trong 7 ngày gần nhất để vẽ biểu đồ.
-     *
-     * @return Map chứa nhãn thời gian và dữ liệu doanh thu
      */
     public Map<String, Object> getRevenueLast7Days() {
         List<String> labels = new ArrayList<>();
@@ -49,6 +50,7 @@ public class ReportService {
             List<HoaDon> invoices = hoaDonRepository.findByNgayGioTaoBetweenAndTrangThai(startOfDay, endOfDay, "Đã thanh toán");
 
             Double dailyTotal = invoices.stream()
+                    .filter(hd -> hd.getFlagDelete() == null || hd.getFlagDelete() == 0) // Lọc bỏ hóa đơn đã hủy
                     .map(HoaDon::getTongTien)
                     .filter(Objects::nonNull)
                     .reduce(0.0, Double::sum);
@@ -60,8 +62,6 @@ public class ReportService {
 
     /**
      * Lấy dữ liệu số lượng đơn hàng trong 7 ngày gần nhất để vẽ biểu đồ.
-     *
-     * @return Map chứa nhãn thời gian và số lượng đơn
      */
     public Map<String, Object> getOrderCountLast7Days() {
         List<String> labels = new ArrayList<>();
@@ -77,22 +77,29 @@ public class ReportService {
             LocalDateTime endOfDay = targetDate.atTime(LocalTime.MAX);
             List<HoaDon> invoices = hoaDonRepository.findByNgayGioTaoBetweenAndTrangThai(startOfDay, endOfDay, "Đã thanh toán");
 
-            data.add(invoices.size());
+            long count = invoices.stream()
+                    .filter(hd -> hd.getFlagDelete() == null || hd.getFlagDelete() == 0) // Lọc bỏ hóa đơn đã hủy
+                    .count();
+            data.add((int) count);
         }
 
         return Map.of("labels", labels, "data", data);
     }
 
     /**
-     * Lấy danh sách các món ăn bán chạy nhất.
-     *
-     * @return Map chứa nhãn tên món và số lượng đã bán
+     * Lấy danh sách các món ăn bán chạy nhất (Tháng này).
      */
     public Map<String, Object> getTopDishes() {
         List<String> labels = new ArrayList<>();
         List<Long> data = new ArrayList<>();
 
-        List<Object[]> topDishes = hoaDonRepository.getTopSellingDishes();
+        // Lấy ngày đầu tiên của tháng hiện tại và thời điểm hiện tại
+        LocalDateTime startOfMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay();
+        LocalDateTime now = LocalDateTime.now();
+
+        // Gọi hàm mới đã có lọc ngày
+        List<Object[]> topDishes = hoaDonRepository.getTopSellingDishesCurrentMonth(startOfMonth, now);
+
         for (Object[] row : topDishes) {
             labels.add((String) row[0]);
             data.add(((Number) row[1]).longValue());
@@ -103,27 +110,31 @@ public class ReportService {
 
     /**
      * Lấy dữ liệu báo cáo Thu - Chi của tháng hiện tại.
-     *
-     * @return Map chứa tiêu đề và dữ liệu tổng hợp
+     * Đã được đồng bộ để lấy dữ liệu trực tiếp từ BudgetService.
      */
     public Map<String, Object> getIncomeExpenseCurrentMonth() {
         LocalDate startOfMonth = LocalDate.now().withDayOfMonth(1);
-        LocalDateTime start = startOfMonth.atStartOfDay();
-        LocalDateTime end = LocalDate.now().atTime(LocalTime.MAX);
+        LocalDate today = LocalDate.now();
 
-        // Tính tổng Thu
-        List<HoaDon> invoices = hoaDonRepository.findByNgayGioTaoBetweenAndTrangThai(start, end, "Đã thanh toán");
-        Double totalThu = invoices.stream()
-                .map(HoaDon::getTongTien)
-                .filter(Objects::nonNull)
-                .reduce(0.0, Double::sum);
+        // 🚀 Gọi trực tiếp hàm getThuChiReport từ BudgetService
+        List<ThuChiDTO> reportList = budgetService.getThuChiReport(startOfMonth, today);
 
-        // Tính tổng Chi
-        List<ChiTieu> expenses = chiTieuRepository.findByNgayChiBetween(start, end);
-        Double totalChi = expenses.stream()
-                .map(ct -> ct.getSoTien() != null ? ct.getSoTien().doubleValue() : 0.0)
-                .reduce(0.0, Double::sum);
+        BigDecimal totalThu = BigDecimal.ZERO;
+        BigDecimal totalChi = BigDecimal.ZERO;
 
-        return Map.of("labels", Arrays.asList("Tổng Thu", "Tổng Chi"), "data", Arrays.asList(totalThu, totalChi));
+        // Cộng dồn toàn bộ báo cáo trả về
+        for (ThuChiDTO dto : reportList) {
+            if (dto.getThu() != null) {
+                totalThu = totalThu.add(dto.getThu());
+            }
+            if (dto.getChi() != null) {
+                totalChi = totalChi.add(dto.getChi());
+            }
+        }
+
+        return Map.of(
+                "labels", Arrays.asList("Tổng Thu", "Tổng Chi"),
+                "data", Arrays.asList(totalThu.doubleValue(), totalChi.doubleValue())
+        );
     }
 }

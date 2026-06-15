@@ -26,17 +26,19 @@ import java.util.Map;
 /**
  * TablesController
  * <p>
- * Version 1.1
+ * Version 1.2
  * <p>
- * Date: 09-06-2026
+ * Date: 13-06-2026
  * <p>
  * Copyright
  * <p>
  * Modification Logs:
  * DATE         AUTHOR      DESCRIPTION
+ * -----------------------------------------------------------------------
  * 29-05-2026   lhthoai     Create
  * 30-05-2026   lhthoai     Add Pagination
  * 09-06-2026   Quản Lý     Apply Java Coding Convention & Referer Redirection
+ * 13-06-2026   Quản Lý     Format Java Convention (Imports, CamelCase, Spacing)
  */
 @Controller
 @RequiredArgsConstructor
@@ -63,9 +65,7 @@ public class TablesController {
             @RequestParam(defaultValue = "15") int size,
             Model model) {
 
-        Pageable pageable = PageRequest.of(page - 1, size,
-                Sort.by(Sort.Order.asc("tenBan").ignoreCase()));
-
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Order.asc("tenBan").ignoreCase()));
         Page<Ban> banPage = tablesService.getTablesWithPagination(status, search, pageable);
         List<Map<String, Object>> danhSachThucDon = tablesService.getDanhSachThucDonVoiTrangThai();
 
@@ -85,6 +85,10 @@ public class TablesController {
         model.addAttribute("danhSachBanTrong", tablesService.getBanByTinhTrang("Trống"));
         model.addAttribute("danhSachBanCoKhach", tablesService.getBanByTinhTrang("Đang sử dụng"));
         model.addAttribute("danhSachThucDon", danhSachThucDon);
+
+        // 🚀 THÊM LOGIC LẤY THÔNG TIN ĐẶT BÀN HIỂN THỊ
+        Map<Integer, String> thongTinDatBanMap = tablesService.getThongTinDatBanMap();
+        model.addAttribute("thongTinDatBanMap", thongTinDatBanMap);
 
         return "tables";
     }
@@ -175,8 +179,8 @@ public class TablesController {
      *
      * @param tuMaBan            Integer
      * @param denMaBan           Integer
-     * @param mathucdonList      List<Integer>
-     * @param soluongTachList    List<Integer>
+     * @param maThucDonList      List<Integer>
+     * @param soLuongTachList    List<Integer>
      * @param redirectAttributes RedirectAttributes
      * @param request            HttpServletRequest
      * @return String
@@ -184,15 +188,15 @@ public class TablesController {
     @PostMapping("/tables/split")
     public String splitTable(@RequestParam("tuMaBan") Integer tuMaBan,
                              @RequestParam("denMaBan") Integer denMaBan,
-                             @RequestParam("mathucdonList") List<Integer> mathucdonList,
-                             @RequestParam("soluongTachList") List<Integer> soluongTachList,
+                             @RequestParam("mathucdonList") List<Integer> maThucDonList,
+                             @RequestParam("soluongTachList") List<Integer> soLuongTachList,
                              RedirectAttributes redirectAttributes,
                              HttpServletRequest request) {
 
         String referer = request.getHeader("Referer");
         String redirectUrl = referer != null ? referer : "/tables";
 
-        boolean success = tablesService.tachBan(tuMaBan, denMaBan, mathucdonList, soluongTachList);
+        boolean success = tablesService.tachBan(tuMaBan, denMaBan, maThucDonList, soLuongTachList);
         if (success) {
             redirectAttributes.addFlashAttribute("successMsg", "Tách hóa đơn thành công!");
         } else {
@@ -215,14 +219,13 @@ public class TablesController {
      * @return String
      */
     @PostMapping("/tables/booking")
-    public String handleBookingTable(
-            @ModelAttribute("currentUser") UserProfileDTO currentUser,
-            @RequestParam("maBan") Integer maBan,
-            @RequestParam("tenKhachHang") String tenKhachHang,
-            @RequestParam(value = "sdtKhachHang", required = false) String sdtKhachHang,
-            @RequestParam("ngayDat") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayDat,
-            @RequestParam("gioDat") @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime gioDat,
-            RedirectAttributes redirectAttributes) {
+    public String handleBookingTable(@ModelAttribute("currentUser") UserProfileDTO currentUser,
+                                     @RequestParam("maBan") Integer maBan,
+                                     @RequestParam("tenKhachHang") String tenKhachHang,
+                                     @RequestParam(value = "sdtKhachHang", required = false) String sdtKhachHang,
+                                     @RequestParam("ngayDat") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayDat,
+                                     @RequestParam("gioDat") @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime gioDat,
+                                     RedirectAttributes redirectAttributes) {
 
         try {
             if (currentUser == null || currentUser.getMaNhanVien() == null) {
@@ -258,20 +261,20 @@ public class TablesController {
      * @return String
      */
     @PostMapping("/tables/order")
-    public String xuLyGoiMon(
-            @ModelAttribute("currentUser") UserProfileDTO currentUser,
-            @RequestParam("maBan") Integer maBan,
-            @RequestParam(value = "maThucDon", required = false) List<Integer> danhSachMaMon,
-            @RequestParam(value = "soLuong", required = false) List<Integer> danhSachSoLuong,
-            RedirectAttributes redirectAttributes,
-            HttpServletRequest request) {
+    public String xuLyGoiMon(@ModelAttribute("currentUser") UserProfileDTO currentUser,
+                             @RequestParam("maBan") Integer maBan,
+                             @RequestParam(value = "maThucDon", required = false) List<Integer> danhSachMaMon,
+                             @RequestParam(value = "soLuong", required = false) List<Integer> danhSachSoLuong,
+                             @RequestParam(value = "loaiKhach", defaultValue = "binhthuong") String loaiKhach,
+                             RedirectAttributes redirectAttributes,
+                             HttpServletRequest request) {
 
         String referer = request.getHeader("Referer");
         String redirectUrl = referer != null ? referer : "/tables";
 
         try {
             if (danhSachMaMon != null && !danhSachMaMon.isEmpty()) {
-                tablesService.themMonVaoBan(maBan, currentUser.getMaNhanVien(), danhSachMaMon, danhSachSoLuong);
+                tablesService.themMonVaoBan(maBan, currentUser.getMaNhanVien(), danhSachMaMon, danhSachSoLuong, loaiKhach);
                 redirectAttributes.addFlashAttribute("successMsg", "Đã thêm món!");
             }
         } catch (Exception e) {
@@ -304,6 +307,32 @@ public class TablesController {
             redirectAttributes.addFlashAttribute("successMessage", "Thanh toán thành công!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Lỗi thanh toán: " + e.getMessage());
+        }
+
+        return "redirect:" + redirectUrl;
+    }
+
+    /**
+     * Xử lý Hủy bàn
+     *
+     * @param maBan              Integer
+     * @param redirectAttributes RedirectAttributes
+     * @param request            HttpServletRequest
+     * @return String
+     */
+    @PostMapping("/tables/cancel")
+    public String cancelTable(@RequestParam("maBan") Integer maBan,
+                              RedirectAttributes redirectAttributes,
+                              HttpServletRequest request) {
+
+        String referer = request.getHeader("Referer");
+        String redirectUrl = referer != null ? referer : "/tables";
+
+        try {
+            tablesService.huyBan(maBan);
+            redirectAttributes.addFlashAttribute("successMsg", "Đã hủy bàn thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMsg", "Lỗi hủy bàn: " + e.getMessage());
         }
 
         return "redirect:" + redirectUrl;

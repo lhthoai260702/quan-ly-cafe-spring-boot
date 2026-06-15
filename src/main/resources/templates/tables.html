@@ -8,17 +8,21 @@
 
 <div id="tables-content" class="flex-1 p-4 md:p-8 overflow-y-auto bg-[#f9f9f7] relative">
 
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 md:mb-8 gap-4">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-8 gap-4">
         <div>
             <div class="flex items-center gap-3">
                 <h2 class="text-xl md:text-2xl font-bold text-[#1a1c1b] font-sans">Sơ Đồ Bàn & Phòng</h2>
                 <span class="bg-[#ffdcc6] text-[#553722] text-xs font-bold px-2.5 py-1 rounded-full shadow-sm"
                       th:text="${totalElements != null ? totalElements : 0} + ' bàn'">0 bàn</span>
             </div>
-
             <p class="text-xs md:text-sm text-[#50453e] opacity-80 mt-1">Quản lý trạng thái bàn, order món và thanh toán
                 cho khách hàng.</p>
         </div>
+
+        <button onclick="executeAction('inan')"
+                class="flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl text-xs md:text-sm font-bold shadow-sm hover:bg-gray-50 hover:text-[#553722] transition-all whitespace-nowrap">
+            <i class="fa-solid fa-print"></i> Cài đặt In ấn
+        </button>
     </div>
 
     <main class="space-y-4 md:space-y-6 pb-32 md:pb-28">
@@ -89,15 +93,19 @@
                     </span>
                 </div>
 
-                <div class="mt-auto pt-3 border-t border-dashed border-[#e2e3e1] flex items-center justify-end">
-                    <div th:if="${ban.tinhTrang == 'Đang sử dụng'}">
+                <div class="mt-auto pt-3 border-t border-dashed border-[#e2e3e1] flex items-center justify-between">
+                    <div class="text-[10px] text-gray-500 font-bold pr-2 leading-tight"
+                         th:utext="${thongTinDatBanMap != null ? thongTinDatBanMap.get(ban.maBan) : ''}">
+                    </div>
+
+                    <div th:if="${ban.tinhTrang == 'Đang sử dụng'}" class="shrink-0">
                         <span class="text-xs font-bold text-[#d97706]"><i class="fa-solid fa-mug-hot mr-1.5"></i>Đang phục vụ</span>
                     </div>
-                    <div th:if="${ban.tinhTrang == 'Đã đặt trước'}">
+                    <div th:if="${ban.tinhTrang == 'Đã đặt trước'}" class="shrink-0">
                         <span class="text-xs font-bold text-[#2563eb]"><i
                                 class="fa-solid fa-clock mr-1.5"></i>Giữ chỗ</span>
                     </div>
-                    <div th:if="${ban.tinhTrang == 'Trống'}">
+                    <div th:if="${ban.tinhTrang == 'Trống'}" class="shrink-0">
                         <span class="text-xs font-bold text-[#059669]"><i class="fa-solid fa-check mr-1.5"></i>Sẵn sàng</span>
                     </div>
                 </div>
@@ -129,7 +137,6 @@
                class="w-8 h-8 flex items-center justify-center rounded-lg border border-[#e2e3e1] bg-white text-[#50453e] hover:bg-[#f4f4f2] text-sm transition-colors shadow-sm">
                 <i class="fa-solid fa-angles-right text-[10px]"></i>
             </a>
-
         </div>
     </main>
 
@@ -148,7 +155,7 @@
                         <span id="selectedTableBadge"
                               class="text-[8px] md:text-[9px] px-1.5 py-0.5 font-bold uppercase tracking-wider rounded-md text-white bg-gray-400">TRỐNG</span>
                     </div>
-                    <p class="text-[10px] md:text-[11px] text-gray-400 mt-0.5">Mã: #<span id="selectedTableId">0</span>
+                    <p class="text-[10px] md:text-[11px] text-gray-500 mt-0.5 font-medium" id="selectedTableExtraInfo">Mã bàn: #<span id="selectedTableId">0</span></p>
                     </p>
                 </div>
             </div>
@@ -161,11 +168,11 @@
         <div class="flex items-center overflow-x-auto w-full md:w-auto pb-1 md:pb-0 scrollbar-hide gap-2 justify-start md:justify-end shrink-0">
             <button onclick="executeAction('xem')"
                     class="shrink-0 flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 md:py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-[11px] md:text-xs rounded-lg md:rounded-xl transition-all shadow-sm">
-                <i class="fa-solid fa-eye text-[10px] md:text-[11px]"></i> Xem gọi món
+                <i class="fa-solid fa-eye text-[10px] md:text-[11px]"></i> Xem bàn
             </button>
             <button id="btnChonMon" onclick="executeAction('chonmon')"
                     class="shrink-0 flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 md:py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-[11px] md:text-xs rounded-lg md:rounded-xl transition-all shadow-sm">
-                <i class="fa-solid fa-utensils text-[10px] md:text-[11px]"></i> Chọn món
+                <i class="fa-solid fa-utensils text-[10px] md:text-[11px]"></i> Gọi món
             </button>
             <button id="btnDatBan" onclick="executeAction('datban')"
                     class="shrink-0 flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 md:py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-[11px] md:text-xs rounded-lg md:rounded-xl transition-all shadow-sm">
@@ -183,10 +190,12 @@
                     class="shrink-0 flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 md:py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-[11px] md:text-xs rounded-lg md:rounded-xl transition-all shadow-sm">
                 <i class="fa-solid fa-scissors text-[10px] md:text-[11px]"></i> Tách bill
             </button>
-            <button id="btnInAn" onclick="executeAction('inan')"
-                    class="shrink-0 flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 md:py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-[11px] md:text-xs rounded-lg md:rounded-xl transition-all shadow-sm">
-                <i class="fa-solid fa-print text-[10px] md:text-[11px]"></i> In ấn
+
+            <button id="btnHuyBan" onclick="executeAction('huyban')"
+                    class="shrink-0 flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 md:py-2.5 bg-red-50 hover:bg-red-100 text-red-600 font-semibold text-[11px] md:text-xs rounded-lg md:rounded-xl transition-all shadow-sm">
+                <i class="fa-solid fa-ban text-[10px] md:text-[11px]"></i> Hủy bàn
             </button>
+
             <button id="btnThanhToan" onclick="executeAction('thanhtoan')"
                     class="shrink-0 flex items-center gap-1.5 md:gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] md:text-xs rounded-lg md:rounded-xl transition-all shadow-md">
                 <i class="fa-solid fa-credit-card text-[10px] md:text-[11px]"></i> Thanh toán
@@ -196,6 +205,38 @@
                     title="Bỏ chọn">
                 <i class="fa-solid fa-xmark text-sm"></i>
             </button>
+        </div>
+    </div>
+
+    <!-- MODAL XÁC NHẬN HỦY BÀN MỚI -->
+    <div id="cancelTableModal"
+         class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[60] transition-all duration-300 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-5 md:p-6 transform transition-all scale-100 text-center">
+            <div class="w-14 h-14 md:w-16 md:h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-100">
+                <i class="fa-solid fa-triangle-exclamation text-xl md:text-2xl text-red-500"></i>
+            </div>
+            <h3 class="text-base md:text-lg font-bold text-gray-800 mb-2">Xác nhận Hủy bàn</h3>
+
+            <!-- ĐÃ THÊM ID ĐỂ ĐỔI TEXT ĐỘNG -->
+            <p class="text-xs md:text-sm text-gray-600 mb-6">Bạn có chắc chắn muốn hủy <span id="cancelTableName"
+                                                                                             class="font-bold text-red-600 uppercase"></span>?
+                <br> <span id="cancelTableSubMessage"
+                           class="font-semibold text-red-500">Nội dung động sẽ hiện ở đây</span>
+            </p>
+
+            <form th:action="@{/tables/cancel}" method="post">
+                <input type="hidden" name="maBan" id="cancelTableIdInput">
+                <div class="flex gap-3">
+                    <button type="button" onclick="closeCancelModal()"
+                            class="w-1/2 py-2.5 bg-gray-100 text-gray-600 rounded-xl text-sm font-bold hover:bg-gray-200 transition-all">
+                        Không, giữ lại
+                    </button>
+                    <button type="submit"
+                            class="w-1/2 py-2.5 bg-red-500 text-white rounded-xl text-sm font-bold hover:bg-red-600 shadow-md transition-all">
+                        Có, Hủy ngay
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -211,22 +252,32 @@
                 </button>
             </div>
 
-            <form th:action="@{/tables/order}" method="post" class="flex flex-col flex-1 overflow-hidden">
+            <form th:action="@{/tables/order}" method="post" class="flex flex-col flex-1 overflow-hidden"
+                  onsubmit="return validateOrderForm(this)">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                 <input type="hidden" name="maBan" id="orderTableId" value="">
+                <input type="hidden" name="loaiKhach" id="orderLoaiKhach" value="binhthuong">
 
-                <div class="p-4 md:p-6 pb-2 shrink-0">
+                <div class="p-4 md:px-6 pt-5 pb-3 shrink-0 flex flex-col gap-3">
                     <p class="text-xs md:text-sm text-gray-600">Đang thao tác chọn món cho: <span
                             id="orderTableNameDisplay" class="font-bold text-[#553722] uppercase"></span></p>
+
+                    <div class="relative w-full">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                        <input type="text" id="searchOrderMenu" onkeyup="filterOrderMenu(this)"
+                               placeholder="Tìm nhanh tên món (VD: cà phê, sinh tố)..."
+                               class="w-full pl-9 pr-4 py-2 text-xs md:text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all bg-gray-50 text-gray-800">
+                    </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 px-4 md:px-6 pb-4 overflow-y-auto flex-1 custom-scrollbar">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 px-4 md:px-6 pb-4 overflow-y-auto flex-1 custom-scrollbar"
+                     id="orderMenuList">
                     <div th:each="mon : ${danhSachThucDon}"
-                         class="border border-gray-200 rounded-xl p-3 flex justify-between items-center transition-all shadow-sm"
+                         class="order-item-card border border-gray-200 rounded-xl p-3 flex justify-between items-center transition-all shadow-sm"
                          th:classappend="${mon.is_available} ? 'bg-gray-50 hover:bg-white' : 'bg-gray-100 opacity-60 grayscale pointer-events-none'">
 
                         <div>
-                            <h4 class="font-bold text-xs md:text-sm line-clamp-1"
+                            <h4 class="order-item-name font-bold text-xs md:text-sm line-clamp-1"
                                 th:classappend="${mon.is_available} ? 'text-[#553722]' : 'text-gray-500'"
                                 th:text="${mon.tenmon}">Tên món</h4>
                             <div class="flex items-center gap-2 mt-0.5">
@@ -250,9 +301,12 @@
                                     th:classappend="${mon.is_available} ? 'hover:bg-gray-200' : 'cursor-not-allowed'">
                                 -
                             </button>
-                            <input type="number" name="soLuong" value="0" min="0"
-                                   class="w-6 md:w-8 text-center text-xs md:text-sm font-bold border-none focus:ring-0 p-0 text-gray-700 bg-transparent"
-                                   readonly>
+
+                            <input type="text" name="soLuong" value="0"
+                                   oninput="formatSoLuongGoiMon(this)"
+                                   class="w-8 md:w-10 text-center text-xs md:text-sm font-bold border-none focus:ring-1 focus:ring-amber-500 rounded p-1 text-gray-700 bg-transparent"
+                                   th:readonly="${!mon.is_available}">
+
                             <button type="button" onclick="tangSoLuong(this)"
                                     class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center rounded transition-all font-bold text-sm md:text-base"
                                     th:classappend="${mon.is_available} ? 'bg-amber-100 text-amber-700 hover:bg-amber-200' : 'bg-gray-100 text-gray-400 cursor-not-allowed'">
@@ -278,7 +332,7 @@
 
     <div id="orderModalOverlay"
          class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] transition-all duration-300 p-4">
-        <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-xl mx-auto transform transition-all duration-300 scale-95 opacity-0 max-h-[95vh] flex flex-col"
+        <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-4xl mx-auto transform transition-all duration-300 scale-95 opacity-0 max-h-[95vh] flex flex-col"
              id="orderModalBox">
             <div id="orderModalContainer" class="flex-1 overflow-hidden flex flex-col"></div>
         </div>
@@ -286,7 +340,7 @@
 
     <div id="transferModal"
          class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[60] transition-all duration-300 p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col transform transition-all scale-100">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-5 md:p-6 max-h-[90vh] flex flex-col transform transition-all scale-100">
             <h3 class="text-base md:text-lg font-bold text-[#553722] mb-4 border-b pb-2"><i
                     class="fa-solid fa-arrow-right-arrow-left mr-2"></i>Chuyển Bàn</h3>
             <form th:action="@{/tables/transfer}" method="post">
@@ -295,23 +349,44 @@
                                                                                          class="font-bold text-amber-600 uppercase"></span>
                 </p>
 
-                <div class="mb-6">
+                <div class="mb-6 relative">
                     <label class="block text-xs font-semibold text-gray-700 mb-2">Chọn bàn trống để chuyển khách
                         tới:</label>
-                    <select name="denMaBan"
-                            class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#553722] focus:ring-1 focus:ring-[#553722]">
-                        <option th:each="ban : ${danhSachBanTrong}" th:value="${ban.maBan}"
-                                th:text="${ban.tenBan}"></option>
-                    </select>
+                    <div class="relative custom-combobox" data-target-input="transferDenMaBan">
+                        <div class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm bg-white text-left cursor-pointer flex justify-between items-center hover:border-amber-500 transition-colors"
+                             onclick="toggleCombobox(this)">
+                            <span class="combobox-selected-text text-gray-400">-- Chọn bàn trống --</span>
+                            <i class="fa-solid fa-chevron-down text-gray-400 text-xs transition-transform duration-300"></i>
+                        </div>
+                        <div class="absolute z-50 w-full mt-1 bg-white border border-gray-100 rounded-xl shadow-lg hidden combobox-dropdown opacity-0 transition-opacity duration-200">
+                            <div class="p-2 border-b border-gray-50">
+                                <input type="text" placeholder="Tìm kiếm bàn..."
+                                       class="w-full px-3 py-1.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-amber-500 bg-gray-50"
+                                       onkeyup="filterCombobox(this)">
+                            </div>
+                            <ul class="max-h-48 overflow-y-auto custom-scrollbar p-1">
+                                <li th:each="ban : ${danhSachBanTrong}"
+                                    th:data-value="${ban.maBan}"
+                                    th:text="${ban.tenBan}"
+                                    class="px-3 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 rounded-lg cursor-pointer transition-colors"
+                                    onclick="selectComboboxOption(this)">
+                                </li>
+                                <li class="px-3 py-2 text-sm text-gray-400 italic text-center hidden no-result-msg">
+                                    Không tìm thấy bàn phù hợp
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <input type="hidden" name="denMaBan" id="transferDenMaBan" required>
                 </div>
 
-                <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 mt-4">
+                <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 mt-2">
                     <button type="button" onclick="closeTransferModal()"
-                            class="w-full sm:w-auto px-4 py-2.5 bg-gray-100 text-gray-600 rounded-xl text-xs font-bold hover:bg-gray-200 transition-all text-center">
+                            class="w-full sm:w-auto px-5 py-2.5 bg-gray-100 text-gray-600 rounded-xl text-sm font-bold hover:bg-gray-200 transition-all text-center">
                         Hủy bỏ
                     </button>
                     <button type="submit"
-                            class="w-full sm:w-auto px-4 py-2.5 bg-[#553722] text-white rounded-xl text-xs font-bold hover:bg-[#6f4e37] shadow-md transition-all text-center">
+                            class="w-full sm:w-auto px-5 py-2.5 bg-[#553722] text-white rounded-xl text-sm font-bold hover:bg-[#6f4e37] shadow-md transition-all text-center">
                         Xác nhận chuyển
                     </button>
                 </div>
@@ -342,7 +417,6 @@
 
             <form th:action="@{/tables/merge}" method="post" class="flex flex-col flex-1 overflow-hidden">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6 overflow-y-auto custom-scrollbar flex-1 pr-2">
-
                     <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
                         <label class="block text-xs md:text-sm font-bold text-gray-700 mb-3 sticky top-0 bg-gray-50 pb-2">1.
                             Chọn các bàn cần gộp đi:</label>
@@ -402,14 +476,35 @@
                     </p>
                 </div>
 
-                <div class="mb-4 shrink-0">
+                <div class="mb-4 shrink-0 relative">
                     <label class="block text-[11px] md:text-xs font-semibold text-gray-700 mb-1 md:mb-2">Chọn bàn trống
                         để chuyển món tách sang:</label>
-                    <select name="denMaBan" required
-                            class="w-full px-4 py-2 md:py-2.5 border border-gray-200 rounded-xl text-xs md:text-sm focus:outline-none focus:border-[#553722] focus:ring-1 focus:ring-[#553722]">
-                        <option th:each="ban : ${danhSachBanTrong}" th:value="${ban.maBan}"
-                                th:text="${ban.tenBan}"></option>
-                    </select>
+                    <div class="relative custom-combobox" data-target-input="splitDenMaBan">
+                        <div class="w-full px-4 py-2 md:py-2.5 border border-gray-200 rounded-xl text-xs md:text-sm bg-white text-left cursor-pointer flex justify-between items-center hover:border-amber-500 transition-colors"
+                             onclick="toggleCombobox(this)">
+                            <span class="combobox-selected-text text-gray-400">-- Chọn bàn trống --</span>
+                            <i class="fa-solid fa-chevron-down text-gray-400 text-xs transition-transform duration-300"></i>
+                        </div>
+                        <div class="absolute z-50 w-full mt-1 bg-white border border-gray-100 rounded-xl shadow-lg hidden combobox-dropdown opacity-0 transition-opacity duration-200">
+                            <div class="p-2 border-b border-gray-50">
+                                <input type="text" placeholder="Tìm kiếm bàn..."
+                                       class="w-full px-3 py-1.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-amber-500 bg-gray-50"
+                                       onkeyup="filterCombobox(this)">
+                            </div>
+                            <ul class="max-h-48 overflow-y-auto custom-scrollbar p-1">
+                                <li th:each="ban : ${danhSachBanTrong}"
+                                    th:data-value="${ban.maBan}"
+                                    th:text="${ban.tenBan}"
+                                    class="px-3 py-2 text-xs md:text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 rounded-lg cursor-pointer transition-colors"
+                                    onclick="selectComboboxOption(this)">
+                                </li>
+                                <li class="px-3 py-2 text-sm text-gray-400 italic text-center hidden no-result-msg">
+                                    Không tìm thấy bàn phù hợp
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <input type="hidden" name="denMaBan" id="splitDenMaBan" required>
                 </div>
 
                 <div class="border border-gray-200 rounded-xl overflow-hidden mb-4 md:mb-6 flex-1 flex flex-col min-h-0">
@@ -450,7 +545,7 @@
             </h3>
 
             <form id="bookingForm" th:action="@{/tables/booking}" method="post"
-                  class="flex flex-col flex-1 overflow-y-auto">
+                  class="flex flex-col flex-1 overflow-y-auto" onsubmit="return validateBookingForm(this)" novalidate>
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                 <input type="hidden" name="maBan" id="bookingTableId">
                 <p class="text-xs md:text-sm text-gray-600 mb-4">Đang thao tác đặt bàn: <span id="bookingTableName"
@@ -465,22 +560,22 @@
                                class="w-full px-4 py-2 border border-gray-200 rounded-xl text-xs md:text-sm focus:outline-none focus:border-blue-500">
                     </div>
                     <div>
-                        <label class="block text-[11px] md:text-xs font-semibold text-gray-700 mb-1">Số điện
-                            thoại</label>
-                        <input type="text" name="sdtKhachHang" placeholder="Nhập SĐT" maxlength="12"
+                        <label class="block text-[11px] md:text-xs font-semibold text-gray-700 mb-1">Số điện thoại <span
+                                class="text-red-500">*</span></label>
+                        <input type="text" name="sdtKhachHang" required placeholder="Nhập SĐT (10 số)" maxlength="12"
                                oninput="formatPhoneNumber(this)"
                                class="w-full px-4 py-2 border border-gray-200 rounded-xl text-xs md:text-sm focus:outline-none focus:border-blue-500">
                     </div>
                     <div class="grid grid-cols-2 gap-3 md:gap-4">
                         <div>
-                            <label class="block text-[11px] md:text-xs font-semibold text-gray-700 mb-1">Ngày đặt
-                                <span class="text-red-500">*</span></label>
+                            <label class="block text-[11px] md:text-xs font-semibold text-gray-700 mb-1">Ngày đặt <span
+                                    class="text-red-500">*</span></label>
                             <input type="date" name="ngayDat" id="bookingDate" required
                                    class="w-full px-3 md:px-4 py-2 border border-gray-200 rounded-xl text-[11px] md:text-sm focus:outline-none focus:border-blue-500">
                         </div>
                         <div>
-                            <label class="block text-[11px] md:text-xs font-semibold text-gray-700 mb-1">Giờ đến
-                                <span class="text-red-500">*</span></label>
+                            <label class="block text-[11px] md:text-xs font-semibold text-gray-700 mb-1">Giờ đến <span
+                                    class="text-red-500">*</span></label>
                             <input type="time" name="gioDat" id="bookingTime" required
                                    class="w-full px-3 md:px-4 py-2 border border-gray-200 rounded-xl text-[11px] md:text-sm focus:outline-none focus:border-blue-500">
                         </div>
@@ -573,6 +668,33 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+    <div id="confirmCustomerTypeModal"
+         class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[70] transition-all duration-300 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-5 md:p-6 transform transition-all scale-100 text-center">
+            <div class="w-14 h-14 md:w-16 md:h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-100">
+                <i class="fa-solid fa-users text-xl md:text-2xl text-blue-500"></i>
+            </div>
+            <h3 class="text-base md:text-lg font-bold text-gray-800 mb-2">Xác nhận Khách hàng</h3>
+            <p class="text-xs md:text-sm text-gray-600 mb-6">
+                Bàn <span id="confirmCustomerTable" class="font-bold text-blue-600 uppercase"></span> đang ở trạng thái <span class="font-bold text-gray-800">Đã Đặt Trước</span>.<br>
+                Ai là người đang gọi món?
+            </p>
+            <div class="flex flex-col gap-3">
+                <button type="button" onclick="selectCustomerType('datban')"
+                        class="w-full py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 shadow-md transition-all">
+                    Khách đặt bàn đã đến
+                </button>
+                <button type="button" onclick="selectCustomerType('khachkhac')"
+                        class="w-full py-2.5 bg-white text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-100 transition-all border border-gray-200">
+                    Khách vãng lai mượn bàn
+                </button>
+                <button type="button" onclick="closeConfirmCustomerTypeModal()"
+                        class="w-full mt-2 py-2 text-gray-400 text-xs font-semibold hover:text-gray-600 transition-all">
+                    Hủy thao tác
+                </button>
+            </div>
         </div>
     </div>
 
